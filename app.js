@@ -932,6 +932,7 @@ function updateApSummary() {
   const on = apOn();
   $('#apBadge').textContent = on ? 'Autopilot ON' : 'Autopilot OFF';
   $('#apBadge').className = 'badge ' + (on ? 'on' : 'off');
+  document.body.classList.toggle('ap-on', on); // wakes up the robot workshop
   if (busy && on) return;
   $('#apSummary').textContent = on
     ? `On — checking every minute. Keep this tab open (it's fine in the background).${folderHandle ? '' : ' Tip: choose a folder to auto-clip VODs.'}`
