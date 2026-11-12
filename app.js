@@ -745,7 +745,7 @@ async function postClip(clip, { schedule } = {}) {
     results.push(`Upload-Post (${viaUp.join(', ')}): ${j.request_id || j.job_id || 'sent'}`);
     clip.requestId = j.request_id || null; clip.jobId = j.job_id || null;
   }
-  if (ytDirect) results.push('YouTube: ' + await ytUpload(clip, when));
+  if (ytDirect) { const u = await ytUpload(clip, when); clip.ytId = u.split('/').pop(); results.push('YouTube: ' + u); }
   clip.status = 'scheduled';
   clip.scheduledFor = when || Date.now();
   clip.postResult = results.join('\n');
@@ -909,6 +909,7 @@ async function apTick() {
   apTickRunning = true;
   try {
     await pollStatuses();
+    if (Date.now() - (ls.get('statsCache', {}).at || 0) > 3600e3) refreshStats(true).catch(() => {});
     if (busy) return;
     // 1) new VODs in the watched folder
     if (await folderReady()) {
@@ -997,6 +998,7 @@ $$('nav button').forEach((b) => b.onclick = () => {
   $$('nav button').forEach((x) => x.classList.toggle('active', x === b));
   $$('.tab').forEach((t) => t.classList.toggle('active', t.id === b.dataset.tab));
   if (b.dataset.tab === 'queue') renderQueue();
+  if (b.dataset.tab === 'stats') { renderStats(); if (Date.now() - (ls.get('statsCache', {}).at || 0) > 600e3) refreshStats(true); }
 });
 const openTab = (id) => $(`nav button[data-tab="${id}"]`).click();
 
@@ -1101,7 +1103,7 @@ function thumbs(list, empty) {
     return `<button class="mini" data-filter="${FILTER_OF[c.status] || 'pending'}" title="Open in Review Queue">
       <video src="${u}#t=0.5" muted playsinline loop preload="metadata"></video>
       <span class="mini-t">${c.kind === 'clip' ? '🎮' : '🤖'} ${esc(c.title)}</span>
-      <span class="mini-s">${esc(statusText(c) || c.status)}</span></button>`;
+      <span class="mini-s">${clipTotals(c).views != null ? `👁 ${fmtNum(clipTotals(c).views)} · ` : ''}${esc(statusText(c) || c.status)}</span></button>`;
   }).join('') + '</div>';
 }
 const fact = (label, value) => `<div class="fact"><span>${esc(label)}</span><b>${value}</b></div>`;
@@ -1159,6 +1161,8 @@ async function refreshWorkshop() {
     $('#stPending').textContent = all.filter((c) => c.status === 'pending').length;
     $('#stScheduled').textContent = all.filter((c) => c.status === 'scheduled' && c.scheduledFor > Date.now()).length;
     $('#stPosted').textContent = all.filter(isSent).length;
+    const tv = all.reduce((n, c) => n + (clipTotals(c).views || 0), 0);
+    $('#stViews').textContent = all.some((c) => c.metrics) ? fmtNum(tv) : '–';
     if (!WS.station) return;
     const sig = [WS.station, all.map((c) => c.id + c.status + (c.scheduledFor || '')).join(), JSON.stringify(ls.get('facelessDay', {})),
       folderHandle?.name, Object.keys(connected).join(), WS.station === 'log' ? logLines[0] : '',
@@ -1172,6 +1176,7 @@ async function refreshWorkshop() {
 }
 
 function openStation(k) {
+  if (k === 'views') return openTab('stats');
   if (WS.station === k) return closeStation();
   WS.station = k; WS.sig = '';
   const [kicker, title] = STATIONS[k];
@@ -1223,6 +1228,196 @@ $('#stationBody').addEventListener('click', async (e) => {
 $('#stationBody').addEventListener('mouseover', (e) => { const v = e.target.closest('.mini')?.querySelector('video'); if (v) v.play().catch(() => {}); });
 $('#stationBody').addEventListener('mouseout', (e) => { const v = e.target.closest('.mini')?.querySelector('video'); if (v && !v.closest('.mini').contains(e.relatedTarget)) v.pause(); });
 setInterval(() => { if (document.visibilityState === 'visible') { refreshWorkshop(); paintWorkshop(); } }, 5000);
+
+/* ================= STATS =================
+   Account numbers come from Upload-Post's analytics API (and YouTube's own API
+   when YouTube is connected directly). Per-video numbers are saved onto each clip. */
+const METRIC_KEYS = {
+  views: ['views', 'view_count', 'video_views', 'plays', 'play_count', 'impressions', 'reach'],
+  likes: ['likes', 'like_count', 'reactions'],
+  comments: ['comments', 'comment_count', 'replies'],
+  shares: ['shares', 'share_count', 'reposts', 'retweets'],
+};
+const toNum = (v) => (typeof v === 'number' && isFinite(v)) ? v : (typeof v === 'string' && v.trim() !== '' && isFinite(+v)) ? +v : null;
+function pickMetric(o, k) { if (!o) return null; for (const f of METRIC_KEYS[k]) { const n = toNum(o[f]); if (n != null) return n; } return null; }
+const fmtNum = (n) => n == null ? '–' : new Intl.NumberFormat(undefined, { notation: n >= 10000 ? 'compact' : 'standard', maximumFractionDigits: 1 }).format(n);
+const platName = (k) => (PLATFORMS.find((p) => p[0] === k) || [k, k])[1];
+function clipTotals(c) {
+  const t = { views: null, likes: null, comments: null, shares: null };
+  for (const m of Object.values(c.metrics || {})) for (const k in t) if (m[k] != null) t[k] = (t[k] || 0) + m[k];
+  return t;
+}
+let statsBusy = false;
+
+async function refreshStats(quiet) {
+  if (statsBusy) return;
+  const hasUp = !!val('upKey'), yt = ytToken();
+  if (!hasUp && !yt) { renderStats(); return; }
+  statsBusy = true;
+  if (!quiet) $('#statUpdated').textContent = 'Fetching your numbers…';
+  const cache = { at: Date.now(), account: {}, errors: [] };
+  try {
+    if (hasUp && !upProfiles.length) await refreshAccounts(true);
+    // 1) account level (Facebook needs a Page ID, so it's skipped here)
+    const plats = Object.keys(connected).filter((k) => k !== 'facebook' && !connected[k].direct);
+    if (hasUp && plats.length) {
+      try {
+        const j = await upFetch(`/analytics/${encodeURIComponent(upProfile())}?platforms=${plats.join(',')}`);
+        const src = j.analytics || j.data || j;
+        for (const k of plats) if (src[k] && typeof src[k] === 'object') cache.account[k] = src[k];
+      } catch (e) { cache.errors.push('Account analytics: ' + e.message); }
+    }
+    if (yt) {
+      try {
+        const r = await fetch('https://www.googleapis.com/youtube/v3/channels?part=statistics&mine=true', { headers: { Authorization: 'Bearer ' + yt } });
+        const st = (await r.json()).items?.[0]?.statistics;
+        if (st) cache.account.youtube = { ...(cache.account.youtube || {}), followers: toNum(st.subscriberCount), views: toNum(st.viewCount), posts: toNum(st.videoCount) };
+      } catch (e) { cache.errors.push('YouTube channel: ' + e.message); }
+    }
+    // 2) per-video (newest 40 sent videos, to stay well under the rate limit)
+    const sent = (await allClips()).filter((c) => (c.requestId || c.ytId) && isSent(c))
+      .sort((a, b) => (b.scheduledFor || b.created) - (a.scheduledFor || a.created)).slice(0, 40);
+    let i = 0;
+    const worker = async () => {
+      while (i < sent.length) {
+        const c = sent[i++]; if (!c.requestId) continue;
+        try {
+          const j = await upFetch(`/uploadposts/post-analytics/${encodeURIComponent(c.requestId)}`);
+          const m = { ...(c.metrics || {}) };
+          for (const [p, d] of Object.entries(j.platforms || {})) {
+            if (!d || d.success === false) continue;
+            const pm = d.post_metrics || {};
+            m[p] = { views: pickMetric(pm, 'views'), likes: pickMetric(pm, 'likes'), comments: pickMetric(pm, 'comments'), shares: pickMetric(pm, 'shares'), url: d.post_url || m[p]?.url || null };
+          }
+          c.metrics = m; c.metricsAt = Date.now(); await putClip(c);
+        } catch {}
+      }
+    };
+    if (hasUp) await Promise.all([worker(), worker(), worker()]);
+    if (yt) {
+      const ids = sent.filter((c) => c.ytId).map((c) => c.ytId);
+      for (let k = 0; k < ids.length; k += 50) {
+        try {
+          const r = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=statistics&id=${ids.slice(k, k + 50).join(',')}`, { headers: { Authorization: 'Bearer ' + yt } });
+          for (const it of (await r.json()).items || []) {
+            const c = sent.find((x) => x.ytId === it.id); if (!c) continue;
+            const s = it.statistics || {};
+            c.metrics = { ...(c.metrics || {}), youtube: { views: toNum(s.viewCount), likes: toNum(s.likeCount), comments: toNum(s.commentCount), shares: null, url: 'https://youtube.com/shorts/' + it.id } };
+            c.metricsAt = Date.now(); await putClip(c);
+          }
+        } catch (e) { cache.errors.push('YouTube videos: ' + e.message); }
+      }
+    }
+    ls.set('statsCache', cache);
+  } finally { statsBusy = false; }
+  renderStats(); refreshWorkshop();
+}
+
+let statUrls = [];
+async function renderStats() {
+  const body = $('#statsBody');
+  const cache = ls.get('statsCache', null);
+  const all = await allClips();
+  const hasData = cache || all.some((c) => c.metrics);
+  if (!val('upKey') && !ytToken() && !hasData) {
+    $('#statUpdated').textContent = '';
+    body.innerHTML = `<div class="card stats-empty">${emptyBot('No numbers yet. Connect your accounts and the crew will bring back views, likes, comments, shares and followers here.')}
+      <div class="ghost-grid">${['Views', 'Likes', 'Comments', 'Shares', 'Followers'].map((l) => `<div class="kpi ghost"><span class="kpi-n">–</span><span class="kpi-l">${l}</span></div>`).join('')}</div>
+      <div class="row" style="justify-content:center"><button class="primary" data-go="accounts">Connect accounts</button></div></div>`;
+    return;
+  }
+  $('#statUpdated').textContent = cache ? `Updated ${new Date(cache.at).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}` : 'Not fetched yet. Hit Refresh.';
+  const days = +val('statDays') || 30, since = Date.now() - days * 864e5;
+  const posts = all.filter((c) => isSent(c) && (c.scheduledFor || c.created) >= since);
+  const tot = { views: 0, likes: 0, comments: 0, shares: 0 }, seen = { views: 0, likes: 0, comments: 0, shares: 0 };
+  for (const c of posts) { const t = clipTotals(c); for (const k in tot) if (t[k] != null) { tot[k] += t[k]; seen[k]++; } }
+  const acct = cache?.account || {};
+  const followers = Object.values(acct).reduce((n, a) => { const f = toNum(a.followers); return f == null ? n : (n || 0) + f; }, null);
+  const kpi = (n, l, sub) => `<div class="kpi"><span class="kpi-n">${fmtNum(n)}</span><span class="kpi-l">${l}</span>${sub ? `<span class="kpi-s">${sub}</span>` : ''}</div>`;
+  const posted = `from ${posts.length} video${posts.length === 1 ? '' : 's'}`;
+  let html = `<div class="kpis">
+    ${kpi(seen.views ? tot.views : null, 'Views', posted)}${kpi(seen.likes ? tot.likes : null, 'Likes', posted)}
+    ${kpi(seen.comments ? tot.comments : null, 'Comments', posted)}${kpi(seen.shares ? tot.shares : null, 'Shares', posted)}
+    ${kpi(followers, 'Followers', 'all accounts')}</div>`;
+
+  // reach over time: add up every platform's daily series
+  const byDay = {};
+  for (const a of Object.values(acct)) for (const pt of a.reach_timeseries || []) {
+    const d = String(pt.date).slice(0, 10), v = toNum(pt.value);
+    if (v != null && new Date(d).getTime() >= since - 864e5) byDay[d] = (byDay[d] || 0) + v;
+  }
+  const series = Object.entries(byDay).sort(([a], [b]) => a.localeCompare(b));
+  html += `<div class="card"><div class="chart-head"><h3>Daily reach across your accounts</h3><span class="muted small">${series.length ? `${fmtNum(series.reduce((n, [, v]) => n + v, 0))} total` : ''}</span></div>
+    ${series.length > 1 ? lineChart(series) : emptyBot('The daily chart fills in once your accounts have a few days of data.')}</div>`;
+
+  // per platform
+  const rows = Object.entries(acct);
+  if (rows.length) {
+    const maxV = Math.max(1, ...rows.map(([, a]) => pickMetric(a, 'views') || 0));
+    html += `<div class="card"><h3>By platform</h3><div class="ptable" role="table">
+      <div class="pr ph" role="row"><span>Platform</span><span>Followers</span><span>Views / reach</span><span>Likes</span><span>Comments</span><span>Shares</span></div>
+      ${rows.map(([k, a]) => { const v = pickMetric(a, 'views'); return `<div class="pr" role="row"><span><b>${esc(platName(k))}</b></span><span>${fmtNum(toNum(a.followers))}</span>
+        <span class="barcell"><i style="width:${v ? Math.max(3, v / maxV * 100) : 0}%"></i>${fmtNum(v)}</span><span>${fmtNum(pickMetric(a, 'likes'))}</span><span>${fmtNum(pickMetric(a, 'comments'))}</span><span>${fmtNum(pickMetric(a, 'shares'))}</span></div>`; }).join('')}
+    </div></div>`;
+  }
+
+  // top videos
+  statUrls.forEach(URL.revokeObjectURL); statUrls = [];
+  const top = posts.filter((c) => c.metrics).sort((a, b) => (clipTotals(b).views || 0) - (clipTotals(a).views || 0)).slice(0, 6);
+  html += `<div class="card"><h3>Top videos</h3>${top.length ? '<div class="topvids">' + top.map((c, i) => {
+    const u = URL.createObjectURL(c.blob); statUrls.push(u); const t = clipTotals(c);
+    const links = Object.entries(c.metrics).filter(([, m]) => m.url).map(([p, m]) => `<a href="${esc(m.url)}" target="_blank" rel="noopener">${esc(platName(p))} ↗</a>`).join('');
+    return `<div class="topvid"><span class="rank">${i + 1}</span><video src="${u}#t=0.5" muted playsinline preload="metadata"></video>
+      <div class="tv-body"><b>${esc(c.title)}</b><div class="tv-nums"><span>👁 ${fmtNum(t.views)}</span><span>♥ ${fmtNum(t.likes)}</span><span>💬 ${fmtNum(t.comments)}</span><span>↻ ${fmtNum(t.shares)}</span></div>
+      <div class="tv-links">${links}</div></div></div>`;
+  }).join('') + '</div>' : emptyBot(posts.length ? 'Your posted videos are waiting on their first numbers. Hit Refresh in a bit.' : 'Nothing posted in this range yet.')}</div>`;
+  if (cache?.errors?.length) html += `<div class="status">⚠️ ${esc(cache.errors.join('\n'))}</div>`;
+  body.innerHTML = html;
+  wireChart();
+}
+
+function lineChart(series) {
+  const W = 800, H = 220, L = 44, R = 12, T = 12, B = 28;
+  const max = Math.max(...series.map(([, v]) => v)) || 1;
+  const nice = Math.pow(10, Math.floor(Math.log10(max))); const top = Math.ceil(max / nice) * nice;
+  const x = (i) => L + (i / (series.length - 1)) * (W - L - R), y = (v) => T + (1 - v / top) * (H - T - B);
+  const pts = series.map(([, v], i) => `${x(i).toFixed(1)},${y(v).toFixed(1)}`);
+  const grid = [0, .5, 1].map((f) => `<line x1="${L}" x2="${W - R}" y1="${y(top * f)}" y2="${y(top * f)}" class="cg"/><text x="${L - 8}" y="${y(top * f) + 4}" class="ct" text-anchor="end">${fmtNum(top * f)}</text>`).join('');
+  const lab = (i) => new Date(series[i][0] + 'T12:00').toLocaleDateString([], { month: 'short', day: 'numeric' });
+  const xl = [0, Math.floor((series.length - 1) / 2), series.length - 1].map((i, n) => `<text x="${x(i)}" y="${H - 8}" class="ct" text-anchor="${['start', 'middle', 'end'][n]}">${lab(i)}</text>`).join('');
+  return `<div class="chart" data-series='${esc(JSON.stringify(series))}'>
+    <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Daily reach line chart">
+      <defs><linearGradient id="cfill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b69cff" stop-opacity=".28"/><stop offset="1" stop-color="#b69cff" stop-opacity="0"/></linearGradient></defs>
+      ${grid}${xl}
+      <path d="M${pts[0]} L${pts.join(' L')} L${x(series.length - 1)},${y(0)} L${x(0)},${y(0)}Z" fill="url(#cfill)"/>
+      <polyline points="${pts.join(' ')}" fill="none" stroke="#b69cff" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>
+      <line class="cx" y1="${T}" y2="${H - B}" x1="0" x2="0"/>
+    </svg><div class="cdot"></div><div class="ctip"></div>
+    <details class="small muted"><summary>Show as table</summary><div class="ctable">${series.map(([d, v]) => `<span>${d}</span><b>${fmtNum(v)}</b>`).join('')}</div></details></div>`;
+}
+function wireChart() {
+  const ch = $('#statsBody .chart'); if (!ch) return;
+  const series = JSON.parse(ch.dataset.series), svg = ch.querySelector('svg'), tip = ch.querySelector('.ctip'), dot = ch.querySelector('.cdot'), cx = ch.querySelector('.cx');
+  const W = 800, H = 220, L = 44, R = 12, T = 12, B = 28;
+  const max = Math.max(...series.map(([, v]) => v)) || 1, nice = Math.pow(10, Math.floor(Math.log10(max))), top = Math.ceil(max / nice) * nice;
+  svg.addEventListener('mousemove', (e) => {
+    const r = svg.getBoundingClientRect(), vx = (e.clientX - r.left) / r.width * W;
+    const i = Math.max(0, Math.min(series.length - 1, Math.round((vx - L) / (W - L - R) * (series.length - 1))));
+    const px = L + i / (series.length - 1) * (W - L - R), py = T + (1 - series[i][1] / top) * (H - T - B);
+    cx.setAttribute('x1', px); cx.setAttribute('x2', px); ch.classList.add('hover');
+    const sx = px / W * r.width, sy = py / H * r.height;
+    dot.style.left = sx + 'px'; dot.style.top = sy + 'px';
+    tip.innerHTML = `<b>${fmtNum(series[i][1])}</b> reach<br><span>${new Date(series[i][0] + 'T12:00').toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })}</span>`;
+    tip.style.left = Math.min(r.width - 70, Math.max(70, sx)) + 'px'; tip.style.top = sy + 'px';
+  });
+  svg.addEventListener('mouseleave', () => ch.classList.remove('hover'));
+}
+
+$('#statRefresh').onclick = () => refreshStats();
+$('#statDays').onchange = () => renderStats();
+$('#statsBody').addEventListener('click', (e) => { const b = e.target.closest('[data-go]'); if (b) openTab(b.dataset.go); });
+$('#statsBody').addEventListener('mouseover', (e) => { const v = e.target.closest('.topvid')?.querySelector('video'); if (v) v.play().catch(() => {}); });
+$('#statsBody').addEventListener('mouseout', (e) => { const t = e.target.closest('.topvid'); if (t && !t.contains(e.relatedTarget)) t.querySelector('video').pause(); });
 
 (async function init() {
   loadAll();

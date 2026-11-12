@@ -22,6 +22,7 @@
     <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol>
     <symbol id="i-bot" viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="12" rx="4"/><path d="M12 4v4M9 14h0M15 14h0"/><circle cx="12" cy="3" r="1"/></symbol>
     <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path d="M5 20V11M11 20V5M17 20v-6M3 20h18"/></symbol>
     <symbol id="i-send" viewBox="0 0 24 24"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></symbol>
   </defs>
 </svg>
@@ -36,6 +37,7 @@
     <button data-tab="clipper"><svg class="i"><use href="#i-scissors"/></svg>Stream Clipper</button>
     <button data-tab="faceless"><svg class="i"><use href="#i-film"/></svg>Faceless Generator</button>
     <button data-tab="queue"><svg class="i"><use href="#i-inbox"/></svg>Review Queue <span id="qcount" class="pill">0</span></button>
+    <button data-tab="stats"><svg class="i"><use href="#i-chart"/></svg>Stats</button>
     <button data-tab="accounts"><svg class="i"><use href="#i-link"/></svg>Accounts</button>
     <button data-tab="settings"><svg class="i"><use href="#i-sliders"/></svg>Settings</button>
   </nav>
@@ -223,6 +225,7 @@
       <button class="stat" data-station="review"><span class="stat-n" id="stPending">0</span><span class="stat-l">Waiting for review</span></button>
       <button class="stat" data-station="post"><span class="stat-n" id="stScheduled">0</span><span class="stat-l">Scheduled</span></button>
       <button class="stat" data-station="live"><span class="stat-n" id="stPosted">0</span><span class="stat-l">Posted</span></button>
+      <button class="stat" data-station="views"><span class="stat-n" id="stViews">–</span><span class="stat-l">Total views</span></button>
     </div>
     <div class="station card" id="station" hidden>
       <div class="station-head">
@@ -343,6 +346,26 @@
       <button id="approveAll">✓ Approve all pending</button>
     </div>
     <div id="queueList" class="queue"></div>
+  </section>
+
+  <!-- STATS -->
+  <section id="stats" class="tab">
+    <div class="stats-head">
+      <div>
+        <h2>Stats</h2>
+        <p class="muted">Views, likes, comments, shares and followers, pulled from your connected accounts. Refreshes when you open this tab, and every hour while Autopilot runs.</p>
+      </div>
+      <div class="row">
+        <select id="statDays" aria-label="Date range">
+          <option value="7">Last 7 days</option>
+          <option value="30" selected>Last 30 days</option>
+          <option value="90">Last 90 days</option>
+        </select>
+        <button id="statRefresh">↻ Refresh</button>
+      </div>
+    </div>
+    <div id="statUpdated" class="muted small"></div>
+    <div id="statsBody"></div>
   </section>
 
   <!-- ACCOUNTS -->
