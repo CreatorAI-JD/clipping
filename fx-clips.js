@@ -21,6 +21,26 @@
     saveInbox(inbox);
   };
   FX.vodAvailable = async (key) => !!(await getVod(key));
+  // Channel tab: show what a clip frame will look like with the current layout + facecam settings
+  FX.previewLayout = async (c, out) => {
+    let file = null;
+    for (const e of FX.vodInbox().slice().reverse()) if ((file = await getVod(e.key))) break;
+    if (!file) return 'No VOD in this session yet. Drop one on the Assembly Line first.';
+    const v = document.createElement('video'); v.muted = true; v.src = URL.createObjectURL(file);
+    try {
+      await new Promise((res, rej) => { v.onloadedmetadata = res; v.onerror = () => rej(new Error('This VOD can\'t be played in the browser.')); });
+      v.currentTime = Math.min(v.duration * 0.4, 600); await new Promise((res) => { v.onseeked = res; setTimeout(res, 6000); });
+      const off = Object.assign(document.createElement('canvas'), { width: 1080, height: 1920 }), g = off.getContext('2d');
+      FX.drawClipFrame(g, v, c, c.layout || 'blur');
+      const zn = FX.layoutZones(c.layout), cy = c.layout === 'blur' || c.layout === 'split' ? zn.caption : (+c.captionPos || 0.64);
+      g.setLineDash([24, 16]); g.lineWidth = 8;
+      g.strokeStyle = '#ffd400'; g.strokeRect(120, 1920 * zn.hook - 90, 840, 180);
+      g.strokeStyle = '#7cf7d4'; g.strokeRect(80, 1920 * cy - 70, 920, 140);
+      g.setLineDash([]); g.font = '700 44px system-ui, sans-serif'; g.textAlign = 'center'; g.fillStyle = '#ffd400'; g.fillText('HOOK', 540, 1920 * zn.hook + 15); g.fillStyle = '#7cf7d4'; g.fillText('CAPTIONS', 540, 1920 * cy + 15);
+      out.style.display = 'block'; out.getContext('2d').drawImage(off, 0, 0, out.width, out.height);
+      return `Frame from ${file.name}. ${c.layout === 'split' ? 'The top part should show only the face. If not, change the facecam corner/size.' : 'Switch the layout to "Facecam top / gameplay bottom" if the streamer has a facecam.'}`;
+    } finally { URL.revokeObjectURL(v.src); }
+  };
   async function getVod(key) {
     if (FX.vods.has(key)) return FX.vods.get(key);
     if (typeof folderHandle !== 'undefined' && folderHandle && await folderReady()) {
@@ -91,10 +111,11 @@
     const known = (await FX.db.ideas.all()).filter((i) => i.type === 'moment' && i.vodKey === entry.key);
     const ms = [];
     for (const [i, h] of hl.entries()) {
-      if (known.some((k) => Math.abs(k.start - h.start) < len * 0.6)) continue; // never clip the same moment twice
-      const L = Math.min(len, buffer.duration - h.start);
-      const wav = await segmentWav(buffer, h.start, L);
-      const wavFile = await FX.saveFile(wav, `${file.name}_${Math.round(h.start)}.wav`, { role: 'moment-audio' });
+      if (known.some((k) => Math.abs((k.peak ?? k.start) - h.peak) < len * 0.6)) continue; // never clip the same moment twice
+      // transcribe a padded window around the peak so the clip plan can start on the setup and end on a finished sentence
+      const s0 = Math.max(0, h.peak - len * 0.6 - 6), L = Math.min(len + 14, buffer.duration - s0);
+      const wav = await segmentWav(buffer, s0, L);
+      const wavFile = await FX.saveFile(wav, `${file.name}_${Math.round(s0)}.wav`, { role: 'moment-audio' });
       let tr = null;
       if (FX.hasAI()) {
         say(`Transcribing moment ${i + 1}/${hl.length}…`);
@@ -102,7 +123,7 @@
         tr = await FX.retry(async () => { try { return await transcribe(wav, 'moment.wav'); } catch (e) { throw /429|5\d\d|network|fetch/i.test(e.message) ? new FX.TempError(e.message) : e; } }, 'transcription');
         FX.cost(r, 'trends', 'openai:whisper-1', Math.round(L), (L / 60) * FX.prices().whisper_per_min);
       }
-      ms.push({ i, start: h.start, peak: h.peak, len: L, energy: Math.round(h.score * 100) / 100, transcript: tr?.text?.trim() || '', words: (tr?.words || []).map((w) => ({ word: w.word.trim(), start: w.start, end: w.end })), wavFile });
+      ms.push({ i, start: s0, peak: h.peak, len: L, energy: Math.round(h.score * 100) / 100, transcript: tr?.text?.trim() || '', words: (tr?.words || []).map((w) => ({ word: w.word.trim(), start: w.start, end: w.end })), wavFile });
     }
     const maxE = Math.max(1, ...ms.map((m) => m.energy));
     let ai = null, signals = [];
@@ -191,7 +212,10 @@
     const c = FX.channel(), m = r.idea;
     if (r.script) r.scriptHistory.push({ ...r.script, replacedAt: now() });
     let trimStart = 0, trimEnd = m.len, title = m.topic, hook = m.hook, intro = '';
-    if (m.words?.length) { trimStart = Math.max(0, m.words[0].start - 0.4); trimEnd = Math.min(m.len, m.words[m.words.length - 1].end + 0.7); }
+    { // without AI: a window around the loudest point, ending a few seconds after it
+      const pk = (m.peak ?? m.start + m.len / 2) - m.start, L = Math.min(+c.clipLen || 35, m.len);
+      trimStart = Math.max(0, Math.min(m.len - L, pk - L * 0.65)); trimEnd = Math.min(m.len, trimStart + L);
+    }
     let method = 'audio + word timings';
     if (FX.hasAI() && m.transcript) {
       say('Planning the cut, hook and title…');
@@ -199,20 +223,25 @@
       const fix = r.revisionNote ? `\nTHIS IS A REVISION. Fix: ${(r.reports[r.revisionNote.from]?.items || []).filter((i) => i.sev !== 'low').map((i) => `${i.where}: ${i.issue} → ${i.fix}`).join(' | ')}` : '';
       const out = await FX.ai(r, 'script', `You edit GTA stream clips for TikTok/Shorts/Reels. ${c.style}. Tone: ${c.tone}. Never put words in the streamer's mouth.`,
         `Moment transcript with timestamps (seconds from clip start, clip is ${m.len.toFixed(1)}s):\n${(m.words || []).map((w) => `${w.start.toFixed(1)} ${w.word}`).join(' ').slice(0, 5000)}\n${r.research?.context ? `Context note: ${r.research.context}\n` : ''}${fix}\n` +
-        `Pick the tightest window (8–${c.clipLen}s) that keeps the setup and the payoff and does not cut mid-sentence. Return JSON {"trimStart": seconds, "trimEnd": seconds, "hook": on-screen hook max 8 words (no false claims), "title": short honest title, "intro": ${c.introCommentary ? 'one or two spoken sentences (max 22 words) that give context so strangers get it and add our own commentary, or "" if not needed' : '""'}}`, { temperature: 0.5 });
+        `Pick the tightest window (8–${c.clipLen}s) that starts as late as possible while keeping the setup, ends right after the payoff/reaction, and does not cut mid-sentence. The first 2 seconds must already be interesting. Return JSON {"trimStart": seconds, "trimEnd": seconds, "hook": on-screen hook max 8 words (no false claims), "title": short honest title, "intro": ${c.introCommentary ? 'ONE short spoken sentence (max 14 words) that gives the context a stranger needs, in our own voice, or "" if the clip explains itself' : '""'}}`, { temperature: 0.5 });
       if (out) {
         const a = Math.max(0, Math.min(m.len - 5, +out.trimStart || 0)), b = Math.min(m.len, Math.max(a + 5, +out.trimEnd || m.len));
         trimStart = a; trimEnd = b; hook = out.hook || hook; title = out.title || title; intro = c.introCommentary ? String(out.intro || '').trim() : '';
       }
     }
+    // snap the cut to word boundaries, finish the sentence, and jump-cut dead air (no AI needed)
+    let env = null;
+    try { if (m.wavFile) env = FX.envelope(await FX.decode(await FX.getFile(m.wavFile)), 0.05); } catch {}
+    const cut = FX.planCut(m, trimStart, trimEnd, env, { maxLen: +c.clipLen || 35, jumpCuts: c.jumpCuts !== false });
+    trimStart = cut.trimStart; trimEnd = cut.trimEnd;
     const len = Math.max(3, trimEnd - trimStart);
-    r.clip = { vodKey: m.vodKey, vodName: m.vodName, start: m.start + trimStart, len, trimStart, layout: c.layout || 'blur', tag: c.clipTag || '', hook, intro, title };
+    r.clip = { vodKey: m.vodKey, vodName: m.vodName, start: m.start + trimStart, len, trimStart, keep: cut.keep.map(([a, b]) => [m.start + a, m.start + b]), outLen: cut.outLen, cuts: cut.cuts, peak: m.peak, layout: c.layout || 'blur', tag: c.clipTag || '', hook, intro, title };
     const said = wordsIn(m, trimStart, trimEnd).map((w) => w.word).join(' ');
     const scenes = [];
     if (intro) scenes.push({ n: 1, vo: intro, onScreen: hook, footage: { kind: 'stream', query: 'freeze frame + context' }, sfx: 'none', transition: 'cut', claims: [] });
     scenes.push({ n: scenes.length + 1, vo: said || '(stream audio)', onScreen: hook, footage: { kind: 'stream', query: 'stream VOD segment' }, sfx: intro ? 'whoosh' : 'none', transition: intro ? 'flash' : 'cut', claims: [], streamAudio: true });
-    r.script = { title, hookStyle: intro ? 'commentary intro' : 'cold open', format: 'stream clip', scenes, cta: c.cta, version: r.scriptHistory.length + 1, at: now(), method, duration: (intro ? FX.words(intro).length / 2.6 + 0.4 : 0) + len };
-    return { verdict: 'PASS', summary: `Clip plan v${r.script.version}: ${fmt(r.clip.start)}–${fmt(r.clip.start + len)} (${len.toFixed(1)}s), hook "${hook}"${intro ? ', with a commentary intro' : ''}.`, items: [], method };
+    r.script = { title, hookStyle: intro ? 'commentary intro' : 'cold open', format: 'stream clip', scenes, cta: c.cta, version: r.scriptHistory.length + 1, at: now(), method, duration: (intro ? FX.words(intro).length / 2.6 + 0.3 : 0) + cut.outLen };
+    return { verdict: 'PASS', summary: `Clip plan v${r.script.version}: ${fmt(r.clip.start)}–${fmt(r.clip.start + len)} (${cut.outLen.toFixed(1)}s${cut.cuts.length ? ` after ${cut.cuts.length} jump cut(s) removing ${(len - cut.outLen).toFixed(1)}s of dead air` : ''}), hook "${hook}"${intro ? ', with a commentary intro' : ''}.`, items: [], method };
   };
 
   /* 5. CLIP QC */
@@ -285,75 +314,119 @@
   R.captions = async (r, say, o) => {
     if (!isClip(r)) return base.captions(r, say, o);
     const c = FX.channel(), cl = r.clip, m = r.idea, items = [];
-    const iv = r.voice.scenes[0]; const introEnd = iv ? iv.dur + 0.45 : 0;
+    const iv = r.voice.scenes[0]; const introEnd = iv ? iv.dur + 0.25 : 0;
+    const map = FX.clipMap(cl);
     let words = [];
-    if (iv) { const w = cl.intro.split(/\s+/), per = iv.dur / w.length; w.forEach((x, k) => words.push({ word: x, start: 0.1 + k * per, end: 0.1 + (k + 1) * per })); }
-    const inClip = wordsIn(m, cl.trimStart, cl.trimStart + cl.len);
-    inClip.forEach((w) => words.push({ word: w.word, start: introEnd + w.start - cl.trimStart, end: introEnd + w.end - cl.trimStart }));
+    if (iv) { // spread the intro text over the voice length, weighted by word length
+      const w = cl.intro.split(/\s+/).filter(Boolean), tot = w.reduce((t, x) => t + x.length + 2, 0); let t = 0.1;
+      w.forEach((x) => { const d = (iv.dur - 0.1) * (x.length + 2) / tot; words.push({ word: x, start: t, end: t + d }); t += d; });
+    }
+    // stream words, moved onto the output timeline (words inside a jump cut are dropped)
+    for (const w of wordsIn(m, cl.trimStart, cl.trimStart + cl.len)) {
+      const s0 = map.toOut(m.start + w.start); if (s0 == null) continue;
+      const e0 = map.toOut(m.start + w.end); words.push({ word: w.word, start: introEnd + s0, end: introEnd + (e0 ?? s0 + (w.end - w.start)) });
+    }
     let cues = [];
     if (words.length) {
-      cues = wordsToChunks(words).map((k) => ({ start: Math.round(k.start * 100) / 100, end: Math.round(k.until * 100) / 100, text: k.text.replace(/[,;:]$/, '') }));
-      const emph = new Set(FX.keywords(cl.hook));
-      cues.forEach((q) => { q.hl = q.text.split(' ').map((w) => /\d/.test(w) || emph.has(FX.norm(w)) || PROFANITY.test(w)); PROFANITY.lastIndex = 0; const cps = q.text.length / Math.max(0.05, q.end - q.start); if (q.end - q.start < 0.2 || cps > 24) items.push(item('low', FX.ts(q.start), `"${q.text}" is on screen ${(q.end - q.start).toFixed(2)}s`, 'Fast speech; readable but quick.')); });
+      cues = FX.captionChunks(words);
+      const emph = new Set(FX.keywords(cl.hook + ' ' + cl.title));
+      cues.forEach((q) => { q.hl = q.text.split(' ').map((w) => /\d/.test(w) || emph.has(FX.norm(w)) || PROFANITY.test(w) || /^(no|yo|bro|what|wait|oh|omg|bruh)\W*$/i.test(w)); PROFANITY.lastIndex = 0; const cps = q.text.length / Math.max(0.05, q.end - q.start); if (cps > 26) items.push(item('low', FX.ts(q.start), `"${q.text}" is on screen ${(q.end - q.start).toFixed(2)}s`, 'Fast speech; readable but quick.')); });
     } else items.push(item('medium', 'Captions', 'No captions: the stream audio was not transcribed (needs an OpenAI key).', 'Captions roughly double watch time on shorts; add a key.'));
-    const split = cl.layout === 'split';
-    const style = { color: c.captionColor, highlight: c.highlightColor, pos: split ? 0.4 : c.captionPos, size: c.captionSize };
-    if (!split && (style.pos < 0.5 || style.pos > 0.76)) items.push(item('medium', 'Style', 'Caption position outside the platform-safe zone (50–76% from top)', 'Change it in Channel.'));
+    const z = FX.layoutZones(cl.layout);
+    const style = { color: c.captionColor, highlight: c.highlightColor, pos: cl.layout === 'blur' ? z.caption : (cl.layout === 'split' ? z.caption : c.captionPos), size: c.captionSize };
+    if (style.pos < 0.3 || style.pos > 0.78) items.push(item('medium', 'Style', 'Caption position outside the platform-safe zone', 'Change it in Channel.'));
     const srt = cues.map((q, i) => `${i + 1}\n${FX.srtT(q.start)} --> ${FX.srtT(q.end)}\n${q.text}\n`).join('\n');
-    r.captions = { cues, style, method: words.length ? 'stream transcription (Whisper word timings)' : 'none', srtFile: await FX.saveFile(new Blob([srt], { type: 'text/plain' }), r.id + '.srt', { recId: r.id, role: 'captions' }), at: now() };
-    r.timeline = iv ? [{ n: 1, start: 0, end: introEnd, voiceStart: 0.1, voiceEnd: 0.1 + iv.dur }, { n: 2, start: introEnd, end: introEnd + cl.len, voiceStart: introEnd, voiceEnd: introEnd + cl.len }] : [{ n: 1, start: 0, end: cl.len, voiceStart: 0, voiceEnd: cl.len }];
-    r.duration = introEnd + cl.len;
+    r.captions = { cues, style, method: words.length ? 'stream transcription (Whisper word timings), mapped through jump cuts' : 'none', srtFile: await FX.saveFile(new Blob([srt], { type: 'text/plain' }), r.id + '.srt', { recId: r.id, role: 'captions' }), at: now() };
+    r.timeline = iv ? [{ n: 1, start: 0, end: introEnd, voiceStart: 0.1, voiceEnd: 0.1 + iv.dur }, { n: 2, start: introEnd, end: introEnd + map.len, voiceStart: introEnd, voiceEnd: introEnd + map.len }] : [{ n: 1, start: 0, end: map.len, voiceStart: 0, voiceEnd: map.len }];
+    r.duration = introEnd + map.len;
     return { verdict: verdictFrom(items), summary: cues.length ? `${cues.length} captions synced to the stream audio.` : 'No captions (no transcription).', items, method: r.captions.method };
   };
 
   /* 9. EDIT & EXPORT: intro card (optional) + the clip in your layout, captions burned in */
-  function banner(text, a = 1) {
+  // hook card: white box, black heavy type, pops in
+  function banner(text, a = 1, y = H * 0.15, pop = 1) {
     if (!text) return;
     ctx.save(); ctx.globalAlpha = a; ctx.font = '900 70px Impact, "Arial Black", system-ui, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    const lines = wrapText(text.toUpperCase(), W - 200).slice(0, 2), y = H * 0.13, bh = lines.length * 80 + 40, bw = Math.max(...lines.map((l) => ctx.measureText(l).width)) + 80;
-    ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.roundRect ? ctx.roundRect((W - bw) / 2, y - bh / 2, bw, bh, 24) : ctx.rect((W - bw) / 2, y - bh / 2, bw, bh); ctx.fill();
+    const lines = wrapText(text.toUpperCase(), W - 200).slice(0, 2), bh = lines.length * 80 + 40, bw = Math.max(...lines.map((l) => ctx.measureText(l).width)) + 80;
+    ctx.translate(W / 2, y); ctx.scale(pop, pop); ctx.rotate(-0.02); ctx.translate(-W / 2, -y);
+    const box = (dy) => { ctx.beginPath(); ctx.roundRect ? ctx.roundRect((W - bw) / 2, y - bh / 2 + dy, bw, bh, 24) : ctx.rect((W - bw) / 2, y - bh / 2 + dy, bw, bh); ctx.fill(); };
+    ctx.fillStyle = 'rgba(0,0,0,.35)'; box(10); // cheap drop shadow (shadowBlur is too slow at 30 fps)
+    ctx.fillStyle = '#fff'; box(0);
     ctx.fillStyle = '#111'; lines.forEach((l, i) => ctx.fillText(l, W / 2, y + (i - (lines.length - 1) / 2) * 80));
     ctx.restore();
   }
+  const waitEv = (el, ev, ms = 8000) => new Promise((res) => { const f = () => { el.removeEventListener(ev, f); res(); }; el.addEventListener(ev, f); setTimeout(f, ms); });
   async function renderClip(r, p, file, say) {
     const ac = getAudioCtx(); await ac.resume();
     if (ac.state !== 'running') throw new FX.TempError('The browser paused audio. Click anywhere on the page so the line can render.');
     await loadVod(file);
     if (!mediaSrc) { mediaSrc = ac.createMediaElementSource(vod); mediaDest = ac.createMediaStreamDestination(); mediaSrc.connect(mediaDest); const mute = ac.createGain(); mute.gain.value = 0; mediaSrc.connect(mute).connect(ac.destination); }
-    const dest = ac.createMediaStreamDestination(); mediaSrc.connect(dest);
-    const cl = r.clip, introEnd = p.introEnd;
+    const c = FX.channel(), cl = r.clip, introEnd = p.introEnd, map = FX.clipMap(cl), keep = map.keep, z = FX.layoutZones(cl.layout);
+    // audio: stream -> level/duck -> compressor -> make-up gain -> limiter -> recorder
+    const dest = ac.createMediaStreamDestination();
+    const sg = ac.createGain(), comp = ac.createDynamicsCompressor(), mk = ac.createGain(), lim = ac.createDynamicsCompressor(), out = ac.createGain();
+    comp.threshold.value = -22; comp.knee.value = 8; comp.ratio.value = 3.5; comp.attack.value = 0.004; comp.release.value = 0.2;
+    lim.threshold.value = -4; lim.knee.value = 0; lim.ratio.value = 20; lim.attack.value = 0.001; lim.release.value = 0.08;
+    const lvl = 10 ** ((p.audio.streamGainDb || 0) / 20); sg.gain.value = introEnd ? lvl * 0.16 : lvl; mk.gain.value = 1;
+    const clip = ac.createWaveShaper(), cv = new Float32Array(2049); for (let i = 0; i < cv.length; i++) { const x = i / 1024 - 1, ax = Math.abs(x); cv[i] = ax < 0.85 ? x : Math.sign(x) * (0.85 + 0.12 * Math.tanh((ax - 0.85) / 0.12)); } clip.curve = cv; // safety soft-clip, never above -0.3 dBFS
+    mediaSrc.connect(sg); sg.connect(comp).connect(mk).connect(lim).connect(clip).connect(out).connect(dest);
     let introSrc = null;
-    if (p.audio.introFile) { const b = await FX.decode(await FX.getFile(p.audio.introFile)); introSrc = ac.createBufferSource(); introSrc.buffer = b; const g = ac.createGain(); g.gain.value = 10 ** ((p.audio.introGainDb || 0) / 20); introSrc.connect(g).connect(dest); }
-    // whoosh into the clip
-    if (introEnd) { const n = ac.createBuffer(1, ac.sampleRate * 0.45, ac.sampleRate), d = n.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * Math.sin((i / d.length) * Math.PI) * 0.12; var whoosh = ac.createBufferSource(); whoosh.buffer = n; const bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 1500; whoosh.connect(bp).connect(dest); }
-    vod.muted = false; vod.currentTime = cl.start; await new Promise((res) => { vod.onseeked = res; setTimeout(res, 8000); });
-    const draw = (t) => {
-      drawVodFrame(cl.layout, cl.tag, null);
-      if (t < introEnd) { ctx.fillStyle = 'rgba(8,6,14,.62)'; ctx.fillRect(0, 0, W, H); banner(cl.hook); }
-      else { const lt = t - introEnd; if (lt < 3.5) banner(cl.hook, Math.min(1, (3.5 - lt) / 0.4)); if (introEnd && lt < 0.25) { ctx.fillStyle = `rgba(255,255,255,${(1 - lt / 0.25) * 0.7})`; ctx.fillRect(0, 0, W, H); } }
+    if (p.audio.introFile) { const b = await FX.decode(await FX.getFile(p.audio.introFile)); introSrc = ac.createBufferSource(); introSrc.buffer = b; const g = ac.createGain(); g.gain.value = 10 ** ((p.audio.introGainDb || 0) / 20); introSrc.connect(g).connect(lim); }
+    let whoosh = null;
+    if (introEnd) { const n = ac.createBuffer(1, ac.sampleRate * 0.45, ac.sampleRate), d = n.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * Math.sin((i / d.length) * Math.PI) * 0.12; whoosh = ac.createBufferSource(); whoosh.buffer = n; const bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 1500; whoosh.connect(bp).connect(dest); }
+    // during the intro the footage leading into the clip plays underneath (ducked), so nothing is ever frozen
+    const pre = introEnd ? Math.max(0, keep[0][0] - introEnd) : keep[0][0];
+    const playAt = introEnd ? introEnd - (keep[0][0] - pre) : 0; // wall-clock second when the VOD starts moving
+    vod.muted = false; vod.currentTime = pre; await waitEv(vod, 'seeked');
+    let t = 0, vt = pre;
+    const draw = () => {
+      FX.drawClipFrame(ctx, vod, c, cl.layout, FX.clipFx(vt, cl.peak, t, introEnd, c.punchZoom !== false));
+      if (t < introEnd) { const g = ctx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, 'rgba(8,6,14,.35)'); g.addColorStop(1, 'rgba(8,6,14,.15)'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H); }
+      const hookUntil = Math.max(introEnd, 0) + 2.8;
+      if (t < hookUntil) banner(cl.hook, Math.min(1, (hookUntil - t) / 0.3), H * z.hook, t < 0.18 ? 0.85 + 0.15 * (t / 0.18) + 0.06 * Math.sin((t / 0.18) * Math.PI) : 1);
+      if (cl.tag) drawCaption(cl.tag, cl.layout === 'split' ? H * 0.06 : H * 0.95, 48, '#fff');
       const cue = p.captions.find((q) => t >= q.start && t < q.end); if (cue) FX.drawCue(cue, p.captionStyle, t);
-      if (t > p.duration - 0.35) { ctx.fillStyle = `rgba(0,0,0,${Math.min(0.9, (t - (p.duration - 0.35)) / 0.35)})`; ctx.fillRect(0, 0, W, H); }
     };
-    draw(0);
+    draw();
     const rec = startRecorder(dest.stream);
     const t0 = performance.now(); if (introSrc) introSrc.start(ac.currentTime + 0.1);
-    if (introEnd && whoosh) whoosh.start(ac.currentTime + introEnd - 0.3);
-    let playing = false, lastT = -1, stuck = 0, lastPct = -1;
-    if (!introEnd) { await vod.play(); playing = true; }
+    if (whoosh) whoosh.start(ac.currentTime + Math.max(0, introEnd - 0.3));
+    let frames = 0, drawMs = 0;
+    let playing = false, ducked = !!introEnd, seg = 0, seeking = false, lastT = -1, stuck = 0, lastPct = -1, fading = false;
+    if (playAt <= 0) { await vod.play(); playing = true; }
     await renderLoop(() => {
-      let t = (performance.now() - t0) / 1000;
-      if (!playing && t >= introEnd) { vod.play(); playing = true; }
-      if (playing) t = introEnd + Math.max(0, vod.currentTime - cl.start);
-      draw(t);
-      const pct = Math.floor((t / p.duration) * 20); if (pct !== lastPct) { lastPct = pct; say(`Rendering ${Math.min(100, pct * 5)}% (real-time, ${Math.round(p.duration)}s)…`); }
+      if (seeking) return false;
+      if (!playing) { t = (performance.now() - t0) / 1000; if (t >= playAt) { vod.play(); playing = true; } }
+      else {
+        vt = vod.currentTime;
+        if (vt < keep[0][0]) t = introEnd - (keep[0][0] - vt);
+        else {
+          // jump cut: pause the recorder, seek past the dead air, resume (the cut is seamless in the file)
+          if (seg < keep.length - 1 && vt >= keep[seg][1]) {
+            seeking = true; seg++; rec.pause(); vod.pause();
+            vod.currentTime = keep[seg][0];
+            waitEv(vod, 'seeked').then(async () => { vt = vod.currentTime; t = introEnd + map.toOut(vt, true); draw(); await vod.play().catch(() => {}); rec.resume(); seeking = false; });
+            return false;
+          }
+          t = introEnd + map.toOut(vt, true);
+        }
+      }
+      if (ducked && t >= introEnd - 0.05) { ducked = false; sg.gain.setTargetAtTime(lvl, ac.currentTime, 0.03); }
+      if (!fading && t > p.duration - 0.2) { fading = true; out.gain.setTargetAtTime(0, ac.currentTime, 0.05); }
+      const d0 = performance.now(); draw(); frames++; drawMs += performance.now() - d0;
+      const pct = Math.floor((t / p.duration) * 20); if (pct !== lastPct) { lastPct = pct; say(`Rendering ${Math.min(100, Math.max(0, pct) * 5)}% (real-time, ${Math.round(p.duration)}s)…`); }
       stuck = playing && vod.currentTime === lastT ? stuck + 1 : 0; lastT = vod.currentTime;
       if (stuck > FPS * 15) throw new FX.TempError('VOD playback stalled while rendering');
       return t >= p.duration || vod.ended;
     });
-    vod.pause(); try { mediaSrc.disconnect(dest); } catch {}
+    vod.pause(); try { mediaSrc.disconnect(sg); } catch {}
     const blob = await rec.stop();
     vod.removeAttribute('src'); vod.load();
+    blob.stats = { frames, fps: frames / Math.max(1, p.duration), drawMs: drawMs / Math.max(1, frames) };
     return blob;
+  }
+  async function streamGain(r) {
+    try { const m = r.idea, env = FX.envelope(await FX.decode(await FX.getFile(m.wavFile)), 0.05); return FX.streamGainDb(env, FX.clipMap(r.clip).keep.map(([a, b]) => [a - m.start, b - m.start])); } catch { return 0; }
   }
   R.edit = async (r, say, o) => {
     if (!isClip(r)) return base.edit(r, say, o);
@@ -363,20 +436,23 @@
     if (r.edit) r.editHistory.push({ version: r.edit.version, at: r.edit.at });
     const p = {
       version: (r.editHistory?.length || 0) + 1, at: now(), width: W, height: H, fps: FPS, duration: r.duration, introEnd: iv ? r.timeline[0].end : 0,
-      scenes: r.timeline.map((t, i) => ({ ...t, onScreen: r.clip.hook, transition: i ? 'flash' : 'cut', asset: { kind: i === r.timeline.length - 1 ? 'stream' : 'freeze frame' } })),
+      scenes: r.timeline.map((t, i) => ({ ...t, onScreen: r.clip.hook, transition: i ? 'zoom' : 'cut', asset: { kind: i === r.timeline.length - 1 ? 'stream' : 'lead-in footage (ducked)' } })),
       clip: { ...r.clip }, captions: r.captions.cues, captionStyle: r.captions.style,
-      audio: { stream: 'original VOD audio', introFile: iv?.fileId || null, introGainDb: iv?.gainDb || 0, music: null, sfx: iv ? [{ t: r.timeline[0].end, kind: 'whoosh' }] : [] },
+      audio: { stream: 'original VOD audio, levelled + compressed + limited', streamGainDb: await streamGain(r), introFile: iv?.fileId || null, introGainDb: iv?.gainDb || 0, music: null, sfx: iv ? [{ t: r.timeline[0].end, kind: 'whoosh' }] : [] },
+      cuts: r.clip.cuts || [],
       export: { container: (pickMime() || 'video/webm').split(';')[0], ratio: '9:16', resolution: `${W}x${H}`, fps: FPS, audio: pickMime().includes('mp4a') ? 'AAC' : 'Opus', captions: 'burned in', layout: r.clip.layout },
     };
     const blob = await exclusive(() => renderClip(r, p, file, say));
     if (!blob || blob.size < 10000) return { verdict: 'FAIL', sendBackTo: 'edit', summary: 'Export produced an empty file.', items: [item('high', 'Export', 'Empty file')] };
     const container = blob.type.includes('mp4') ? 'MP4' : 'WebM', items = [];
     if (container !== 'MP4') items.push(item('medium', 'Export', 'This browser exported WebM, not MP4.', 'Use a recent Chrome or Edge for MP4/AAC.'));
+    const st = blob.stats || {};
+    if (st.fps && st.fps < 24) items.push(item(st.fps < 15 ? 'high' : 'medium', 'Export', `Only ${st.fps.toFixed(0)} frames per second were drawn (${(st.drawMs || 0).toFixed(0)} ms per frame), so motion will look choppy`, 'Keep this tab visible, close other heavy tabs/games, and re-export.'));
     const fileId = await FX.saveFile(blob, `${r.id}.${container.toLowerCase()}`, { recId: r.id, role: 'export' });
     const projFile = await FX.saveFile(new Blob([JSON.stringify(p, null, 2)], { type: 'application/json' }), `${r.id}_edit_v${p.version}.json`, { recId: r.id, role: 'edit-project' });
     r.edit = { ...p, projectFile: projFile };
     r.export = { fileId, size: blob.size, mime: blob.type, container, width: W, height: H, fps: FPS, duration: p.duration, audio: p.export.audio, captions: 'embedded', at: now(), editVersion: p.version };
-    return { verdict: verdictFrom(items), summary: `Exported ${container} 1080×1920 @ ${FPS}fps, ${p.duration.toFixed(1)}s (${r.clip.layout} layout), edit project v${p.version} saved.`, items };
+    return { verdict: verdictFrom(items), summary: `Exported ${container} 1080×1920 @ ${FPS}fps, ${p.duration.toFixed(1)}s (${r.clip.layout} layout${p.cuts.length ? `, ${p.cuts.length} jump cut(s)` : ''}, stream audio ${p.audio.streamGainDb >= 0 ? '+' : ''}${p.audio.streamGainDb.toFixed(1)} dB), edit project v${p.version} saved.`, items };
   };
 
   /* 10. AUDIO QC for clips (stream audio is raw, so the thresholds are looser) */

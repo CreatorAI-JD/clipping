@@ -127,7 +127,7 @@ function startRecorder(audioStream) {
     r(new Blob(chunks, { type: (mimeType || 'video/webm').split(';')[0] }));
   }));
   rec.start(1000);
-  return { stop: () => { rec.stop(); return done; } };
+  return { stop: () => { rec.stop(); return done; }, pause: () => rec.state === 'recording' && rec.pause(), resume: () => rec.state === 'paused' && rec.resume() };
 }
 
 /* ---------------- Drawing ---------------- */
