@@ -33,6 +33,26 @@ function log(msg) {
 }
 function renderLog() { $('#log').textContent = logLines.join('\n') || 'Nothing yet.'; }
 
+/* ---------------- Sleepy robot for empty lists ---------------- */
+const EMPTY_MSG = {
+  pending: 'All caught up. New clips will roll in here for your OK.',
+  approved: 'Nothing approved and waiting to post.',
+  scheduled: 'Nothing scheduled or posted yet.',
+  failed: 'No failed posts. The crew is doing great.',
+  rejected: 'Nothing rejected.',
+};
+function emptyBot(msg) {
+  return `<div class="empty"><svg class="empty-bot" viewBox="0 0 120 90" aria-hidden="true">
+    <rect x="34" y="22" width="52" height="40" rx="14" fill="#2b2540" stroke="#4b4366"/>
+    <rect x="42" y="31" width="36" height="20" rx="9" fill="#0f0d16"/>
+    <path d="M49 42q4 3 8 0M63 42q4 3 8 0" stroke="#b69cff" stroke-width="2" stroke-linecap="round" fill="none"/>
+    <path d="M60 22V12" stroke="#4b4366" stroke-width="3"/><circle cx="60" cy="10" r="4" fill="#ff7a6b"/>
+    <rect x="24" y="62" width="72" height="18" rx="4" fill="#1d1a29" stroke="#4b4366"/><path d="M24 68h72" stroke="#4b4366"/>
+    <text class="eb-z" x="92" y="24" font-size="11" font-weight="800" fill="#9a96a8">z</text>
+    <text class="eb-z" x="100" y="14" font-size="14" font-weight="800" fill="#9a96a8" style="animation-delay:.8s">z</text>
+  </svg><div>${msg}</div></div>`;
+}
+
 /* ---------------- IndexedDB ---------------- */
 let dbP = null;
 function db() {
@@ -796,10 +816,10 @@ async function renderQueue() {
   const list = $('#queueList');
   const match = (c) => filter === 'scheduled' ? ['scheduled', 'posted'].includes(c.status) : c.status === filter;
   const items = (await allClips()).filter(match).sort((a, b) => b.created - a.created);
-  list.innerHTML = items.length ? '' : `<div class="empty">No ${filter} videos.</div>`;
+  list.innerHTML = items.length ? '' : emptyBot(EMPTY_MSG[filter] || `No ${filter} videos.`);
   for (const c of items) {
     const url = URL.createObjectURL(c.blob); urls.push(url);
-    const el = document.createElement('div'); el.className = 'item';
+    const el = document.createElement('div'); el.className = 'item s-' + c.status;
     const btns = {
       pending: `<button class="ok" data-a="approve">✓ ${canPost() ? (val('apAutoPost') ? 'Approve & schedule' : 'Approve & post') : 'Approve'}</button><button class="no" data-a="reject">✕</button>`,
       approved: `${canPost() ? '<button class="ok" data-a="post">📤 Post</button>' : ''}<button data-a="download">⬇</button><button class="no" data-a="reject">✕</button>`,
@@ -932,7 +952,8 @@ function updateApSummary() {
   const on = apOn();
   $('#apBadge').textContent = on ? 'Autopilot ON' : 'Autopilot OFF';
   $('#apBadge').className = 'badge ' + (on ? 'on' : 'off');
-  document.body.classList.toggle('ap-on', on); // wakes up the robot workshop
+  document.body.classList.toggle('ap-on', on);
+  paintWorkshop(); // wakes up the robot workshop
   if (busy && on) return;
   $('#apSummary').textContent = on
     ? `On — checking every minute. Keep this tab open (it's fine in the background).${folderHandle ? '' : ' Tip: choose a folder to auto-clip VODs.'}`
@@ -993,6 +1014,215 @@ $('#clearDone').onclick = async () => {
   $('#setStatus').textContent = `🧹 Deleted ${old.length} videos.`;
   updateCount();
 };
+
+/* ================= LIVE ROBOT WORKSHOP =================
+   The robots on the Autopilot tab mirror real work: the cutter moves while a VOD
+   is being clipped, the captioner while a faceless video renders, and the drone
+   when something is posted. Click a robot (or a stat) to see what it's doing. */
+const WS = { jobs: new Map(), postUntil: 0, station: null, sig: '', urls: [], raf: 0, refreshing: false };
+const STATIONS = {
+  cut: ['Robot 1 · The cutter', '✂️ Cutting station'],
+  faceless: ['Robot 2 · The captioner', '🎬 Faceless studio'],
+  review: ['The conveyor belt', '📥 Waiting for your review'],
+  post: ['Robot 3 · The courier drone', '📤 Posting schedule'],
+  live: ['The phone', '🎉 Sent to your socials'],
+  log: ['Workshop sign', '📋 Activity log'],
+};
+const esc = (t) => String(t ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const FILTER_OF = { pending: 'pending', approved: 'approved', scheduled: 'scheduled', posted: 'scheduled', failed: 'failed', rejected: 'rejected' };
+const isSent = (c) => c.status === 'posted' || (c.status === 'scheduled' && c.scheduledFor <= Date.now());
+
+function startJob(kind, text) { WS.jobs.set(kind, text || 'Starting…'); paintWorkshop(); }
+function endJob(kind) { WS.jobs.delete(kind); paintWorkshop(); refreshWorkshop(); }
+
+// Track the real jobs without touching how they work
+function trackJob(kind, fn, fallback) {
+  return async function (arg, status) {
+    const say = status || fallback;
+    startJob(kind);
+    try { return await fn(arg, (t) => { startJob(kind, t); say(t); }); }
+    finally { endJob(kind); }
+  };
+}
+clipVideoFile = trackJob('cut', clipVideoFile, () => {});
+renderFaceless = trackJob('faceless', renderFaceless, genStatus);
+const postClipRaw = postClip;
+postClip = async function (clip, opts) {
+  startJob('post', `Sending "${clip.title}"…`);
+  try { await postClipRaw(clip, opts); WS.postUntil = Date.now() + 8000; setTimeout(paintWorkshop, 8100); }
+  finally { endJob('post'); }
+};
+const updateCountRaw = updateCount;
+updateCount = async function () { await updateCountRaw(); refreshWorkshop(); };
+
+function paintWorkshop() {
+  const b = document.body.classList, on = apOn();
+  const posting = WS.jobs.has('post') || WS.postUntil > Date.now();
+  b.toggle('awake', on || WS.jobs.size > 0 || posting);
+  b.toggle('job-cut', WS.jobs.has('cut'));
+  b.toggle('job-faceless', WS.jobs.has('faceless'));
+  b.toggle('job-post', posting);
+  let txt;
+  if (WS.jobs.has('cut')) txt = '✂️ Cutting: ' + WS.jobs.get('cut');
+  else if (WS.jobs.has('faceless')) txt = '🎬 Making: ' + WS.jobs.get('faceless');
+  else if (WS.jobs.has('post')) txt = '📤 ' + WS.jobs.get('post');
+  else if (posting) txt = '🎉 Just shipped a post';
+  else if (on) txt = folderHandle ? `Watching "${folderHandle.name}" for new VODs` : 'Awake and checking for work every minute';
+  else txt = 'Crew is on break. Flip Autopilot on to wake them up.';
+  $('#wsStatus').textContent = txt;
+  if (WS.station) paintNow();
+}
+
+function paintNow() {
+  const k = WS.station, el = $('#stationNow');
+  const map = { cut: 'cut', faceless: 'faceless', post: 'post' };
+  const job = map[k] && WS.jobs.get(map[k]);
+  el.innerHTML = job
+    ? `<span class="now-dot"></span><b>Working now:</b> ${esc(job)}`
+    : `<span class="now-dot idle"></span>${esc(idleLine(k))}`;
+  el.classList.toggle('busy', !!job);
+  const lp = $('#wsLiveWrap');
+  if (lp) lp.hidden = !(job && (k === 'cut' || k === 'faceless'));
+}
+function idleLine(k) {
+  const on = apOn();
+  if (k === 'cut') return folderHandle ? (on ? `Idle. Waiting for a new video in "${folderHandle.name}".` : 'Idle. Turn Autopilot on to clip new VODs automatically.') : 'Idle. Choose a VOD folder, or drop a video in Stream Clipper.';
+  if (k === 'faceless') return on ? 'Idle. Makes the next faceless video on the next minute check (if today\'s quota isn\'t done).' : 'Idle. Turn Autopilot on for daily faceless videos.';
+  if (k === 'post') return canPost() ? (val('apAutoPost') ? 'Approved videos get scheduled into your posting window.' : 'Auto-schedule is off, so approved videos post right away.') : 'No accounts connected yet, so nothing can be posted.';
+  if (k === 'review') return val('apAutoApprove') ? 'Auto-approve is on. Only low hype scores wait here.' : 'Everything new waits here for your OK.';
+  if (k === 'live') return 'Videos that have gone out to your accounts.';
+  return 'Everything the crew has done, newest first.';
+}
+
+function thumbs(list, empty) {
+  if (!list.length) return emptyBot(esc(empty));
+  return '<div class="mini-grid">' + list.map((c) => {
+    const u = URL.createObjectURL(c.blob); WS.urls.push(u);
+    return `<button class="mini" data-filter="${FILTER_OF[c.status] || 'pending'}" title="Open in Review Queue">
+      <video src="${u}#t=0.5" muted playsinline loop preload="metadata"></video>
+      <span class="mini-t">${c.kind === 'clip' ? '🎮' : '🤖'} ${esc(c.title)}</span>
+      <span class="mini-s">${esc(statusText(c) || c.status)}</span></button>`;
+  }).join('') + '</div>';
+}
+const fact = (label, value) => `<div class="fact"><span>${esc(label)}</span><b>${value}</b></div>`;
+const fmtWhen = (t) => new Date(t).toLocaleString([], { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+
+function stationHTML(k, all) {
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const newest = (a) => a.sort((x, y) => y.created - x.created);
+  const live = '<div class="live-wrap" id="wsLiveWrap" hidden><canvas id="wsLive" width="216" height="384"></canvas><span class="live-tag">● LIVE RENDER</span></div>';
+  if (k === 'cut') {
+    const clips = newest(all.filter((c) => c.kind === 'clip'));
+    return `<div class="facts">${fact('Watching folder', folderHandle ? esc(folderHandle.name) : 'None yet')}
+      ${fact('Clips made today', clips.filter((c) => c.created >= today).length)}${fact('Clips made total', clips.length)}</div>
+      <div class="stage">${live}<div class="stage-r"><h4>Latest clips</h4>${thumbs(clips.slice(0, 4), 'No clips yet. Drop a VOD in Stream Clipper or choose a folder.')}</div></div>
+      <div class="row"><button data-act="folder">📂 ${folderHandle ? 'Change' : 'Choose'} folder</button><button data-tab="clipper">Open Stream Clipper</button></div>`;
+  }
+  if (k === 'faceless') {
+    const vids = newest(all.filter((c) => c.kind === 'faceless'));
+    const d = ls.get('facelessDay', {}), n = d.date === new Date().toDateString() ? d.n : 0;
+    return `<div class="facts">${fact('Autopilot made today', `${n} / ${+val('apFacelessPerDay') || 0}`)}${fact('Niche', esc(val('apNiche')))}${fact('Voice', esc(val('voice')))}</div>
+      <div class="stage">${live}<div class="stage-r"><h4>Latest faceless videos</h4>${thumbs(vids.slice(0, 4), 'No faceless videos yet.')}</div></div>
+      <div class="row"><button data-tab="faceless">Open Faceless Generator</button></div>`;
+  }
+  if (k === 'review') {
+    const pend = newest(all.filter((c) => c.status === 'pending'));
+    return `${thumbs(pend.slice(0, 8), 'Nothing waiting. Nice and clear!')}
+      <div class="row">${pend.length ? `<button class="primary" data-act="approveAll">✓ Approve all ${pend.length}</button>` : ''}<button data-tab="queue">Open Review Queue</button></div>`;
+  }
+  if (k === 'post') {
+    const up = all.filter((c) => c.status === 'scheduled' && c.scheduledFor > Date.now()).sort((a, b) => a.scheduledFor - b.scheduledFor);
+    const failed = all.filter((c) => c.status === 'failed').length;
+    const chips = PLATFORMS.map(([p, name]) => `<span class="chip ${connected[p] ? 'on' : ''}">${connected[p] ? '●' : '○'} ${esc(name)}</span>`).join('');
+    const rows = up.slice(0, 6).map((c) => `<div class="sched"><b>${fmtWhen(c.scheduledFor)}</b><span>${esc(c.title)}</span></div>`).join('');
+    return `<div class="chips">${chips}</div>
+      <div class="facts">${fact('Posts per day', +val('apPostsPerDay') || 3)}${fact('Window', `${esc(val('apStart'))} to ${esc(val('apEnd'))}`)}${fact('Failed', failed)}</div>
+      <h4>Coming up</h4>${rows ? `<div class="sched-list">${rows}</div>` : emptyBot('Nothing scheduled yet.')}
+      <div class="row">${failed ? '<button data-filter="failed">See failed posts</button>' : ''}<button data-tab="accounts">Manage accounts</button></div>`;
+  }
+  if (k === 'live') {
+    const sent = all.filter(isSent).sort((a, b) => (b.scheduledFor || 0) - (a.scheduledFor || 0));
+    return `${thumbs(sent.slice(0, 8), 'Nothing has gone out yet.')}
+      <div class="row"><button data-filter="scheduled">Open Scheduled / Posted</button></div>`;
+  }
+  return `<div class="log">${esc(logLines.slice(0, 12).join('\n') || 'Nothing yet.')}</div>
+    <div class="row"><button data-act="fullLog">See full log</button></div>`;
+}
+
+async function refreshWorkshop() {
+  if (WS.refreshing) return;
+  WS.refreshing = true;
+  try {
+    const all = await allClips();
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    $('#stMade').textContent = all.filter((c) => c.created >= today).length;
+    $('#stPending').textContent = all.filter((c) => c.status === 'pending').length;
+    $('#stScheduled').textContent = all.filter((c) => c.status === 'scheduled' && c.scheduledFor > Date.now()).length;
+    $('#stPosted').textContent = all.filter(isSent).length;
+    if (!WS.station) return;
+    const sig = [WS.station, all.map((c) => c.id + c.status + (c.scheduledFor || '')).join(), JSON.stringify(ls.get('facelessDay', {})),
+      folderHandle?.name, Object.keys(connected).join(), WS.station === 'log' ? logLines[0] : '',
+      val('apNiche'), val('apFacelessPerDay'), val('apPostsPerDay'), val('apStart'), val('apEnd')].join('|');
+    if (sig === WS.sig) return;
+    WS.sig = sig;
+    WS.urls.forEach(URL.revokeObjectURL); WS.urls = [];
+    $('#stationBody').innerHTML = stationHTML(WS.station, all);
+    paintNow();
+  } catch {} finally { WS.refreshing = false; }
+}
+
+function openStation(k) {
+  if (WS.station === k) return closeStation();
+  WS.station = k; WS.sig = '';
+  const [kicker, title] = STATIONS[k];
+  $('#stationKicker').textContent = kicker; $('#stationTitle').textContent = title;
+  $('#station').hidden = false;
+  $$('.ws-hot, .stat').forEach((e) => e.classList.toggle('sel', e.dataset.station === k));
+  paintNow(); refreshWorkshop();
+  $('#station').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  cancelAnimationFrame(WS.raf); liveLoop();
+}
+function closeStation() {
+  WS.station = null; $('#station').hidden = true;
+  $$('.ws-hot, .stat').forEach((e) => e.classList.remove('sel'));
+  WS.urls.forEach(URL.revokeObjectURL); WS.urls = [];
+  cancelAnimationFrame(WS.raf);
+}
+// Mirror the real render canvas into the station panel while a video is being made
+function liveLoop() {
+  const c = $('#wsLive'), wrap = $('#wsLiveWrap');
+  if (c && wrap && !wrap.hidden) c.getContext('2d').drawImage(canvas, 0, 0, c.width, c.height);
+  if (WS.station) WS.raf = requestAnimationFrame(liveLoop);
+}
+
+$$('.ws-hot, .stat').forEach((el) => {
+  el.addEventListener('click', () => openStation(el.dataset.station));
+  el.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openStation(el.dataset.station); } });
+});
+$$('.ws-hot').forEach((el) => {
+  const tip = $('#wsTip');
+  const show = () => {
+    const box = el.getBoundingClientRect(), host = $('.workshop').getBoundingClientRect();
+    tip.textContent = STATIONS[el.dataset.station][1];
+    tip.style.left = (box.left - host.left + box.width / 2) + 'px';
+    tip.style.top = (box.top - host.top) + 'px';
+    tip.classList.add('show');
+  };
+  el.addEventListener('mouseenter', show); el.addEventListener('focus', show);
+  el.addEventListener('mouseleave', () => tip.classList.remove('show')); el.addEventListener('blur', () => tip.classList.remove('show'));
+});
+$('#stationClose').onclick = closeStation;
+$('#stationBody').addEventListener('click', async (e) => {
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.tab) return openTab(b.dataset.tab);
+  if (b.dataset.filter) { openTab('queue'); return $(`.filter[data-filter="${b.dataset.filter}"]`)?.click(); }
+  if (b.dataset.act === 'folder') { await pickFolder(); paintWorkshop(); WS.sig = ''; refreshWorkshop(); }
+  if (b.dataset.act === 'approveAll') { b.disabled = true; await $('#approveAll').onclick(); refreshWorkshop(); }
+  if (b.dataset.act === 'fullLog') $('#log').scrollIntoView({ behavior: 'smooth' });
+});
+$('#stationBody').addEventListener('mouseover', (e) => { const v = e.target.closest('.mini')?.querySelector('video'); if (v) v.play().catch(() => {}); });
+$('#stationBody').addEventListener('mouseout', (e) => { const v = e.target.closest('.mini')?.querySelector('video'); if (v && !v.closest('.mini').contains(e.relatedTarget)) v.pause(); });
+setInterval(() => { if (document.visibilityState === 'visible') { refreshWorkshop(); paintWorkshop(); } }, 5000);
 
 (async function init() {
   loadAll();
