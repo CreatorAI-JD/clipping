@@ -326,3 +326,4 @@ nav button.active .i{opacity:1;color:var(--violet)}
   .ws-hint{display:none}
 }
 .stats-empty .empty{border:0;padding:16px 0 0}
+.stat-warn{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;white-space:pre-wrap;font-size:13px;color:#ffd2d6;background:rgba(255,92,108,.1);border:1px solid rgba(255,92,108,.35);border-radius:14px;padding:10px 14px;margin-bottom:14px}

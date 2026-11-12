@@ -573,7 +573,7 @@ $('#genBtn').onclick = async () => {
 };
 
 /* ================= ACCOUNTS / POSTING ================= */
-let upProfiles = [];
+let upProfiles = [], upLastError = null;
 const upHeaders = () => ({ Authorization: 'Apikey ' + val('upKey') });
 const selectedPlatforms = () => PLATFORMS.map(([k]) => k).filter((k) => ls.get('pt_' + k, k === 'tiktok' || k === 'youtube' || k === 'instagram'));
 const upProfile = () => ls.get('upProfile', 'autoclipper');
@@ -598,9 +598,10 @@ async function refreshAccounts(quiet) {
       j = await upFetch('/uploadposts/users'); upProfiles = j.profiles || [];
     }
     if (!upProfiles.find((p) => p.username === upProfile())) ls.set('upProfile', upProfiles[0]?.username || 'autoclipper');
+    upLastError = null;
     st(`✅ Key works (${j.plan || 'plan'} plan). Profile: ${upProfile()}`);
     renderPlatforms(upProfiles.find((p) => p.username === upProfile()));
-  } catch (e) { st('⚠️ ' + e.message); renderPlatforms(null); }
+  } catch (e) { upLastError = e.message; st('⚠️ ' + e.message); renderPlatforms(null); }
 }
 
 function connectedMap(profile) {
@@ -643,7 +644,7 @@ $('#connectBtn').onclick = async () => {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         username: upProfile(), redirect_url: location.origin + location.pathname + '?connected=1',
-        platforms: PLATFORMS.map(([k]) => k), connect_title: 'Connect your accounts to AutoClipper',
+        platforms: PLATFORMS.map(([k]) => k), connect_title: 'Connect your accounts to AutoClipper', redirect_button_text: 'Back to AutoClipper', connect_theme: 'dark',
       }),
     });
     if (win) win.location = j.access_url; else location.href = j.access_url;
@@ -1257,7 +1258,8 @@ async function refreshStats(quiet) {
   if (!quiet) $('#statUpdated').textContent = 'Fetching your numbers…';
   const cache = { at: Date.now(), account: {}, errors: [] };
   try {
-    if (hasUp && !upProfiles.length) await refreshAccounts(true);
+    if (hasUp && (!upProfiles.length || upLastError)) await refreshAccounts(true);
+    if (hasUp && upLastError) cache.errors.push(`Upload-Post said "${upLastError}". Check your API key in the Accounts tab.`);
     // 1) account level (Facebook needs a Page ID, so it's skipped here)
     const plats = Object.keys(connected).filter((k) => k !== 'facebook' && !connected[k].direct);
     if (hasUp && plats.length) {
@@ -1371,7 +1373,7 @@ async function renderStats() {
       <div class="tv-body"><b>${esc(c.title)}</b><div class="tv-nums"><span>👁 ${fmtNum(t.views)}</span><span>♥ ${fmtNum(t.likes)}</span><span>💬 ${fmtNum(t.comments)}</span><span>↻ ${fmtNum(t.shares)}</span></div>
       <div class="tv-links">${links}</div></div></div>`;
   }).join('') + '</div>' : emptyBot(posts.length ? 'Your posted videos are waiting on their first numbers. Hit Refresh in a bit.' : 'Nothing posted in this range yet.')}</div>`;
-  if (cache?.errors?.length) html += `<div class="status">⚠️ ${esc(cache.errors.join('\n'))}</div>`;
+  if (cache?.errors?.length) html = `<div class="stat-warn">⚠️ ${esc(cache.errors.join('\n'))} <button data-go="accounts">Open Accounts</button></div>` + html;
   body.innerHTML = html;
   wireChart();
 }
