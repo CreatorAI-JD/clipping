@@ -8,63 +8,101 @@
 </head>
 <body>
 <header>
-  <div class="brand">✂️ AutoClipper</div>
+  <div class="brand">✂️ AutoClipper <span id="apBadge" class="badge off">Autopilot OFF</span></div>
   <nav>
-    <button data-tab="clipper" class="active">Stream Clipper</button>
+    <button data-tab="autopilot" class="active">🚀 Autopilot</button>
+    <button data-tab="clipper">Stream Clipper</button>
     <button data-tab="faceless">Faceless Generator</button>
     <button data-tab="queue">Review Queue <span id="qcount" class="pill">0</span></button>
+    <button data-tab="accounts">🔗 Accounts</button>
     <button data-tab="settings">Settings</button>
   </nav>
 </header>
 
 <main>
+  <!-- AUTOPILOT -->
+  <section id="autopilot" class="tab active">
+    <h2>Autopilot</h2>
+    <p class="muted">Turn this on, leave the tab open, and AutoClipper clips new VODs from your folder, makes faceless videos every day, and schedules everything to your connected accounts.</p>
+    <div class="card">
+      <div class="toggle-row">
+        <label class="switch"><input type="checkbox" id="apOn"><span></span></label>
+        <div><strong>Autopilot</strong><div class="muted small" id="apSummary">Off</div></div>
+      </div>
+      <div class="grid2">
+        <div class="sub">
+          <h3>📂 Auto-clip new VODs</h3>
+          <p class="muted small">Pick a folder (like your OBS recordings or Downloads). Every new video dropped in gets clipped automatically.</p>
+          <button id="pickFolder">Choose folder</button>
+          <div class="small" id="folderName">No folder chosen</div>
+        </div>
+        <div class="sub">
+          <h3>🤖 Daily faceless videos</h3>
+          <label>Videos per day <input type="number" id="apFacelessPerDay" min="0" max="20" value="3"></label>
+          <label>Niche <select id="apNiche"></select></label>
+        </div>
+        <div class="sub">
+          <h3>✅ Approval</h3>
+          <label class="check"><input type="checkbox" id="apAutoApprove"> Auto-approve (skip my review)</label>
+          <label>…only if AI hype score is at least <input type="number" id="apMinScore" min="0" max="10" value="6"></label>
+          <p class="muted small">Score needs an OpenAI key. Without one, auto-approve approves everything.</p>
+        </div>
+        <div class="sub">
+          <h3>📤 Auto-post</h3>
+          <label class="check"><input type="checkbox" id="apAutoPost"> Auto-schedule approved videos</label>
+          <label>Posts per day <input type="number" id="apPostsPerDay" min="1" max="24" value="3"></label>
+          <label>Posting window <span class="row"><input type="time" id="apStart" value="11:00"> to <input type="time" id="apEnd" value="21:00"></span></label>
+          <div class="small" id="platformSummary"></div>
+        </div>
+      </div>
+    </div>
+    <h3>Activity</h3>
+    <div id="log" class="log"></div>
+  </section>
+
   <!-- STREAM CLIPPER -->
-  <section id="clipper" class="tab active">
+  <section id="clipper" class="tab">
     <h2>Stream Clipper</h2>
-    <p class="muted">Drop in a stream VOD or long video. AutoClipper scans the audio for hype moments (yelling, laughing, crowd noise), cuts them into vertical 9:16 clips, and sends them to your Review Queue.</p>
+    <p class="muted">Drop in a stream VOD. AutoClipper finds the hype moments, adds word-by-word captions, cuts vertical 9:16 clips, and sends them to your Review Queue.</p>
     <div class="card">
       <label class="drop" id="vodDrop">
         <input type="file" id="vodFile" accept="video/*" hidden>
         <span>📁 Click or drop a video file (MP4 / WebM / MOV)</span>
       </label>
       <div class="grid3">
-        <label>Clips to make <input type="number" id="numClips" value="5" min="1" max="20"></label>
-        <label>Clip length (sec) <input type="number" id="clipLen" value="30" min="8" max="90"></label>
+        <label>Clips per video <input type="number" id="numClips" value="5" min="1" max="20" data-save></label>
+        <label>Clip length (sec) <input type="number" id="clipLen" value="30" min="8" max="90" data-save></label>
         <label>Layout
-          <select id="layout">
+          <select id="layout" data-save>
             <option value="blur">Center + blurred background</option>
             <option value="crop">Center crop (fill)</option>
             <option value="split">Facecam top / gameplay bottom</option>
           </select>
         </label>
+        <label>Facecam corner (split layout)
+          <select id="camCorner" data-save>
+            <option value="tl">Top-left</option><option value="tr">Top-right</option>
+            <option value="bl">Bottom-left</option><option value="br">Bottom-right</option>
+          </select>
+        </label>
+        <label>Name tag on clip <input type="text" id="clipTag" placeholder="@streamer" data-save></label>
+        <label class="check"><input type="checkbox" id="burnCaptions" checked data-save> Burn in captions (needs OpenAI key)</label>
       </div>
-      <label>Caption on clip (optional, e.g. streamer name) <input type="text" id="clipTag" placeholder="@streamer"></label>
       <button class="primary" id="scanBtn" disabled>🔍 Find highlights & make clips</button>
       <div id="clipStatus" class="status"></div>
       <canvas id="waveform" height="80"></canvas>
-      <video id="vodVideo" playsinline muted hidden></video>
     </div>
   </section>
 
   <!-- FACELESS GENERATOR -->
   <section id="faceless" class="tab">
     <h2>Faceless Video Generator</h2>
-    <p class="muted">Give it a topic (or let AI pick one). It writes the script, voices it, and renders a captioned vertical video over a background clip.</p>
+    <p class="muted">Pick a topic (or let AI pick). It writes the script, voices it, and renders a captioned vertical video over a background clip.</p>
     <div class="card">
       <div class="grid3">
-        <label>Niche
-          <select id="niche">
-            <option>GTA 6 facts & secrets</option>
-            <option>Gaming news</option>
-            <option>Crazy history facts</option>
-            <option>Motivation</option>
-            <option>Scary stories</option>
-            <option>Sports facts</option>
-            <option>Money tips</option>
-          </select>
-        </label>
+        <label>Niche <select id="niche" data-save></select></label>
         <label>Length
-          <select id="vidLen">
+          <select id="vidLen" data-save>
             <option value="30">~30 sec</option>
             <option value="45" selected>~45 sec</option>
             <option value="60">~60 sec</option>
@@ -75,7 +113,7 @@
       <label>Topic (leave blank and AI picks one) <input type="text" id="topic" placeholder="e.g. 5 hidden details in the GTA 6 trailer"></label>
       <label class="drop" id="bgDrop">
         <input type="file" id="bgFile" accept="video/*" multiple hidden>
-        <span>🎮 Background gameplay (optional — Minecraft parkour, GTA driving, etc.). Without one, an animated background is used.</span>
+        <span>🎮 Background gameplay (optional — Minecraft parkour, GTA driving…). Saved for Autopilot too. Without one, an animated background is used.</span>
       </label>
       <div class="row">
         <button id="writeBtn">✍️ Write script only</button>
@@ -91,40 +129,98 @@
   <!-- REVIEW QUEUE -->
   <section id="queue" class="tab">
     <h2>Review Queue</h2>
-    <p class="muted">Nothing posts without you. Approve a clip to download it and copy its caption + hashtags, then upload it to TikTok / Shorts / Reels.</p>
+    <p class="muted">Approve to post (or schedule) to your connected accounts. Edit the caption first if you want.</p>
     <div class="row">
       <button data-filter="pending" class="filter active">Pending</button>
       <button data-filter="approved" class="filter">Approved</button>
+      <button data-filter="scheduled" class="filter">Scheduled / Posted</button>
+      <button data-filter="failed" class="filter">Failed</button>
       <button data-filter="rejected" class="filter">Rejected</button>
+      <button id="approveAll">✓ Approve all pending</button>
     </div>
     <div id="queueList" class="queue"></div>
+  </section>
+
+  <!-- ACCOUNTS -->
+  <section id="accounts" class="tab">
+    <h2>Connected Accounts</h2>
+    <p class="muted">Connect TikTok, Instagram, YouTube, Facebook, X and Threads once, and AutoClipper posts for you. Posting runs through <a href="https://www.upload-post.com" target="_blank" rel="noopener">Upload-Post</a> (free plan: 10 posts/month, paid from ~$16/mo for unlimited).</p>
+    <div class="card">
+      <h3>Step 1 — Upload-Post API key</h3>
+      <ol class="small muted">
+        <li>Make a free account at <a href="https://app.upload-post.com" target="_blank" rel="noopener">app.upload-post.com</a>.</li>
+        <li>Open <b>API Keys</b> in their dashboard, create a key, paste it here.</li>
+      </ol>
+      <label>API key <input type="password" id="upKey" placeholder="paste your Upload-Post API key" data-save></label>
+      <button class="primary" id="upSave">Save & check</button>
+      <div id="upStatus" class="status"></div>
+    </div>
+    <div class="card">
+      <h3>Step 2 — Connect your socials</h3>
+      <p class="muted small">Opens a secure page where you log in to each platform. You come back here when done.</p>
+      <div class="platforms" id="platformGrid"></div>
+      <div class="row">
+        <button class="primary" id="connectBtn">🔗 Connect / manage accounts</button>
+        <button id="refreshAccts">↻ Refresh</button>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Step 3 — Where should videos go?</h3>
+      <div class="row" id="postTo"></div>
+      <label>TikTok privacy
+        <select id="tiktokPrivacy" data-save>
+          <option value="PUBLIC_TO_EVERYONE">Public</option>
+          <option value="SELF_ONLY">Only me (test)</option>
+          <option value="FOLLOWER_OF_CREATOR">Followers</option>
+        </select>
+      </label>
+    </div>
+    <details class="card">
+      <summary><b>Optional: free unlimited YouTube posting (direct)</b></summary>
+      <p class="small muted">Skips Upload-Post for YouTube so it doesn't use your monthly posts. Takes ~10 minutes to set up once:</p>
+      <ol class="small muted">
+        <li>Go to <a href="https://console.cloud.google.com" target="_blank" rel="noopener">console.cloud.google.com</a> → new project.</li>
+        <li>APIs &amp; Services → Library → enable <b>YouTube Data API v3</b>.</li>
+        <li>OAuth consent screen → External → add yourself as a <b>test user</b>.</li>
+        <li>Credentials → Create OAuth client ID → <b>Web application</b> → Authorized JavaScript origin: <code id="originHint"></code></li>
+        <li>Paste the Client ID below and hit Connect YouTube.</li>
+      </ol>
+      <label>Google OAuth Client ID <input type="text" id="gClientId" placeholder="xxxx.apps.googleusercontent.com" data-save></label>
+      <button id="ytConnect">▶️ Connect YouTube</button>
+      <div id="ytStatus" class="status"></div>
+    </details>
   </section>
 
   <!-- SETTINGS -->
   <section id="settings" class="tab">
     <h2>Settings</h2>
     <div class="card">
-      <label>OpenAI API key (for AI scripts, voiceover & auto captions)
-        <input type="password" id="apiKey" placeholder="sk-...">
+      <label>OpenAI API key (AI scripts, voiceover, captions, hype scores)
+        <input type="password" id="apiKey" placeholder="sk-..." data-save>
       </label>
-      <p class="muted small">Stored only in this browser. Without a key, AutoClipper still clips and uses built-in script templates, but videos have no voiceover.</p>
+      <p class="muted small">Get one at <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener">platform.openai.com/api-keys</a>. Keys are stored only in this browser.</p>
       <div class="grid3">
+        <label>AI model <input type="text" id="model" value="gpt-4o-mini" data-save></label>
         <label>Voice
-          <select id="voice">
+          <select id="voice" data-save>
             <option>onyx</option><option>alloy</option><option>echo</option>
             <option>fable</option><option>nova</option><option>shimmer</option>
           </select>
         </label>
-        <label>Caption color <input type="color" id="capColor" value="#ffd400"></label>
-        <label>Default hashtags <input type="text" id="hashtags" value="#gta6 #gaming #fyp #viral"></label>
+        <label>Caption color <input type="color" id="capColor" value="#ffd400" data-save></label>
+        <label>Default hashtags <input type="text" id="hashtags" value="#gta6 #gaming #fyp #viral" data-save></label>
       </div>
-      <button class="primary" id="saveSettings">Save</button>
-      <span id="savedMsg" class="muted"></span>
+      <div class="row">
+        <button class="primary" id="testKey">Test OpenAI key</button>
+        <button id="clearDone">🧹 Delete posted & rejected videos</button>
+      </div>
+      <div id="setStatus" class="status"></div>
     </div>
   </section>
 </main>
 
-<canvas id="renderCanvas" width="1080" height="1920" hidden></canvas>
+<canvas id="renderCanvas" width="1080" height="1920"></canvas>
+<video id="vodVideo" playsinline></video>
 <script src="app.js"></script>
 </body>
 </html>

@@ -35,3 +35,28 @@ button.primary{background:var(--accent);color:#111;border-color:var(--accent);fo
 .ok{background:var(--green)!important;border-color:var(--green)!important}
 .no{background:var(--red)!important;border-color:var(--red)!important}
 .empty{color:var(--muted);padding:30px;text-align:center;grid-column:1/-1}
+#renderCanvas,#vodVideo{position:fixed;left:-10000px;top:0;width:10px;height:10px;pointer-events:none}
+.badge{font-size:12px;border-radius:999px;padding:2px 9px;margin-left:6px;vertical-align:middle;font-weight:700}
+.badge.off{background:#2a2d38;color:var(--muted)}.badge.on{background:var(--green);color:#fff}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.sub{border:1px solid var(--line);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px}
+h3{margin:4px 0;font-size:16px}
+.check{flex-direction:row;align-items:center;gap:8px;color:var(--text)}
+.toggle-row{display:flex;gap:14px;align-items:center}
+.switch{position:relative;width:54px;height:30px;flex:none}
+.switch input{display:none}
+.switch span{position:absolute;inset:0;background:#2a2d38;border-radius:999px;cursor:pointer;transition:.2s}
+.switch span:before{content:"";position:absolute;width:24px;height:24px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}
+.switch input:checked+span{background:var(--green)}
+.switch input:checked+span:before{transform:translateX(24px)}
+.log{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px;font:12px/1.6 ui-monospace,monospace;max-height:320px;overflow:auto;white-space:pre-wrap;color:var(--muted)}
+.platforms{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.plat{border:1px solid var(--line);border-radius:10px;padding:10px;font-size:13px}
+.plat.on{border-color:var(--green)}
+.plat b{display:block}
+.tagline{font-size:12px;color:var(--muted)}
+details summary{cursor:pointer}
+code{background:#0f1116;padding:1px 5px;border-radius:4px}
+a{color:var(--accent)}
+.st{font-size:12px;border-radius:6px;padding:2px 6px;background:#22252f;align-self:flex-start}
+@media (max-width:600px){nav button{padding:7px 9px;font-size:13px}}
