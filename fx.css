@@ -165,3 +165,14 @@ body.modal-open{overflow:hidden}
   .rec{padding:16px}
 }
 .rec .fact b{white-space:normal;font-size:14px}
+/* automation tab (fx-auto.js) */
+.auto-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:14px}
+.auto-grid .card{margin:0}
+.auto-grid h3{margin:0;flex:1}
+.auto-grid h4{margin:14px 0 6px;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.auto-grid code{font-size:12px;overflow-wrap:anywhere}
+.auto-log{max-height:220px;overflow:auto;font-size:13px;display:grid;gap:6px}
+.auto-log small{margin-right:6px}
+.hour-bars{display:flex;align-items:flex-end;gap:2px;height:70px;margin:10px 0 2px}
+.hour-bars i{flex:1;background:linear-gradient(180deg,var(--violet,#b69cff),rgba(182,156,255,.35));border-radius:3px 3px 0 0;min-width:0}
+.hour-axis{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:8px}

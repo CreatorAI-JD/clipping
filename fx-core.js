@@ -423,6 +423,8 @@ window.FX = (function () {
     try {
       if (now() - M.lastMonitor > 3600e3 && FX.RUN.monitorSweep) { M.lastMonitor = now(); await FX.RUN.monitorSweep().catch((e) => log('⚠️ Monitoring: ' + e.message)); }
       if (FX.RUN.analyticsWeekly) await FX.RUN.analyticsWeekly().catch(() => {});
+      // automation crew (fx-auto.js): Twitch watcher, self-repair, keep-awake. Never publishes by itself.
+      if (FX.beforeTick) await FX.beforeTick().catch((e) => log('⚠️ Automation: ' + e.message));
       if (!M.running || FX.stopped() || busy) return;
       const all = await FX.db.prod.all();
       // reset jobs that were mid-run when the tab closed
@@ -434,7 +436,7 @@ window.FX = (function () {
       if (ready.length) { await FX.runStage(ready[0]); return; }
       // start a new video when today's quota isn't done and nothing is in the pipe
       const c = FX.channel(), today = new Date(); today.setHours(0, 0, 0, 0);
-      const madeToday = all.filter((r) => r.created >= today.getTime()).length;
+      const madeToday = all.filter((r) => r.created >= today.getTime() && !r.replaced).length; // auto-replaced videos don't use up the quota
       const active = all.filter((r) => !['live', 'rejected', 'scheduled', 'error'].includes(r.status) && r.stage !== 'monitor').length;
       if (FX.channelReady() && (!FX.canStart || await FX.canStart()) && madeToday < Math.min(+c.videosPerDay || 0, +c.maxPerDay || 99) && active < 2) {
         const r = await FX.newRecord({ who: 'manager' });
