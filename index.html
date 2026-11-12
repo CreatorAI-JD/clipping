@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AutoClipper</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div class="brand">✂️ AutoClipper</div>
+  <nav>
+    <button data-tab="clipper" class="active">Stream Clipper</button>
+    <button data-tab="faceless">Faceless Generator</button>
+    <button data-tab="queue">Review Queue <span id="qcount" class="pill">0</span></button>
+    <button data-tab="settings">Settings</button>
+  </nav>
+</header>
+
+<main>
+  <!-- STREAM CLIPPER -->
+  <section id="clipper" class="tab active">
+    <h2>Stream Clipper</h2>
+    <p class="muted">Drop in a stream VOD or long video. AutoClipper scans the audio for hype moments (yelling, laughing, crowd noise), cuts them into vertical 9:16 clips, and sends them to your Review Queue.</p>
+    <div class="card">
+      <label class="drop" id="vodDrop">
+        <input type="file" id="vodFile" accept="video/*" hidden>
+        <span>📁 Click or drop a video file (MP4 / WebM / MOV)</span>
+      </label>
+      <div class="grid3">
+        <label>Clips to make <input type="number" id="numClips" value="5" min="1" max="20"></label>
+        <label>Clip length (sec) <input type="number" id="clipLen" value="30" min="8" max="90"></label>
+        <label>Layout
+          <select id="layout">
+            <option value="blur">Center + blurred background</option>
+            <option value="crop">Center crop (fill)</option>
+            <option value="split">Facecam top / gameplay bottom</option>
+          </select>
+        </label>
+      </div>
+      <label>Caption on clip (optional, e.g. streamer name) <input type="text" id="clipTag" placeholder="@streamer"></label>
+      <button class="primary" id="scanBtn" disabled>🔍 Find highlights & make clips</button>
+      <div id="clipStatus" class="status"></div>
+      <canvas id="waveform" height="80"></canvas>
+      <video id="vodVideo" playsinline muted hidden></video>
+    </div>
+  </section>
+
+  <!-- FACELESS GENERATOR -->
+  <section id="faceless" class="tab">
+    <h2>Faceless Video Generator</h2>
+    <p class="muted">Give it a topic (or let AI pick one). It writes the script, voices it, and renders a captioned vertical video over a background clip.</p>
+    <div class="card">
+      <div class="grid3">
+        <label>Niche
+          <select id="niche">
+            <option>GTA 6 facts & secrets</option>
+            <option>Gaming news</option>
+            <option>Crazy history facts</option>
+            <option>Motivation</option>
+            <option>Scary stories</option>
+            <option>Sports facts</option>
+            <option>Money tips</option>
+          </select>
+        </label>
+        <label>Length
+          <select id="vidLen">
+            <option value="30">~30 sec</option>
+            <option value="45" selected>~45 sec</option>
+            <option value="60">~60 sec</option>
+          </select>
+        </label>
+        <label>How many <input type="number" id="numVids" value="1" min="1" max="10"></label>
+      </div>
+      <label>Topic (leave blank and AI picks one) <input type="text" id="topic" placeholder="e.g. 5 hidden details in the GTA 6 trailer"></label>
+      <label class="drop" id="bgDrop">
+        <input type="file" id="bgFile" accept="video/*" multiple hidden>
+        <span>🎮 Background gameplay (optional — Minecraft parkour, GTA driving, etc.). Without one, an animated background is used.</span>
+      </label>
+      <div class="row">
+        <button id="writeBtn">✍️ Write script only</button>
+        <button class="primary" id="genBtn">🎬 Generate video(s)</button>
+      </div>
+      <label>Script (edit before generating if you want)
+        <textarea id="script" rows="7" placeholder="Script appears here…"></textarea>
+      </label>
+      <div id="genStatus" class="status"></div>
+    </div>
+  </section>
+
+  <!-- REVIEW QUEUE -->
+  <section id="queue" class="tab">
+    <h2>Review Queue</h2>
+    <p class="muted">Nothing posts without you. Approve a clip to download it and copy its caption + hashtags, then upload it to TikTok / Shorts / Reels.</p>
+    <div class="row">
+      <button data-filter="pending" class="filter active">Pending</button>
+      <button data-filter="approved" class="filter">Approved</button>
+      <button data-filter="rejected" class="filter">Rejected</button>
+    </div>
+    <div id="queueList" class="queue"></div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section id="settings" class="tab">
+    <h2>Settings</h2>
+    <div class="card">
+      <label>OpenAI API key (for AI scripts, voiceover & auto captions)
+        <input type="password" id="apiKey" placeholder="sk-...">
+      </label>
+      <p class="muted small">Stored only in this browser. Without a key, AutoClipper still clips and uses built-in script templates, but videos have no voiceover.</p>
+      <div class="grid3">
+        <label>Voice
+          <select id="voice">
+            <option>onyx</option><option>alloy</option><option>echo</option>
+            <option>fable</option><option>nova</option><option>shimmer</option>
+          </select>
+        </label>
+        <label>Caption color <input type="color" id="capColor" value="#ffd400"></label>
+        <label>Default hashtags <input type="text" id="hashtags" value="#gta6 #gaming #fyp #viral"></label>
+      </div>
+      <button class="primary" id="saveSettings">Save</button>
+      <span id="savedMsg" class="muted"></span>
+    </div>
+  </section>
+</main>
+
+<canvas id="renderCanvas" width="1080" height="1920" hidden></canvas>
+<script src="app.js"></script>
+</body>
+</html>
