@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="fx.css">
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -33,7 +34,9 @@
     <span>AutoClipper</span> <span id="apBadge" class="badge off">Autopilot OFF</span>
   </div>
   <nav>
-    <button data-tab="autopilot" class="active"><svg class="i"><use href="#i-bolt"/></svg>Autopilot</button>
+    <button data-tab="workshop" class="active"><svg class="i"><use href="#i-bot"/></svg>Workshop</button>
+    <button data-tab="line"><svg class="i"><use href="#i-check"/></svg>Assembly Line <span id="fxNeedPill" class="pill" hidden></span></button>
+    <button data-tab="autopilot"><svg class="i"><use href="#i-bolt"/></svg>Autopilot</button>
     <button data-tab="clipper"><svg class="i"><use href="#i-scissors"/></svg>Stream Clipper</button>
     <button data-tab="faceless"><svg class="i"><use href="#i-film"/></svg>Faceless Generator</button>
     <button data-tab="queue"><svg class="i"><use href="#i-inbox"/></svg>Review Queue <span id="qcount" class="pill">0</span></button>
@@ -44,19 +47,18 @@
 </header>
 
 <main>
-  <!-- AUTOPILOT -->
-  <section id="autopilot" class="tab active">
-    <div class="hero">
-      <div class="hero-copy">
-        <span class="eyebrow"><i class="dot"></i> Your content crew</span>
-        <h2 class="hero-title">Clips made <em>while you sleep.</em></h2>
-        <p class="muted">Turn this on, leave the tab open, and AutoClipper clips new VODs from your folder, makes faceless videos every day, and schedules everything to your connected accounts.</p>
-        <div class="toggle-row">
-          <label class="switch"><input type="checkbox" id="apOn"><span></span></label>
-          <div><strong>Autopilot</strong><div class="muted small" id="apSummary">Off</div></div>
-        </div>
-      </div>
-      <div class="workshop" aria-label="Robot workshop: little robots cutting, captioning and shipping clips. They work when Autopilot is on and nap when it is off." role="img">
+  <!-- WORKSHOP: full-page live view of the robots at work -->
+  <section id="workshop" class="tab active">
+    <div class="fx-top">
+      <div><span class="eyebrow"><i class="dot"></i> Live workshop</span><h2 class="hero-title">The assembly line, <em>at work.</em></h2>
+        <p class="muted">20 robot stations, one job each. Videos ride the belt from research to publishing. Tap any robot to see what it's doing, its reports and its track record.</p></div>
+      <div class="row fx-ctrl"><button id="fxRun" data-act="run" class="primary">▶ Start line</button><button id="fxStop" data-act="stop" class="stopbtn">🛑 STOP</button></div>
+    </div>
+    <div class="fx-now card" id="fxNow"></div>
+    <div class="fx-floor" id="fxFloor"></div>
+    <div class="station card" id="fxStation" hidden></div>
+    <h3 class="ws-title">Clip workshop <span class="muted small">— the Autopilot crew (Stream Clipper, Faceless, Review Queue, posting)</span></h3>
+    <div class="workshop" aria-label="Robot workshop: little robots cutting, captioning and shipping clips. They work when Autopilot is on and nap when it is off." role="img">
         <svg viewBox="0 0 480 280" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <linearGradient id="wsBody" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c9bcff"/><stop offset="1" stop-color="#8c76f0"/></linearGradient>
@@ -219,7 +221,6 @@
         <div class="ws-status"><i class="dot"></i><span id="wsStatus">Crew is on break. Flip Autopilot on to wake them up.</span></div>
         <div class="ws-hint">Tap a robot to see what it's doing</div>
       </div>
-    </div>
     <div class="stats" id="stats">
       <button class="stat" data-station="cut"><span class="stat-n" id="stMade">0</span><span class="stat-l">Made today</span></button>
       <button class="stat" data-station="review"><span class="stat-n" id="stPending">0</span><span class="stat-l">Waiting for review</span></button>
@@ -234,6 +235,29 @@
       </div>
       <div class="station-now" id="stationNow"></div>
       <div class="station-body" id="stationBody"></div>
+    </div>
+  </section>
+
+  <!-- ASSEMBLY LINE: production records, approvals, channel, policies, analytics -->
+  <section id="line" class="tab">
+    <h2>Assembly Line</h2>
+    <p class="muted">The production manager. Every video gets an ID and a full record: idea, research, script, voice, assets with licenses, captions, edit project, every checker's report, revisions, costs, approvals, publishing and performance.</p>
+    <div class="subnav" id="fxSubnav"></div>
+    <div id="fxPane"></div>
+  </section>
+
+  <!-- AUTOPILOT -->
+  <section id="autopilot" class="tab">
+    <div class="hero solo">
+      <div class="hero-copy">
+        <span class="eyebrow"><i class="dot"></i> Your content crew</span>
+        <h2 class="hero-title">Clips made <em>while you sleep.</em></h2>
+        <p class="muted">Turn this on, leave the tab open, and AutoClipper clips new VODs from your folder, makes faceless videos every day, and schedules everything to your connected accounts.</p>
+        <div class="toggle-row">
+          <label class="switch"><input type="checkbox" id="apOn"><span></span></label>
+          <div><strong>Autopilot</strong><div class="muted small" id="apSummary">Off</div></div>
+        </div>
+      </div>
     </div>
     <div class="card">
       <div class="grid2">
@@ -446,8 +470,13 @@
   </section>
 </main>
 
+<div id="fxRecord" class="fx-modal" hidden></div>
 <canvas id="renderCanvas" width="1080" height="1920"></canvas>
 <video id="vodVideo" playsinline></video>
 <script src="app.js"></script>
+<script src="fx-core.js"></script>
+<script src="fx-depts.js"></script>
+<script src="fx-clips.js"></script>
+<script src="fx-ui.js"></script>
 </body>
 </html>

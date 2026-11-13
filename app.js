@@ -57,12 +57,14 @@ function emptyBot(msg) {
 let dbP = null;
 function db() {
   return dbP ||= new Promise((res, rej) => {
-    const r = indexedDB.open('autoclipper', 2);
+    const r = indexedDB.open('autoclipper', 3);
     r.onupgradeneeded = () => {
       const d = r.result;
       if (!d.objectStoreNames.contains('clips')) d.createObjectStore('clips', { keyPath: 'id' });
       if (!d.objectStoreNames.contains('bg')) d.createObjectStore('bg', { keyPath: 'id' });
       if (!d.objectStoreNames.contains('kv')) d.createObjectStore('kv');
+      // assembly line (fx-*.js): production records, their files, idea database, asset library, audit log, backups
+      for (const n of ['prod', 'files', 'ideas', 'library', 'audit', 'backups']) if (!d.objectStoreNames.contains(n)) d.createObjectStore(n, { keyPath: 'id' });
     };
     r.onsuccess = () => res(r.result);
     r.onerror = () => rej(r.error);
@@ -669,7 +671,7 @@ $('#ytConnect').onclick = async () => {
     await loadGis();
     tokenClient = google.accounts.oauth2.initTokenClient({
       client_id: val('gClientId'),
-      scope: 'https://www.googleapis.com/auth/youtube.upload https://www.googleapis.com/auth/youtube.readonly',
+      scope: 'https://www.googleapis.com/auth/youtube.upload https://www.googleapis.com/auth/youtube.readonly https://www.googleapis.com/auth/yt-analytics.readonly',
       callback: (resp) => {
         if (resp.error) return st('⚠️ ' + resp.error);
         ls.set('ytTok', { token: resp.access_token, exp: Date.now() + resp.expires_in * 1000 });
