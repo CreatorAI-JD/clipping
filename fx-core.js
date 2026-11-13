@@ -60,7 +60,7 @@ window.FX = (function () {
     type: 'clips', name: 'GTA stream clips', niche: 'GTA streamer clips (GTA RP / GTA Online / GTA 6 hype)', audience: 'GTA and GTA RP fans, 14–30, who watch Twitch/Kick streamers and want the funniest and wildest moments',
     platforms: ['youtube', 'tiktok', 'instagram'], tone: 'Hyped, funny, never mean to the streamer or chat', personality: 'A fan clipping the best moments, adding context so anyone gets the joke',
     style: 'Start right before the moment, cut dead air, big readable captions, one punchy hook line on screen', lengthSec: 35,
-    streamer: '', streamerRelation: 'me', permissionProof: '', permissionDate: '', gamePolicyAck: false, game: 'Grand Theft Auto V / GTA RP',
+    streamer: '', streamerRelation: 'me', permissionProof: '', permissionDate: '', gamePolicyAck: false, game: 'GTA 6 / GTA V / GTA RP',
     clipLen: 35, momentsPerVod: 6, layout: 'blur', clipTag: '', introCommentary: true, camCorner: 'bl', camSize: 25, camInset: 1, punchZoom: true, jumpCuts: true,
     voice: 'onyx', speed: 1.05, pronunciations: '', captionColor: '#ffffff', highlightColor: '#ffd400', captionPos: 0.64, captionSize: 84,
     music: true, musicVolume: 0.18, transitions: 'mixed',

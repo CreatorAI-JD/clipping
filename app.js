@@ -304,6 +304,9 @@ function drawVodFrame(layout, tag, cap) {
   let capY = H * 0.72;
   if (layout === 'crop') {
     ctx.drawImage(vod, ...coverRect(vw, vh, 0, 0, W, H));
+  } else if (layout === 'hook' && window.FX?.hooks) {
+    FX.drawClipFrame(ctx, vod, {}, 'hook', { filler: hookFiller, t: vod.currentTime });
+    capY = H * FX.layoutZones('hook').caption;
   } else if (layout === 'split') {
     const fw = vw * 0.3, fh = vh * 0.3, corner = val('camCorner') || 'tl';
     const sx = corner.includes('r') ? vw - fw : 0, sy = corner.includes('b') ? vh - fh : 0;
@@ -324,7 +327,9 @@ function drawVodFrame(layout, tag, cap) {
   }
   if (tag) drawCaption(tag, layout === 'blur' ? 330 : 200, 64, '#fff');
   if (cap) drawCaption(cap, capY, 96);
+  if (window.FX?.hooks) FX.hooks.drawTag(ctx, null, layout);
 }
+let hookFiller = null;
 
 async function loadVod(file) {
   if (vod.src) URL.revokeObjectURL(vod.src);
@@ -345,6 +350,7 @@ async function recordVodSegment(start, len, layout, tag, chunks) {
   vod.muted = false;
   vod.currentTime = start;
   await new Promise((r) => (vod.onseeked = r));
+  hookFiller?.dispose?.(); hookFiller = layout === 'hook' && window.FX?.hooks ? await FX.hooks.prep(await FX.hooks.pick()) : null;
   drawVodFrame(layout, tag, null);
   const rec = startRecorder(mediaDest.stream);
   await vod.play();

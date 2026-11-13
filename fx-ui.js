@@ -125,7 +125,7 @@
   }
 
   /* ================= ASSEMBLY LINE TAB ================= */
-  const SUBS = [['needs', 'Needs you'], ['videos', 'Videos'], ['ideas', 'Ideas & VODs'], ['channel', 'Channel'], ['policies', 'Policies'], ['library', 'Library'], ['analytics', 'Analytics'], ['automation', 'Automation'], ['costs', 'Costs & limits'], ['audit', 'Audit & backups']];
+  const SUBS = [['needs', 'Needs you'], ['videos', 'Videos'], ['ideas', 'Ideas & VODs'], ['channel', 'Channel'], ['policies', 'Policies'], ['hooks', 'Hooks (ASMR)'], ['library', 'Library'], ['analytics', 'Analytics'], ['automation', 'Automation'], ['costs', 'Costs & limits'], ['audit', 'Audit & backups']];
   function recList(recs) {
     return `<div class="rtable"><div class="rr rh"><span>Video</span><span>Station</span><span>Status</span><span>Cost</span><span>Updated</span></div>${recs.map((r) => `<button class="rr" data-open="${r.id}"><span><b>${esc(r.id)}</b><small>${esc(title(r))}${r.practice ? ' · practice' : ''}${r.type === 'clips' ? ' · clip' : ''}</small></span><span>${FX.dept(r.stage).icon} ${esc(FX.dept(r.stage).name)}</span><span>${stBadge(r.status)}</span><span>${FX.money(FX.recCost(r))}</span><span>${when(r.updated)}</span></button>`).join('')}</div>`;
   }
@@ -135,10 +135,11 @@
     const pane = $('#fxPane'); if (!pane) return;
     $('#fxSubnav').innerHTML = SUBS.map(([k, l]) => `<button class="${S.sub === k ? 'active' : ''}" data-sub="${k}">${l}${k === 'needs' ? ' <span class="pill" id="fxNeedPill2"></span>' : ''}</button>`).join('');
     S.urls.forEach(URL.revokeObjectURL); S.urls = [];
-    const fn = { needs: paneNeeds, videos: paneVideos, ideas: paneIdeas, channel: paneChannel, policies: panePolicies, library: paneLibrary, analytics: paneAnalytics, automation: () => FX.autoPane(), costs: paneCosts, audit: paneAudit }[S.sub];
+    const fn = { needs: paneNeeds, videos: paneVideos, ideas: paneIdeas, channel: paneChannel, policies: panePolicies, library: paneLibrary, analytics: paneAnalytics, automation: () => FX.autoPane(), hooks: () => FX.hooks.pane(), costs: paneCosts, audit: paneAudit }[S.sub] || paneNeeds;
     pane.innerHTML = await fn();
     updatePills();
     if (S.sub === 'channel') wireChannel();
+    if (S.sub === 'hooks') FX.hooks.wire();
   }
   FX.renderLine = () => renderLine();
   async function updatePills() {
@@ -184,10 +185,10 @@
     const clips = c.type === 'clips';
     return `<p class="muted">The permanent channel configuration. Every department reads this, so they all make content that fits. Saving creates a new version; each video remembers the version it was made with.</p>
       <div class="card"><div class="row"><b>Channel type</b>
-        <label class="check"><input type="radio" name="chType" value="clips" ${clips ? 'checked' : ''}> GTA streamer clips (VODs → clips)</label>
+        <label class="check"><input type="radio" name="chType" value="clips" ${clips ? 'checked' : ''}> Streamer clips (VODs → clips, any game or niche)</label>
         <label class="check"><input type="radio" name="chType" value="faceless" ${!clips ? 'checked' : ''}> Faceless researched videos</label></div>
         <p class="muted small">Switching type loads sensible defaults for that type; review them and save.</p></div>
-      <div class="card"><h3>Identity</h3><div class="grid3">${F('name', 'Channel name', c.name)}${F('niche', 'Niche', c.niche)}${F('lengthSec', 'Average video length (sec)', c.lengthSec, 'number', 'min="10" max="180"')}</div>
+      <div class="card"><h3>Identity</h3>${clips && FX.hooks ? FX.hooks.nicheRow() : ''}<div class="grid3">${F('name', 'Channel name', c.name)}${F('niche', 'Niche', c.niche)}${F('lengthSec', 'Average video length (sec)', c.lengthSec, 'number', 'min="10" max="180"')}</div>
         ${T('audience', 'Target audience', c.audience, 2)}<div class="grid3">${F('tone', 'Tone', c.tone)}${F('personality', 'Personality', c.personality)}${F('cta', 'Call to action', c.cta)}</div>${T('style', 'Style', c.style, 2)}
         <div class="row"><b class="small">Platforms</b>${['youtube', 'tiktok', 'instagram', 'facebook', 'x', 'threads'].map((p) => `<label class="check"><input type="checkbox" data-plat="${p}" ${(c.platforms || []).includes(p) ? 'checked' : ''}> ${platName(p)}</label>`).join('')}</div></div>
       ${clips ? `<div class="card"><h3>Streams & rights</h3><div class="grid3">${F('streamer', 'Streamer name / channel', c.streamer, 'text', 'placeholder="e.g. your Twitch name"')}${F('game', 'Game', c.game)}
@@ -196,7 +197,7 @@
         ${C('gamePolicyAck', 'I have read the game publisher\'s video / monetization policy for this game', c.gamePolicyAck)}
         <p class="muted small">Without your own streams or written permission, the Copyright robot stops every clip for your decision, and the Monetization robot rates it HIGH risk.</p>
         <div class="grid3">${F('clipLen', 'Max clip length (sec)', c.clipLen, 'number', 'min="8" max="90"')}${F('momentsPerVod', 'Moments to find per VOD', c.momentsPerVod, 'number', 'min="1" max="20"')}
-        <label>Layout<select id="ch_layout"><option value="blur" ${c.layout === 'blur' ? 'selected' : ''}>Center + blurred background</option><option value="crop" ${c.layout === 'crop' ? 'selected' : ''}>Center crop</option><option value="split" ${c.layout === 'split' ? 'selected' : ''}>Facecam top / gameplay bottom</option></select></label>
+        <label>Layout<select id="ch_layout"><option value="blur" ${c.layout === 'blur' ? 'selected' : ''}>Center + blurred background</option><option value="crop" ${c.layout === 'crop' ? 'selected' : ''}>Center crop</option><option value="split" ${c.layout === 'split' ? 'selected' : ''}>Facecam top / gameplay bottom</option><option value="hook" ${c.layout === 'hook' ? 'selected' : ''}>Split-screen hook (clip top, satisfying filler bottom)</option></select></label>
         ${F('clipTag', 'Name tag on clip', c.clipTag, 'text', 'placeholder="@streamer"')}</div>
         <div class="grid3"><label>Facecam corner (for the facecam layout)<select id="ch_camCorner">${[['tl', 'Top-left'], ['tr', 'Top-right'], ['bl', 'Bottom-left'], ['br', 'Bottom-right']].map(([v, l]) => `<option value="${v}" ${c.camCorner === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label>
         ${F('camSize', 'Facecam width (% of the stream)', c.camSize, 'number', 'min="10" max="60"')}${F('camInset', 'Facecam gap from the edge (%)', c.camInset, 'number', 'step="0.5" min="0" max="20"')}</div>
@@ -403,7 +404,7 @@
 
   /* ---------------- live updates ---------------- */
   let pend = null;
-  const refresh = () => { clearTimeout(pend); pend = setTimeout(async () => { renderFloor(); updatePills(); if ($('#line').classList.contains('active') && !['channel', 'policies', 'costs', 'automation'].includes(S.sub) && !document.activeElement?.closest?.('#fxPane')) renderLine(); if (S.open && !document.activeElement?.closest?.('#fxRecord')) { const st = $('#fxRecord').scrollTop; await openRecord(S.open); $('#fxRecord').scrollTop = st; } }, 250); };
+  const refresh = () => { clearTimeout(pend); pend = setTimeout(async () => { renderFloor(); updatePills(); if ($('#line').classList.contains('active') && !['channel', 'policies', 'costs', 'automation', 'hooks'].includes(S.sub) && !document.activeElement?.closest?.('#fxPane')) renderLine(); if (S.open && !document.activeElement?.closest?.('#fxRecord')) { const st = $('#fxRecord').scrollTop; await openRecord(S.open); $('#fxRecord').scrollTop = st; } }, 250); };
   FX.on('records', refresh); FX.on('tick', refresh); FX.on('ideas', refresh); FX.on('vods', refresh); FX.on('analytics', refresh);
   FX.on('working', () => renderFloor());
   $$('nav button').forEach((b) => b.addEventListener('click', () => { if (b.dataset.tab === 'line') renderLine(); if (b.dataset.tab === 'workshop') { S.floorSig = ''; renderFloor(); } }));
