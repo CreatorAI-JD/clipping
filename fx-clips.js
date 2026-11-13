@@ -108,6 +108,13 @@
     catch { entry.status = 'unreadable'; saveInbox(FX.vodInbox().map((e) => (e.key === entry.key ? entry : e))); throw new Error(`Could not read ${file.name}'s audio. Use MP4 under ~2 GB (split long VODs).`); }
     say('Finding hype moments…');
     const hl = findHighlights(buffer, +c.momentsPerVod || 6, Math.min(len, buffer.duration));
+    // moments viewers clipped on Twitch (fx-auto.js) are added and boosted
+    const markers = FX.vodMarkers ? FX.vodMarkers(entry, file, buffer.duration) : [];
+    for (const mk of markers) {
+      const near = hl.find((h) => Math.abs(h.start - mk.start) < len * 0.6);
+      if (near) near.chat = Math.max(near.chat || 0, mk.views);
+      else if (mk.start < buffer.duration - 3) hl.push({ start: mk.start, peak: mk.start + 5, score: 0, chat: mk.views });
+    }
     const known = (await FX.db.ideas.all()).filter((i) => i.type === 'moment' && i.vodKey === entry.key);
     const ms = [];
     for (const [i, h] of hl.entries()) {
@@ -123,9 +130,10 @@
         tr = await FX.retry(async () => { try { return await transcribe(wav, 'moment.wav'); } catch (e) { throw /429|5\d\d|network|fetch/i.test(e.message) ? new FX.TempError(e.message) : e; } }, 'transcription');
         FX.cost(r, 'trends', 'openai:whisper-1', Math.round(L), (L / 60) * FX.prices().whisper_per_min);
       }
-      ms.push({ i, start: s0, peak: h.peak, len: L, energy: Math.round(h.score * 100) / 100, transcript: tr?.text?.trim() || '', words: (tr?.words || []).map((w) => ({ word: w.word.trim(), start: w.start, end: w.end })), wavFile });
+      ms.push({ i, start: s0, peak: h.peak, len: L, chat: h.chat || 0, energy: Math.round(h.score * 100) / 100, transcript: tr?.text?.trim() || '', words: (tr?.words || []).map((w) => ({ word: w.word.trim(), start: w.start, end: w.end })), wavFile });
     }
     const maxE = Math.max(1, ...ms.map((m) => m.energy));
+    const maxChat = Math.max(1, ...ms.map((m) => m.chat));
     let ai = null, signals = [];
     if (FX.hasAI() && ms.some((m) => m.transcript)) {
       say('Ranking moments…');
@@ -138,14 +146,14 @@
     const out = [];
     for (const m of ms) {
       const a = (ai?.moments || []).find((x) => +x.i === m.i) || {};
-      const scores = { hype: a.hype ?? Math.round((m.energy / maxE) * 10), standalone: a.standalone ?? 5, trending: a.trending ?? 5, loudness: Math.round((m.energy / maxE) * 10) };
+      const scores = { hype: a.hype ?? Math.round((m.energy / maxE) * 10), standalone: a.standalone ?? 5, trending: a.trending ?? 5, loudness: Math.round((m.energy / maxE) * 10), ...(m.chat ? { viewerClips: Math.max(4, Math.round((m.chat / maxChat) * 10)) } : {}) };
       const idea = {
         id: 'mom_' + now().toString(36) + m.i, type: 'moment', created: now(), status: a.skip ? 'rejected' : 'new', rejectReason: a.skip ? a.why : '',
         vodKey: entry.key, vodName: file.name, start: m.start, len: m.len, peak: m.peak, energy: m.energy, transcript: m.transcript, words: m.words, wavFile: m.wavFile,
-        topic: a.title || `${file.name.replace(/\.\w+$/, '')} @ ${fmt(m.start)}`, description: a.why || `Hype moment at ${fmt(m.start)} (loudness ${m.energy}× the stream average)`,
+        topic: a.title || `${file.name.replace(/\.\w+$/, '')} @ ${fmt(m.start)}`, description: a.why || (m.chat && !m.energy ? `Viewers clipped this on Twitch (${m.chat} clip views)` : `Hype moment at ${fmt(m.start)} (loudness ${m.energy}× the stream average)`),
         hook: a.hook || 'WAIT FOR IT…', hookStyle: 'moment', concerns: a.concerns || [], scores,
-        rank: Math.round((scores.hype * 0.4 + scores.standalone * 0.3 + scores.trending * 0.15 + scores.loudness * 0.15) * 10) / 10,
-        method: ai ? 'audio hype + transcript + AI ranking' : 'audio hype only (no OpenAI key)', signals: signals.map((s) => s.source),
+        rank: Math.round((scores.hype * 0.4 + scores.standalone * 0.3 + scores.trending * 0.15 + scores.loudness * 0.15 + (scores.viewerClips || 0) * 0.4) * 10) / 10,
+        method: (ai ? 'audio hype + transcript + AI ranking' : 'audio hype only (no OpenAI key)') + (m.chat ? ' + Twitch viewer clips' : ''), signals: signals.map((s) => s.source).concat(m.chat ? [`Twitch: viewers clipped this (${m.chat} clip views)`] : []),
       };
       await FX.db.ideas.put(idea); out.push(idea);
     }

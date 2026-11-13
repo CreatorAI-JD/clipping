@@ -19,3 +19,11 @@ A department-based production line with a central production manager. The main l
 - Internal checks are never a guarantee of platform, copyright or monetization approval. Nothing is published without a human approval (an optional auto rule unlocks only after your first approval).
 - **Clip quality** (Channel tab → Streams & rights): the cut snaps to word boundaries and finishes the last sentence; quiet dead air is jump-cut (never loud game action or the hype peak); punch-in zoom + shake on the peak; any commentary intro plays over the lead-in footage (no frozen frame); stream audio is levelled, compressed and limited to about −14 LUFS; captions are short, readable groups. Pick **Facecam top / gameplay bottom** for facecam streamers and use **Preview layout on a VOD frame** to line up the facecam box.
 - Files: `fx-core.js` (records, manager, costs, STOP), `fx-depts.js` (departments), `fx-clips.js` (GTA clip versions), `fx-quality.js` (cut planning, captions, layouts, loudness), `fx-ui.js` + `fx.css` (screens).
+
+## Automation crew (Assembly Line → Automation)
+Less babysitting, same safeguards (you approve the first videos, rights/policy questions always wait for you, 🛑 STOP halts everything):
+- **Mechanic (self-repair):** retries failed steps twice, swaps a clip that keeps failing quality checks for the next-best moment, frees slots when a VOD has no usable moments. Key/billing/permission errors still come to you.
+- **Smart scheduler:** approved videos without a set time go to the best open slot (GTA-audience starting guess blended with how your own posts did by hour), with a daily cap and spacing.
+- **Earned auto-approve:** the line approves a video only if every warning on it is a kind you've approved yourself several times (and not rejected lately), rights are fully verified, and recent auto posts aren't failing or underperforming; otherwise it pauses itself.
+- **Twitch watcher:** checks your Twitch channel(s) for new VODs (official Helix API) and uses the clips viewers made as hype markers in the Moment Scout. Saving the VOD file is still your step.
+- **Stay awake + catch-up:** keeps the screen awake while the line runs and summarizes what happened while you were away.

@@ -125,7 +125,7 @@
   }
 
   /* ================= ASSEMBLY LINE TAB ================= */
-  const SUBS = [['needs', 'Needs you'], ['videos', 'Videos'], ['ideas', 'Ideas & VODs'], ['channel', 'Channel'], ['policies', 'Policies'], ['library', 'Library'], ['analytics', 'Analytics'], ['costs', 'Costs & limits'], ['audit', 'Audit & backups']];
+  const SUBS = [['needs', 'Needs you'], ['videos', 'Videos'], ['ideas', 'Ideas & VODs'], ['channel', 'Channel'], ['policies', 'Policies'], ['library', 'Library'], ['analytics', 'Analytics'], ['automation', 'Automation'], ['costs', 'Costs & limits'], ['audit', 'Audit & backups']];
   function recList(recs) {
     return `<div class="rtable"><div class="rr rh"><span>Video</span><span>Station</span><span>Status</span><span>Cost</span><span>Updated</span></div>${recs.map((r) => `<button class="rr" data-open="${r.id}"><span><b>${esc(r.id)}</b><small>${esc(title(r))}${r.practice ? ' · practice' : ''}${r.type === 'clips' ? ' · clip' : ''}</small></span><span>${FX.dept(r.stage).icon} ${esc(FX.dept(r.stage).name)}</span><span>${stBadge(r.status)}</span><span>${FX.money(FX.recCost(r))}</span><span>${when(r.updated)}</span></button>`).join('')}</div>`;
   }
@@ -135,11 +135,12 @@
     const pane = $('#fxPane'); if (!pane) return;
     $('#fxSubnav').innerHTML = SUBS.map(([k, l]) => `<button class="${S.sub === k ? 'active' : ''}" data-sub="${k}">${l}${k === 'needs' ? ' <span class="pill" id="fxNeedPill2"></span>' : ''}</button>`).join('');
     S.urls.forEach(URL.revokeObjectURL); S.urls = [];
-    const fn = { needs: paneNeeds, videos: paneVideos, ideas: paneIdeas, channel: paneChannel, policies: panePolicies, library: paneLibrary, analytics: paneAnalytics, costs: paneCosts, audit: paneAudit }[S.sub];
+    const fn = { needs: paneNeeds, videos: paneVideos, ideas: paneIdeas, channel: paneChannel, policies: panePolicies, library: paneLibrary, analytics: paneAnalytics, automation: () => FX.autoPane(), costs: paneCosts, audit: paneAudit }[S.sub];
     pane.innerHTML = await fn();
     updatePills();
     if (S.sub === 'channel') wireChannel();
   }
+  FX.renderLine = () => renderLine();
   async function updatePills() {
     const n = (await FX.db.prod.all()).filter(needsYou).length;
     for (const id of ['#fxNeedPill', '#fxNeedPill2']) { const el = $(id); if (el) { el.textContent = n; el.hidden = !n; } }
@@ -214,7 +215,7 @@
         <div class="row">${C('useStock', 'Stock video (Pexels/Pixabay)', c.useStock)}${C('useOpenverse', 'Openverse images (CC, no key)', c.useOpenverse)}${C('useAiImages', 'AI images (OpenAI)', c.useAiImages)}${C('useMyBackgrounds', 'My uploaded backgrounds (needs your rights confirmation)', c.useMyBackgrounds)}</div>
         <div class="grid3"><label>Pexels API key (free)<input id="k_pexels" type="password" value="${esc(k.pexels)}" placeholder="pexels.com/api"></label><label>Pixabay API key (free)<input id="k_pixabay" type="password" value="${esc(k.pixabay)}" placeholder="pixabay.com/api/docs"></label></div></div>
       <div class="card"><h3>Production line</h3><div class="grid3">${F('videosPerDay', 'Videos to start per day', c.videosPerDay, 'number', 'min="0" max="50"')}${F('maxPerDay', 'Hard limit per 24h (mass-production guard)', c.maxPerDay, 'number', 'min="1" max="50"')}</div>
-        ${C('autoPublish', `Auto-publish videos whose Final QC is a clean APPROVED (only works after you have approved one yourself — ${ls.get('fx_humanApprovals', 0)} so far)`, c.autoPublish)}</div>
+        ${C('autoPublish', `Earned auto-approve: let the line approve videos that look like ones you already approved (rules and progress on the Automation tab — you have approved ${ls.get('fx_humanApprovals', 0)} yourself so far)`, c.autoPublish)}</div>
       <div class="row"><button class="primary" data-act="saveChannel">Save channel config</button><span class="muted small">Version ${FX.channelVersion() || 'not saved yet'}${hist[0] ? ' · saved ' + when(hist[0].at) : ''}</span></div>
       ${chk.items.length ? `<h4>Config check</h4>${items(chk.items)}` : ''}`;
   }
@@ -229,7 +230,7 @@
     $$('[id^=ch_]').forEach((el) => { const k = el.id.slice(3); c[k] = el.type === 'checkbox' ? el.checked : num.has(k) ? +el.value : el.value.trim(); });
     c.type = $('input[name=chType]:checked')?.value || c.type;
     c.platforms = $$('[data-plat]').filter((x) => x.checked).map((x) => x.dataset.plat);
-    if (c.autoPublish && ls.get('fx_humanApprovals', 0) < 1) toast('Auto-publish stays inactive until you approve your first video yourself.');
+    if (c.autoPublish && ls.get('fx_humanApprovals', 0) < (FX.autoCfg ? FX.autoCfg().minHuman : 1)) toast('Earned auto-approve stays inactive until you have approved enough videos yourself (see the Automation tab).');
     ls.set('fx_keys', { pexels: $('#k_pexels').value.trim(), pixabay: $('#k_pixabay').value.trim() });
     await FX.saveChannel(c);
     toast('Channel config saved (version ' + FX.channelVersion() + ')'); renderLine(); renderFloor();
@@ -309,7 +310,7 @@
             <p class="disc">ⓘ ${esc(r.final?.note || '')}</p>
             ${warnings.length ? `<h4>Outstanding warnings (${warnings.length})</h4>${items(warnings.slice(0, 12))}` : ''}
             ${Object.entries(pp).map(([p, x]) => `<div class="meta"><b>${platName(p)}</b>${x.connected ? '' : ' <span class="muted small">(not connected — will be skipped)</span>'}<label>Title<select data-meta="${p}.title">${[...new Set([x.title, ...(x.titles || [])])].map((t) => `<option ${t === x.title ? 'selected' : ''}>${esc(t)}</option>`).join('')}</select></label><label>Description<textarea rows="4" data-meta="${p}.description">${esc(x.description)}</textarea></label>${x.disclosures?.length ? `<div class="small">Disclosures set automatically: ${esc(x.disclosures.join(', '))}</div>` : ''}</div>`).join('')}
-            <label>Publish time (blank = next slot in your posting window or now)<input type="datetime-local" id="fxWhen"></label><label>Note (saved to the audit log)<input id="fxNote" placeholder="optional"></label>
+            <label>Publish time (blank = smart scheduler picks the best time; turn it off on the Automation tab)<input type="datetime-local" id="fxWhen"></label><label>Note (saved to the audit log)<input id="fxNote" placeholder="optional"></label>
             ${r.practice ? '<p class="warn-t">Practice record — publishing is locked.</p>' : FX.stopped() ? '<p class="warn-t">Emergency stop is on.</p>' : ''}
             <div class="row"><button class="ok" data-act="approve" ${r.practice || FX.stopped() ? 'disabled' : ''}>✓ Approve & publish</button><select id="fxBackTo">${backOpts}</select><button data-act="sendback">↩ Send back</button><button class="no" data-act="reject">✕ Reject</button></div></div>` : ''}
           ${human || ['blocked', 'error', 'queued', 'stopped'].includes(r.status) ? `<div class="card"><h3>Your options</h3><label>Note<input id="fxNote" placeholder="why (saved to the audit log)"></label><div class="row">
@@ -402,7 +403,7 @@
 
   /* ---------------- live updates ---------------- */
   let pend = null;
-  const refresh = () => { clearTimeout(pend); pend = setTimeout(async () => { renderFloor(); updatePills(); if ($('#line').classList.contains('active') && !['channel', 'policies', 'costs'].includes(S.sub) && !document.activeElement?.closest?.('#fxPane')) renderLine(); if (S.open && !document.activeElement?.closest?.('#fxRecord')) { const st = $('#fxRecord').scrollTop; await openRecord(S.open); $('#fxRecord').scrollTop = st; } }, 250); };
+  const refresh = () => { clearTimeout(pend); pend = setTimeout(async () => { renderFloor(); updatePills(); if ($('#line').classList.contains('active') && !['channel', 'policies', 'costs', 'automation'].includes(S.sub) && !document.activeElement?.closest?.('#fxPane')) renderLine(); if (S.open && !document.activeElement?.closest?.('#fxRecord')) { const st = $('#fxRecord').scrollTop; await openRecord(S.open); $('#fxRecord').scrollTop = st; } }, 250); };
   FX.on('records', refresh); FX.on('tick', refresh); FX.on('ideas', refresh); FX.on('vods', refresh); FX.on('analytics', refresh);
   FX.on('working', () => renderFloor());
   $$('nav button').forEach((b) => b.addEventListener('click', () => { if (b.dataset.tab === 'line') renderLine(); if (b.dataset.tab === 'workshop') { S.floorSig = ''; renderFloor(); } }));
