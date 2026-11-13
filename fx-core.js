@@ -60,7 +60,7 @@ window.FX = (function () {
     type: 'clips', name: 'GTA stream clips', niche: 'GTA streamer clips (GTA RP / GTA Online / GTA 6 hype)', audience: 'GTA and GTA RP fans, 14–30, who watch Twitch/Kick streamers and want the funniest and wildest moments',
     platforms: ['youtube', 'tiktok', 'instagram'], tone: 'Hyped, funny, never mean to the streamer or chat', personality: 'A fan clipping the best moments, adding context so anyone gets the joke',
     style: 'Start right before the moment, cut dead air, big readable captions, one punchy hook line on screen', lengthSec: 35,
-    streamer: '', streamerRelation: 'me', permissionProof: '', permissionDate: '', gamePolicyAck: false, game: 'Grand Theft Auto V / GTA RP',
+    streamer: '', streamerRelation: '', permissionProof: '', permissionDate: '', gamePolicyAck: false, game: 'Grand Theft Auto V / GTA RP',
     clipLen: 35, momentsPerVod: 6, layout: 'blur', clipTag: '', introCommentary: true, camCorner: 'bl', camSize: 25, camInset: 1, punchZoom: true, jumpCuts: true,
     voice: 'onyx', speed: 1.05, pronunciations: '', captionColor: '#ffffff', highlightColor: '#ffd400', captionPos: 0.64, captionSize: 84,
     music: true, musicVolume: 0.18, transitions: 'mixed',
@@ -93,35 +93,43 @@ window.FX = (function () {
      They are NOT the official policies and they go stale. The reviewer has to re-read the official pages
      and mark each checklist reviewed; anything older than 30 days is flagged. */
   const RULE = (id, text, severity, keywords = []) => ({ id, text, severity, keywords });
+  // POLICY_REV changes whenever these defaults change; saved checklists get any new rules merged in and must be re-reviewed.
+  FX.POLICY_REV = '2026-11-13';
   FX.DEFAULT_POLICIES = {
     youtube: {
       platform: 'youtube', name: 'YouTube Shorts',
-      links: ['https://support.google.com/youtube/answer/9288567', 'https://support.google.com/youtube/answer/6162278', 'https://support.google.com/youtube/answer/1311392', 'https://support.google.com/youtube/answer/14328491'],
+      links: ['https://support.google.com/youtube/answer/9288567', 'https://support.google.com/youtube/answer/1311392', 'https://support.google.com/youtube/answer/6162278', 'https://support.google.com/youtube/answer/14328491', 'https://support.google.com/youtube/answer/15424877', 'https://support.google.com/youtube/answer/2801973'],
       rules: [
         RULE('yt-harm', 'No dangerous or harmful acts, challenges or instructions that could cause serious injury', 'block', ['how to make a bomb', 'challenge gone wrong', 'try this at home']),
         RULE('yt-hate', 'No hate speech or harassment targeting people or protected groups', 'block', []),
+        RULE('yt-threats', 'No real-world threats, doxxing or sharing private info (addresses, phone numbers, real names of chat users)', 'block', ['your address is', 'i know where you live', 'phone number is']),
         RULE('yt-misinfo', 'No medical, election or harmful misinformation that contradicts health authorities or election officials', 'block', ['cure for cancer', 'vaccines cause', 'election was stolen']),
-        RULE('yt-mislead', 'Title, description and thumbnail must not mislead viewers about the content', 'review', ['you won\'t believe', 'banned video', 'guaranteed']),
+        RULE('yt-mislead', 'Spam & deceptive practices: title, description, hashtags and thumbnail must match the video (no fake "GTA 6" tags on GTA 5 clips, no bait)', 'review', ['you won\'t believe', 'banned video', 'guaranteed', 'not clickbait']),
         RULE('yt-ai', 'Disclose realistic altered or synthetic content (AI voice or realistic AI imagery) using the altered-content setting', 'review', []),
-        RULE('yt-violence', 'No graphic violence or gore; educational context still needs care', 'review', ['gore', 'beheaded', 'blood everywhere']),
-        RULE('yt-kids', 'Correctly set made-for-kids; no content that endangers minors', 'block', []),
-        RULE('yt-reused', 'Monetization: avoid reused, repetitive or mass-produced content without meaningful original commentary', 'review', []),
+        RULE('yt-violence', 'No graphic real-world violence or gore; video-game violence is allowed but graphic gore early on limits ads', 'review', ['gore', 'beheaded', 'blood everywhere']),
+        RULE('yt-kids', 'Correctly set made-for-kids (GTA clips are not made for kids); no content that endangers minors', 'block', []),
+        RULE('yt-reused', 'YPP reused content: clips need visible added value (commentary, story, substantive edits). Permission from the streamer does NOT exempt a video. Stitched moments with little narrative and content already uploaded by many channels are not monetizable', 'review', []),
+        RULE('yt-inauthentic', 'YPP inauthentic (mass-produced/repetitive) content: avoid near-identical templates, repeated hooks and bulk uploads of the same stream', 'review', []),
+        RULE('yt-contentid', 'Shorts over 1 minute with an active Content ID claim (e.g. GTA radio songs) are blocked worldwide; keep clips with any music at 60s or less, or remove the music', 'review', []),
         RULE('yt-gaming', 'Gaming violence is allowed, but graphic or realistic violence and gore in the first seconds limits ads', 'warn', []),
         RULE('yt-reupload', 'Copyright: only upload stream footage you own or have permission to use; re-uploading another creator\'s content can get strikes', 'review', []),
-        RULE('yt-ads', 'Advertiser-friendly: avoid strong profanity, adult themes, shocking content and controversial issues in the first seconds', 'warn', ['fuck', 'shit', 'sex']),
+        RULE('yt-ads', 'Advertiser-friendly: avoid strong profanity, adult themes, shocking content and controversial issues in the title, thumbnail and first seconds', 'warn', ['fuck', 'shit', 'sex']),
       ],
     },
     tiktok: {
       platform: 'tiktok', name: 'TikTok',
-      links: ['https://www.tiktok.com/community-guidelines/en', 'https://support.tiktok.com/en/using-tiktok/creating-videos/ai-generated-content', 'https://www.tiktok.com/creator-academy/en/article/creator-rewards-program'],
+      links: ['https://www.tiktok.com/community-guidelines/en', 'https://www.tiktok.com/community-guidelines/en/integrity-authenticity', 'https://www.tiktok.com/community-guidelines/en/fyf-standards', 'https://support.tiktok.com/en/using-tiktok/creating-videos/ai-generated-content', 'https://www.tiktok.com/creator-academy/en/article/creator-rewards-program'],
       rules: [
-        RULE('tt-safety', 'No dangerous activities or challenges', 'block', ['challenge', 'try this at home']),
+        RULE('tt-safety', 'No dangerous activities or challenges', 'block', ['try this at home', 'do this challenge']),
         RULE('tt-hate', 'No hateful behavior, harassment or bullying', 'block', []),
+        RULE('tt-privacy', 'No doxxing, threats or sharing private info', 'block', ['your address is', 'i know where you live']),
         RULE('tt-misinfo', 'No harmful misinformation (health, civic, crisis events)', 'block', ['cure for', 'election was stolen']),
-        RULE('tt-aigc', 'Label AI-generated content that shows realistic scenes or people (AIGC label)', 'review', []),
-        RULE('tt-original', 'Creator Rewards: content must be original and over one minute to be eligible; unoriginal or reposted content is ineligible', 'warn', []),
-        RULE('tt-graphic', 'No shocking or graphic content', 'review', ['gore', 'graphic']),
-        RULE('tt-commercial', 'Disclose paid partnerships / branded content', 'review', ['sponsored', 'ad', 'promo code']),
+        RULE('tt-aigc', 'Label AI-generated or edited media that shows realistic scenes or people (AIGC label, or a clear caption/sticker)', 'review', []),
+        RULE('tt-unoriginal', 'For You feed: unoriginal or reproduced content with no new or creative changes is not recommended; post your own work or meaningfully transform it', 'review', []),
+        RULE('tt-original', 'Creator Rewards: only original videos 60 seconds or longer earn; duets, stitches and reposted clips do not', 'warn', []),
+        RULE('tt-graphic', 'No shocking or graphic content', 'review', ['gore', 'graphic content']),
+        RULE('tt-gambling', 'No gambling promotion (casino codes, betting links)', 'review', ['promo code', 'casino code', 'use code', 'stake.com']),
+        RULE('tt-commercial', 'Disclose paid partnerships / branded content', 'review', ['sponsored', '#ad', 'promo code']),
       ],
     },
     instagram: {
@@ -132,12 +140,26 @@ window.FX = (function () {
         RULE('ig-hate', 'No hate speech, bullying or harassment', 'block', []),
         RULE('ig-misinfo', 'False information may be labeled or reduced; avoid unverified claims', 'review', []),
         RULE('ig-ai', 'Use the "AI info" label for photorealistic AI-generated video or audio', 'review', []),
-        RULE('ig-recommend', 'Recommendation guidelines: low-quality, watermarked or reposted content is not recommended', 'warn', ['tiktok watermark']),
+        RULE('ig-original', 'Originality (2026): accounts whose recent posts are mostly reposted material stop being recommended to non-followers. Credit or watermarks alone do not count; add commentary or a real edit, or post as a Collab with the streamer', 'review', []),
+        RULE('ig-recommend', 'Recommendation guidelines: low-quality, watermarked (e.g. TikTok logo) or reposted content is not recommended', 'warn', ['tiktok watermark']),
         RULE('ig-branded', 'Disclose branded content', 'review', ['sponsored', 'promo code']),
       ],
     },
   };
-  FX.policy = (p) => ls.get('fx_policy_' + p, null) || { ...clone(FX.DEFAULT_POLICIES[p] || { platform: p, name: platName(p), links: [], rules: [] }), version: 1, reviewedAt: null, seeded: true };
+  FX.policy = (p) => {
+    const def = FX.DEFAULT_POLICIES[p], saved = ls.get('fx_policy_' + p, null);
+    if (!saved) return { ...clone(def || { platform: p, name: platName(p), links: [], rules: [] }), version: 1, reviewedAt: null, seeded: true, rev: FX.POLICY_REV };
+    if (def && saved.rev !== FX.POLICY_REV) { // a saved checklist never silently misses rules we added later
+      const have = new Set((saved.rules || []).map((x) => x.id));
+      const added = def.rules.filter((x) => !have.has(x.id));
+      saved.rules = [...(saved.rules || []), ...clone(added)];
+      saved.links = [...new Set([...(saved.links || []), ...def.links])];
+      saved.rev = FX.POLICY_REV;
+      if (added.length) { saved.reviewedAt = null; saved.addedRules = added.map((x) => x.id); }
+      ls.set('fx_policy_' + p, saved);
+    }
+    return saved;
+  };
   FX.savePolicy = async (pol, who = 'you') => { // one key per platform so one never overwrites another
     pol.version = (pol.version || 1) + 1; pol.seeded = false;
     ls.set('fx_policy_' + pol.platform, pol);
@@ -256,6 +278,12 @@ window.FX = (function () {
   };
 
   /* ---------------- text helpers ---------------- */
+  // whole-word / whole-phrase match (so the keyword "ad" doesn't fire on "dead" or "already")
+  FX.hasPhrase = (text, phrase) => {
+    const k = String(phrase || '').toLowerCase().trim(); if (!k) return false;
+    const esc = k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return new RegExp(`(^|[^a-z0-9])${esc}($|[^a-z0-9])`).test(String(text || '').toLowerCase());
+  };
   FX.words = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9\s']/g, ' ').split(/\s+/).filter(Boolean);
   const STOP = new Set('the a an and or of to in on at is was are were it this that for with as by be you your i we they he she his her its from but not have has had do did so if about into than then there their what when who how why which'.split(' '));
   FX.keywords = (s) => FX.words(s).filter((w) => w.length > 2 && !STOP.has(w));

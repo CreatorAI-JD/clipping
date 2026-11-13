@@ -900,14 +900,19 @@
     if (!r.practice && FX.hasAI()) {
       say('Reviewing narration, on-screen text and visuals against each platform\'s checklist…');
       const frames = r.reports.visualqc?.items?.filter((i) => /Scene/.test(i.where)).map((i) => i.issue).join('; ');
-      ai = await FX.ai(r, 'guidelines', 'You are a trust-and-safety reviewer. Judge ONLY against the checklist given for each platform. Do not invent violations; educational context matters.',
-        `NARRATION: ${allVO(r)}\nON-SCREEN TEXT: ${r.script.scenes.map((s) => s.onScreen).join(' | ')}\nVISUALS: ${r.script.scenes.map((s) => s.footage?.query).join(' | ')}${frames ? `\nVISUAL QC NOTES: ${frames}` : ''}\nDISCLOSURE FACTS: narration is an AI voice; AI images used: ${r.disclosures.aiImagery}\n\n` +
+      const clipsCtx = r.type === 'clips';
+      const said = clipsCtx ? r.script.scenes.filter((s) => s.streamAudio).map((s) => s.vo).join(' ') : '';
+      const intro = clipsCtx ? r.script.scenes.filter((s) => !s.streamAudio).map((s) => s.vo).join(' ') : '';
+      ai = await FX.ai(r, 'guidelines', 'You are a trust-and-safety reviewer for short videos. Judge ONLY against the checklist given for each platform. Do not invent violations. Video-game violence (shooting, car chases, police chases in GTA) is fictional gameplay and allowed; real-world threats, slurs, hate, sexual content, doxxing, harassment of real people and gambling promotion are not.',
+        (clipsCtx
+          ? `This is a clip of a live stream of ${FX.channel().game || 'a video game'}.\nWHAT THE STREAMER/PLAYERS SAY (stream transcript): ${said}\nAI COMMENTARY INTRO (our AI voice): ${intro || '(none)'}\nON-SCREEN HOOK: ${r.script.scenes.map((s) => s.onScreen).join(' | ')}\nTITLE: ${r.script.title || ''}${frames ? `\nVISUAL QC NOTES: ${frames}` : ''}\nDISCLOSURE FACTS: AI voice intro: ${!!intro}\n\n`
+          : `NARRATION: ${allVO(r)}\nON-SCREEN TEXT: ${r.script.scenes.map((s) => s.onScreen).join(' | ')}\nVISUALS: ${r.script.scenes.map((s) => s.footage?.query).join(' | ')}${frames ? `\nVISUAL QC NOTES: ${frames}` : ''}\nDISCLOSURE FACTS: narration is an AI voice; AI images used: ${r.disclosures.aiImagery}\n\n`) +
         plats.map((p) => { const pol = FX.policy(p); return `PLATFORM ${p} checklist:\n${pol.rules.map((x) => `- [${x.id}] (${x.severity}) ${x.text}`).join('\n') || '- (no checklist stored)'}`; }).join('\n\n') +
         `\n\nReturn JSON {"platforms": {"<platform>": {"status": "ok"|"review"|"violation", "findings": [{"rule": id, "where": string, "issue": string, "fix": string}], "disclosures": [required disclosures/labels]}}}`, { temperature: 0.1 });
     }
     for (const p of plats) {
       const pol = FX.policy(p), out = { status: 'ok', items: [], disclosures: [], policyVersion: pol.version, reviewedAt: pol.reviewedAt };
-      for (const rule of pol.rules) for (const k of rule.keywords || []) if (k && text.includes(k.toLowerCase())) out.items.push(item(rule.severity === 'block' ? 'high' : 'medium', `${pol.name} · ${rule.id}`, `Matches "${k}" — ${rule.text}`, 'Rephrase or remove.'));
+      for (const rule of pol.rules) for (const k of rule.keywords || []) if (FX.hasPhrase(text, k)) out.items.push(item(rule.severity === 'block' ? 'high' : 'medium', `${pol.name} · ${rule.id}`, `Matches "${k}" — ${rule.text}`, 'Rephrase or remove.'));
       const a = ai?.platforms?.[p];
       (a?.findings || []).forEach((f) => { const rule = pol.rules.find((x) => x.id === f.rule); out.items.push(item(a.status === 'violation' && rule?.severity === 'block' ? 'high' : 'medium', `${pol.name} · ${f.rule || ''} · ${f.where || ''}`, f.issue, f.fix || '')); });
       out.disclosures = [...new Set([...(a?.disclosures || []), ...(r.disclosures.containsSyntheticMedia ? ['AI-generated / synthetic content label'] : [])])];
@@ -1022,7 +1027,7 @@
       const tags = (m.hashtags || []).map((h) => '#' + String(h).replace(/^#/, '').replace(/\s+/g, ''));
       const title = (m.titles?.[0] || r.script.title).slice(0, p === 'youtube' ? 90 : 150);
       const desc = p === 'youtube' ? `${m.description}${aiLine}${sources}${credits}\n\n${tags.join(' ')}` : `${m.description} ${tags.join(' ')}${aiLine}${credits}`;
-      res[p] = { titles: m.titles || [title], title, description: desc.slice(0, p === 'youtube' ? 5000 : 2200), hashtags: tags, category: m.category || 'Education', youtubeCategoryId: m.youtubeCategoryId || '27', connected: !!connected[p], disclosures: r.reports.guidelines?.data?.platforms?.[p]?.disclosures || [] };
+      res[p] = { titles: m.titles || [title], title, description: desc.slice(0, p === 'youtube' ? 5000 : 2200), hashtags: tags, category: r.type === 'clips' ? 'Gaming' : (m.category || 'Education'), youtubeCategoryId: r.type === 'clips' ? '20' : (m.youtubeCategoryId || '27'), connected: !!connected[p], disclosures: r.reports.guidelines?.data?.platforms?.[p]?.disclosures || [] };
       const allowed = new Set(r.type === 'clips' ? FX.numbers(allVO(r) + ' ' + (r.idea?.topic || '')) : confirmedClaims(r).flatMap((x) => FX.numbers(x.text)));
       for (const t of [title, m.description]) {
         const bad = FX.numbers(t).filter((n) => +n > 10 && !allowed.has(n)); if (bad.length) items.push(item('high', `${platName(p)} metadata`, `Number ${bad.join(', ')} isn't in the verified facts: "${t}"`, 'Remove or correct it.'));
@@ -1065,6 +1070,7 @@
      18. PUBLISHING — official integrations only (Upload-Post API, YouTube Data API)
      =================================================================== */
   async function uploadPost(r, blob, platforms, when) {
+    if (!FX.gatePassed?.has(r.id)) throw new Error('Publish gate: this video has not passed the guideline checks');
     const pp = r.publishPrep.platforms, fd = new FormData(), first = pp[platforms[0]];
     fd.append('user', upProfile());
     platforms.forEach((p) => fd.append('platform[]', p));
@@ -1072,28 +1078,29 @@
     fd.append('video', new File([blob], `${r.id}.${blob.type.includes('mp4') ? 'mp4' : 'webm'}`, { type: blob.type }));
     for (const p of platforms) if (pp[p] && p !== 'youtube') fd.append(`${p}_title`, pp[p].description.slice(0, 2200));
     if (pp.youtube) { fd.append('youtube_title', pp.youtube.title + (/#shorts/i.test(pp.youtube.title) ? '' : ' #Shorts')); fd.append('youtube_description', pp.youtube.description); fd.append('categoryId', pp.youtube.youtubeCategoryId || '27'); }
-    fd.append('privacyStatus', 'public'); fd.append('privacy_level', val('tiktokPrivacy') || 'PUBLIC_TO_EVERYONE');
+    fd.append('privacyStatus', privateTest() ? 'private' : 'public'); fd.append('privacy_level', val('tiktokPrivacy') || 'PUBLIC_TO_EVERYONE');
     fd.append('async_upload', 'true'); fd.append('external_id', r.id);
     if (r.disclosures?.containsSyntheticMedia) { fd.append('tiktok_is_ai_generated', 'true'); fd.append('is_ai_generated', 'true'); fd.append('containsSyntheticMedia', 'true'); }
     fd.append('selfDeclaredMadeForKids', 'false');
     if (when) { fd.append('scheduled_date', new Date(when).toISOString()); fd.append('timezone', Intl.DateTimeFormat().resolvedOptions().timeZone); }
     FX.use('uploads');
-    return FX.retry(async () => { try { return await upFetch('/upload', { method: 'POST', body: fd }); } catch (e) { throw /5\d\d|429|network|fetch/i.test(e.message) ? new FX.TempError(e.message) : e; } }, 'upload');
+    const idem = `${r.id}-${r.attempts?.publish || 1}`; // same key on retries = Upload-Post won't post twice
+    return FX.retry(async () => { try { return await upFetch('/upload', { method: 'POST', body: fd, headers: { 'Idempotency-Key': idem } }); } catch (e) { throw /5\d\d|429|network|fetch/i.test(e.message) ? new FX.TempError(e.message) : e; } }, 'upload');
   }
 
   R.publish = async (r, say) => {
     if (r.practice) return { verdict: 'WAIT', status: 'practice_done', summary: 'Practice record — the line ends here and nothing is published. Add an OpenAI key and start a real video.' };
     if (FX.stopped()) return { verdict: 'WAIT', status: 'stopped', summary: 'Emergency stop is on; not publishing.' };
     if (!r.approval?.approved) return { verdict: 'FAIL', sendBackTo: 'approval', summary: 'No human approval on record; returning to Human Approval.', items: [] };
-    const c = FX.channel(), plats = (c.platforms || []).filter((p) => connected[p]);
-    if (!plats.length) return { verdict: 'BLOCKED', summary: 'No connected accounts for this channel\'s platforms. Connect them in Accounts; the line will retry.', items: [] };
+    const c = FX.channel(), plats = testModePlatforms((c.platforms || []).filter((p) => connected[p]));
+    if (!plats.length) return { verdict: 'BLOCKED', summary: privateTest() ? 'Private test mode (TikTok "Only me") only posts to TikTok and YouTube; neither is connected.' : 'No connected accounts for this channel\'s platforms. Connect them in Accounts; the line will retry.', items: [] };
     const blob = await FX.getFile(r.export.fileId); if (!blob) throw new Error('Exported video file is missing');
     const when = r.approval.when ? Math.max(Date.parse(r.approval.when) || 0, now() + 5 * 60e3) : (val('apAutoPost') ? nextSlot() : null);
     say(`Uploading to ${plats.map(platName).join(', ')}…`);
     const ytDirect = plats.includes('youtube') && connected.youtube?.direct && ytToken();
     const viaUp = plats.filter((p) => !(p === 'youtube' && ytDirect));
     const out = { at: now(), scheduledFor: when || now(), platforms: plats, results: [] };
-    const clip = { id: 'fx_' + r.id, prodId: r.id, kind: 'faceless', title: r.publishPrep.platforms[plats[0]].title, blob, caption: r.publishPrep.platforms[plats[0]].description, score: null, created: now(), status: 'scheduled', scheduledFor: when || now() };
+    const clip = { id: 'fx_' + r.id, prodId: r.id, kind: r.type === 'clips' ? 'clip' : 'faceless', title: r.publishPrep.platforms[plats[0]].title, blob, caption: r.publishPrep.platforms[plats[0]].description, score: null, created: now(), status: 'scheduled', scheduledFor: when || now() };
     if (viaUp.length) {
       const j = await uploadPost(r, blob, viaUp, when);
       out.requestId = j.request_id || null; out.jobId = j.job_id || null; clip.requestId = out.requestId; clip.jobId = out.jobId;
@@ -1102,7 +1109,7 @@
     }
     if (ytDirect) {
       const y = r.publishPrep.platforms.youtube;
-      const url = await ytUpload({ ...clip, title: y.title, caption: y.description }, when);
+      const url = await ytUpload({ ...clip, title: y.title, caption: y.description, synthetic: !!r.disclosures?.containsSyntheticMedia, categoryId: y.youtubeCategoryId || (r.type === 'clips' ? '20' : '27') }, when);
       out.youtubeUrl = url; clip.ytId = url.split('/').pop(); out.results.push('YouTube: ' + url);
     }
     await putClip(clip); updateCount();
