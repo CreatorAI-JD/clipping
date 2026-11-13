@@ -4,51 +4,258 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>AutoClipper</title>
+<meta name="theme-color" content="#09080d">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></symbol>
+    <symbol id="i-scissors" viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.1 15.9M14.5 14.5 20 20M8.1 8.1 12 12"/></symbol>
+    <symbol id="i-film" viewBox="0 0 24 24"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="m16 10 6-3v10l-6-3"/></symbol>
+    <symbol id="i-inbox" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 13h5l2 3h4l2-3h5"/></symbol>
+    <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></symbol>
+    <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></symbol>
+    <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol>
+    <symbol id="i-bot" viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="12" rx="4"/><path d="M12 4v4M9 14h0M15 14h0"/><circle cx="12" cy="3" r="1"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path d="M5 20V11M11 20V5M17 20v-6M3 20h18"/></symbol>
+    <symbol id="i-send" viewBox="0 0 24 24"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></symbol>
+  </defs>
+</svg>
+<div class="bg-glow" aria-hidden="true"></div>
 <header>
-  <div class="brand">✂️ AutoClipper <span id="apBadge" class="badge off">Autopilot OFF</span></div>
+  <div class="brand">
+    <svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b69cff"/><stop offset="1" stop-color="#ff7a6b"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="9" fill="url(#lg)"/><rect x="8" y="10" width="16" height="11" rx="4" fill="#0b0a10"/><circle cx="13" cy="15.5" r="2" fill="#7cf7d4"/><circle cx="19" cy="15.5" r="2" fill="#7cf7d4"/><rect x="15" y="5" width="2" height="5" rx="1" fill="#0b0a10"/></svg>
+    <span>AutoClipper</span> <span id="apBadge" class="badge off">Autopilot OFF</span>
+  </div>
   <nav>
-    <button data-tab="autopilot" class="active">🚀 Autopilot</button>
-    <button data-tab="clipper">Stream Clipper</button>
-    <button data-tab="faceless">Faceless Generator</button>
-    <button data-tab="queue">Review Queue <span id="qcount" class="pill">0</span></button>
-    <button data-tab="accounts">🔗 Accounts</button>
-    <button data-tab="settings">Settings</button>
+    <button data-tab="autopilot" class="active"><svg class="i"><use href="#i-bolt"/></svg>Autopilot</button>
+    <button data-tab="clipper"><svg class="i"><use href="#i-scissors"/></svg>Stream Clipper</button>
+    <button data-tab="faceless"><svg class="i"><use href="#i-film"/></svg>Faceless Generator</button>
+    <button data-tab="queue"><svg class="i"><use href="#i-inbox"/></svg>Review Queue <span id="qcount" class="pill">0</span></button>
+    <button data-tab="stats"><svg class="i"><use href="#i-chart"/></svg>Stats</button>
+    <button data-tab="accounts"><svg class="i"><use href="#i-link"/></svg>Accounts</button>
+    <button data-tab="settings"><svg class="i"><use href="#i-sliders"/></svg>Settings</button>
   </nav>
 </header>
 
 <main>
   <!-- AUTOPILOT -->
   <section id="autopilot" class="tab active">
-    <h2>Autopilot</h2>
-    <p class="muted">Turn this on, leave the tab open, and AutoClipper clips new VODs from your folder, makes faceless videos every day, and schedules everything to your connected accounts.</p>
-    <div class="card">
-      <div class="toggle-row">
-        <label class="switch"><input type="checkbox" id="apOn"><span></span></label>
-        <div><strong>Autopilot</strong><div class="muted small" id="apSummary">Off</div></div>
+    <div class="hero">
+      <div class="hero-copy">
+        <span class="eyebrow"><i class="dot"></i> Your content crew</span>
+        <h2 class="hero-title">Clips made <em>while you sleep.</em></h2>
+        <p class="muted">Turn this on, leave the tab open, and AutoClipper clips new VODs from your folder, makes faceless videos every day, and schedules everything to your connected accounts.</p>
+        <div class="toggle-row">
+          <label class="switch"><input type="checkbox" id="apOn"><span></span></label>
+          <div><strong>Autopilot</strong><div class="muted small" id="apSummary">Off</div></div>
+        </div>
       </div>
+      <div class="workshop" aria-label="Robot workshop: little robots cutting, captioning and shipping clips. They work when Autopilot is on and nap when it is off." role="img">
+        <svg viewBox="0 0 480 280" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="wsBody" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c9bcff"/><stop offset="1" stop-color="#8c76f0"/></linearGradient>
+            <linearGradient id="wsBody2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffb4a3"/><stop offset="1" stop-color="#ff6f61"/></linearGradient>
+            <linearGradient id="wsBody3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a6f4de"/><stop offset="1" stop-color="#3fcf9f"/></linearGradient>
+            <radialGradient id="wsLamp" cx=".5" cy="0" r="1"><stop offset="0" stop-color="#ffe7a8" stop-opacity=".55"/><stop offset="1" stop-color="#ffe7a8" stop-opacity="0"/></radialGradient>
+            <clipPath id="wsPhoneClip"><rect x="404" y="96" width="50" height="92" rx="8"/></clipPath>
+          </defs>
+
+          <!-- wall -->
+          <g class="ws-wall" stroke="rgba(255,255,255,.05)">
+            <path d="M0 40H480M0 80H480M0 120H480M0 160H480M60 0V230M140 0V230M220 0V230M300 0V230M380 0V230"/>
+          </g>
+          <!-- shelf with spare parts -->
+          <rect x="22" y="58" width="96" height="5" rx="2" fill="#2a2638"/>
+          <rect x="30" y="44" width="16" height="14" rx="3" fill="#3a3450"/>
+          <circle cx="62" cy="51" r="7" fill="none" stroke="#5a4f80" stroke-width="3"/>
+          <rect x="78" y="40" width="10" height="18" rx="2" fill="#ff8a7a" opacity=".7"/>
+          <rect x="94" y="48" width="18" height="10" rx="2" fill="#7cf7d4" opacity=".5"/>
+          <!-- sign -->
+          <g transform="translate(176 22)">
+            <rect width="128" height="26" rx="13" fill="#15121f" stroke="rgba(255,255,255,.1)"/>
+            <circle class="ws-sign-dot" cx="16" cy="13" r="4"/>
+            <text x="28" y="17.5" font-family="Inter,system-ui,sans-serif" font-size="11" font-weight="700" fill="#cfc8e8" letter-spacing=".08em">CLIP WORKSHOP</text>
+          </g>
+
+          <!-- hanging lamp -->
+          <g class="ws-lamp anim">
+            <line x1="240" y1="0" x2="240" y2="56" stroke="#3a3450" stroke-width="2"/>
+            <path d="M226 56h28l8 12h-44z" fill="#3a3450"/>
+            <path class="ws-beam" d="M218 68h44l70 160H148z" fill="url(#wsLamp)"/>
+          </g>
+
+          <!-- floor -->
+          <rect x="0" y="236" width="480" height="44" fill="#100e17"/>
+          <path d="M0 236H480" stroke="rgba(255,255,255,.08)"/>
+
+          <!-- conveyor -->
+          <g class="ws-belt">
+            <rect x="14" y="196" width="380" height="18" rx="9" fill="#1d1a29" stroke="#3a3450"/>
+            <path class="ws-belt-line anim" d="M24 205H384" stroke="#4b4366" stroke-width="2" stroke-dasharray="8 10"/>
+            <g fill="#2a2638" stroke="#4b4366">
+              <circle class="ws-wheel anim" cx="30" cy="205" r="6"/><circle class="ws-wheel anim" cx="130" cy="205" r="6"/>
+              <circle class="ws-wheel anim" cx="230" cy="205" r="6"/><circle class="ws-wheel anim" cx="330" cy="205" r="6"/>
+            </g>
+            <path d="M40 214l-8 22M370 214l8 22" stroke="#3a3450" stroke-width="4"/>
+          </g>
+
+          <!-- clips riding the belt -->
+          <g class="ws-clips">
+            <g class="ws-clip anim" style="animation-delay:0s"><use href="#wsFilm"/></g>
+            <g class="ws-clip anim" style="animation-delay:-2.4s"><use href="#wsFilm"/></g>
+            <g class="ws-clip anim" style="animation-delay:-4.8s"><use href="#wsFilm"/></g>
+          </g>
+          <symbol id="wsFilm" overflow="visible">
+            <rect x="0" y="172" width="40" height="24" rx="4" fill="#f4f2f8"/>
+            <rect x="4" y="176" width="32" height="16" rx="2" fill="#2b2540"/>
+            <path d="M17 180l8 4-8 4z" fill="#ff8a7a"/>
+            <g fill="#2b2540"><rect x="3" y="173" width="3" height="2" rx=".5"/><rect x="10" y="173" width="3" height="2" rx=".5"/><rect x="17" y="173" width="3" height="2" rx=".5"/><rect x="24" y="173" width="3" height="2" rx=".5"/><rect x="31" y="173" width="3" height="2" rx=".5"/></g>
+          </symbol>
+
+          <!-- ROBOT 1: the cutter -->
+          <g class="ws-bot ws-cutter">
+            <g class="ws-bob anim">
+              <rect x="96" y="150" width="48" height="40" rx="12" fill="url(#wsBody)"/>
+              <rect x="108" y="160" width="24" height="12" rx="4" fill="#2b2540"/>
+              <circle class="ws-led anim" cx="114" cy="166" r="2.4" fill="#7cf7d4"/><circle class="ws-led anim" cx="120" cy="166" r="2.4" fill="#ff8a7a" style="animation-delay:.3s"/><circle class="ws-led anim" cx="126" cy="166" r="2.4" fill="#ffe08a" style="animation-delay:.6s"/>
+              <rect x="100" y="112" width="40" height="34" rx="12" fill="url(#wsBody)"/>
+              <rect x="105" y="119" width="30" height="18" rx="8" fill="#0f0d16"/>
+              <g class="ws-eyes-open"><rect class="ws-blink anim" x="111" y="124" width="6" height="8" rx="3" fill="#7cf7d4"/><rect class="ws-blink anim" x="123" y="124" width="6" height="8" rx="3" fill="#7cf7d4"/></g>
+              <g class="ws-eyes-shut" stroke="#7cf7d4" stroke-width="2" stroke-linecap="round" fill="none"><path d="M110 129q4 3 8 0M122 129q4 3 8 0"/></g>
+              <line x1="120" y1="112" x2="120" y2="100" stroke="#8c76f0" stroke-width="3"/>
+              <circle class="ws-antenna anim" cx="120" cy="98" r="4" fill="#ff8a7a"/>
+              <!-- arm with scissors -->
+              <g class="ws-arm-cut anim">
+                <rect x="140" y="156" width="30" height="7" rx="3.5" fill="#8c76f0"/>
+                <g transform="translate(172 160)">
+                  <g class="ws-snip-a anim"><path d="M0 0l16-5" stroke="#e8e4f5" stroke-width="3" stroke-linecap="round"/></g>
+                  <g class="ws-snip-b anim"><path d="M0 0l16 5" stroke="#e8e4f5" stroke-width="3" stroke-linecap="round"/></g>
+                  <circle r="3" fill="#ff8a7a"/>
+                </g>
+              </g>
+              <rect x="88" y="160" width="10" height="20" rx="5" fill="#8c76f0"/>
+            </g>
+            <rect x="104" y="190" width="10" height="6" fill="#5a4f80"/><rect x="126" y="190" width="10" height="6" fill="#5a4f80"/>
+            <g class="ws-sparks anim"><circle cx="190" cy="168" r="2" fill="#ffe08a"/><circle cx="196" cy="160" r="1.5" fill="#ff8a7a"/><circle cx="186" cy="158" r="1.5" fill="#fff"/></g>
+          </g>
+
+          <!-- ROBOT 2: the captioner (on wheels) -->
+          <g class="ws-bot ws-captioner">
+            <g class="ws-bob anim" style="animation-delay:-.4s">
+              <rect x="262" y="132" width="44" height="44" rx="22" fill="url(#wsBody2)"/>
+              <rect x="270" y="142" width="28" height="18" rx="9" fill="#0f0d16"/>
+              <g class="ws-eyes-open"><circle class="ws-blink anim" cx="278" cy="151" r="3.5" fill="#ffe08a" style="animation-delay:-1.2s"/><circle class="ws-blink anim" cx="290" cy="151" r="3.5" fill="#ffe08a" style="animation-delay:-1.2s"/></g>
+              <g class="ws-eyes-shut" stroke="#ffe08a" stroke-width="2" stroke-linecap="round" fill="none"><path d="M274 152q4 3 8 0M286 152q4 3 8 0"/></g>
+              <path d="M276 132l-6-12M292 132l6-12" stroke="#ff6f61" stroke-width="3" stroke-linecap="round"/>
+              <circle cx="270" cy="119" r="3" fill="#ffe08a"/><circle cx="298" cy="119" r="3" fill="#ffe08a"/>
+              <!-- stamping arm -->
+              <g class="ws-stamp anim">
+                <rect x="250" y="148" width="7" height="22" rx="3.5" fill="#ff6f61"/>
+                <rect x="240" y="168" width="26" height="12" rx="3" fill="#2b2540"/>
+                <text x="253" y="177.5" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-size="8" font-weight="800" fill="#ffe08a">CC</text>
+              </g>
+            </g>
+            <rect x="268" y="176" width="32" height="8" rx="4" fill="#5a4f80"/>
+            <circle cx="274" cy="188" r="5" fill="#2a2638" stroke="#5a4f80"/><circle cx="294" cy="188" r="5" fill="#2a2638" stroke="#5a4f80"/>
+            <g class="ws-caption-pop anim"><rect x="226" y="108" width="40" height="14" rx="7" fill="#ffe08a"/><text x="246" y="118" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-size="8" font-weight="800" fill="#2b2540">WOW!</text></g>
+          </g>
+
+          <!-- ROBOT 3: the drone courier -->
+          <g class="ws-drone anim">
+            <g class="ws-prop anim"><rect x="330" y="62" width="34" height="3" rx="1.5" fill="#cfc8e8"/></g>
+            <line x1="347" y1="65" x2="347" y2="72" stroke="#3fcf9f" stroke-width="2"/>
+            <rect x="332" y="72" width="30" height="20" rx="10" fill="url(#wsBody3)"/>
+            <g class="ws-eyes-open"><circle class="ws-blink anim" cx="342" cy="82" r="2.5" fill="#0f0d16"/><circle class="ws-blink anim" cx="352" cy="82" r="2.5" fill="#0f0d16"/></g>
+            <g class="ws-eyes-shut" stroke="#0f0d16" stroke-width="1.8" stroke-linecap="round" fill="none"><path d="M339 83q3 2 6 0M349 83q3 2 6 0"/></g>
+            <path d="M340 92l-3 6M354 92l3 6" stroke="#3fcf9f" stroke-width="2" stroke-linecap="round"/>
+            <rect x="335" y="98" width="24" height="15" rx="3" fill="#f4f2f8"/><path d="M344 102l6 3.5-6 3.5z" fill="#ff8a7a"/>
+          </g>
+
+          <!-- output phone -->
+          <g class="ws-phone">
+            <rect x="400" y="90" width="58" height="104" rx="12" fill="#1d1a29" stroke="#4b4366" stroke-width="2"/>
+            <rect x="404" y="96" width="50" height="92" rx="8" fill="#0f0d16"/>
+            <g clip-path="url(#wsPhoneClip)">
+              <g class="ws-feed anim">
+                <rect x="404" y="96" width="50" height="92" fill="#2b2540"/><path d="M424 132l14 10-14 10z" fill="#ff8a7a"/>
+                <rect x="404" y="188" width="50" height="92" fill="#3a2f5c"/><path d="M424 224l14 10-14 10z" fill="#7cf7d4"/>
+                <rect x="404" y="280" width="50" height="92" fill="#2b2540"/><path d="M424 316l14 10-14 10z" fill="#ff8a7a"/>
+              </g>
+            </g>
+            <rect x="420" y="92" width="18" height="3" rx="1.5" fill="#4b4366"/>
+            <rect x="420" y="194" width="18" height="42" fill="#2a2638"/>
+            <rect x="406" y="232" width="46" height="5" rx="2" fill="#3a3450"/>
+          </g>
+          <g class="ws-hearts">
+            <path class="ws-heart anim" d="M446 92c-3-4-9-1-6 4l6 5 6-5c3-5-3-8-6-4z" fill="#ff6f61"/>
+            <path class="ws-heart anim" style="animation-delay:-1s" d="M426 92c-2-3-7-1-5 3l5 4 5-4c2-4-3-6-5-3z" fill="#b69cff"/>
+            <path class="ws-heart anim" style="animation-delay:-2s" d="M456 104c-2-3-6-1-4 2.5l4 3.5 4-3.5c2-3.5-2-5.5-4-2.5z" fill="#ffe08a"/>
+          </g>
+
+          <!-- zzz when napping -->
+          <g class="ws-zzz" font-family="Inter,system-ui,sans-serif" font-weight="800" fill="#9a96a8">
+            <text class="ws-z" x="146" y="104" font-size="12">z</text>
+            <text class="ws-z" x="154" y="94" font-size="15" style="animation-delay:.7s">z</text>
+            <text class="ws-z" x="306" y="122" font-size="12" style="animation-delay:.35s">z</text>
+            <text class="ws-z" x="314" y="111" font-size="15" style="animation-delay:1.05s">z</text>
+          </g>
+          <!-- clickable stations -->
+          <g class="ws-hots">
+            <rect class="ws-hot" data-station="cut" x="84" y="88" width="124" height="112" rx="16" tabindex="0" role="button" aria-label="Cutting station"/>
+            <rect class="ws-hot" data-station="faceless" x="226" y="104" width="90" height="92" rx="16" tabindex="0" role="button" aria-label="Faceless studio"/>
+            <rect class="ws-hot" data-station="review" x="14" y="196" width="380" height="26" rx="12" tabindex="0" role="button" aria-label="Review conveyor"/>
+            <rect class="ws-hot" data-station="post" x="322" y="56" width="50" height="62" rx="14" tabindex="0" role="button" aria-label="Posting drone"/>
+            <rect class="ws-hot" data-station="live" x="394" y="84" width="70" height="156" rx="16" tabindex="0" role="button" aria-label="Live posts"/>
+            <rect class="ws-hot" data-station="log" x="172" y="18" width="136" height="34" rx="17" tabindex="0" role="button" aria-label="Activity log"/>
+          </g>
+        </svg>
+        <div class="ws-tip" id="wsTip"></div>
+        <div class="ws-status"><i class="dot"></i><span id="wsStatus">Crew is on break. Flip Autopilot on to wake them up.</span></div>
+        <div class="ws-hint">Tap a robot to see what it's doing</div>
+      </div>
+    </div>
+    <div class="stats" id="stats">
+      <button class="stat" data-station="cut"><span class="stat-n" id="stMade">0</span><span class="stat-l">Made today</span></button>
+      <button class="stat" data-station="review"><span class="stat-n" id="stPending">0</span><span class="stat-l">Waiting for review</span></button>
+      <button class="stat" data-station="post"><span class="stat-n" id="stScheduled">0</span><span class="stat-l">Scheduled</span></button>
+      <button class="stat" data-station="live"><span class="stat-n" id="stPosted">0</span><span class="stat-l">Posted</span></button>
+      <button class="stat" data-station="views"><span class="stat-n" id="stViews">–</span><span class="stat-l">Total views</span></button>
+    </div>
+    <div class="station card" id="station" hidden>
+      <div class="station-head">
+        <div><div class="station-kicker" id="stationKicker"></div><h3 id="stationTitle"></h3></div>
+        <button class="station-x" id="stationClose" aria-label="Close">✕</button>
+      </div>
+      <div class="station-now" id="stationNow"></div>
+      <div class="station-body" id="stationBody"></div>
+    </div>
+    <div class="card">
       <div class="grid2">
         <div class="sub">
-          <h3>📂 Auto-clip new VODs</h3>
+          <h3><svg class="i"><use href="#i-folder"/></svg>Auto-clip new VODs</h3>
           <p class="muted small">Pick a folder (like your OBS recordings or Downloads). Every new video dropped in gets clipped automatically.</p>
           <button id="pickFolder">Choose folder</button>
           <div class="small" id="folderName">No folder chosen</div>
         </div>
         <div class="sub">
-          <h3>🤖 Daily faceless videos</h3>
+          <h3><svg class="i"><use href="#i-bot"/></svg>Daily faceless videos</h3>
           <label>Videos per day <input type="number" id="apFacelessPerDay" min="0" max="20" value="3"></label>
           <label>Niche <select id="apNiche"></select></label>
         </div>
         <div class="sub">
-          <h3>✅ Approval</h3>
+          <h3><svg class="i"><use href="#i-check"/></svg>Approval</h3>
           <label class="check"><input type="checkbox" id="apAutoApprove"> Auto-approve (skip my review)</label>
           <label>…only if AI hype score is at least <input type="number" id="apMinScore" min="0" max="10" value="6"></label>
           <p class="muted small">Score needs an OpenAI key. Without one, auto-approve approves everything.</p>
         </div>
         <div class="sub">
-          <h3>📤 Auto-post</h3>
+          <h3><svg class="i"><use href="#i-send"/></svg>Auto-post</h3>
           <label class="check"><input type="checkbox" id="apAutoPost"> Auto-schedule approved videos</label>
           <label>Posts per day <input type="number" id="apPostsPerDay" min="1" max="24" value="3"></label>
           <label>Posting window <span class="row"><input type="time" id="apStart" value="11:00"> to <input type="time" id="apEnd" value="21:00"></span></label>
@@ -139,6 +346,26 @@
       <button id="approveAll">✓ Approve all pending</button>
     </div>
     <div id="queueList" class="queue"></div>
+  </section>
+
+  <!-- STATS -->
+  <section id="stats" class="tab">
+    <div class="stats-head">
+      <div>
+        <h2>Stats</h2>
+        <p class="muted">Views, likes, comments, shares and followers, pulled from your connected accounts. Refreshes when you open this tab, and every hour while Autopilot runs.</p>
+      </div>
+      <div class="row">
+        <select id="statDays" aria-label="Date range">
+          <option value="7">Last 7 days</option>
+          <option value="30" selected>Last 30 days</option>
+          <option value="90">Last 90 days</option>
+        </select>
+        <button id="statRefresh">↻ Refresh</button>
+      </div>
+    </div>
+    <div id="statUpdated" class="muted small"></div>
+    <div id="statsBody"></div>
   </section>
 
   <!-- ACCOUNTS -->
