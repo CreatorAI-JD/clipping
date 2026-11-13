@@ -197,7 +197,13 @@
         <p class="muted small">Without your own streams or written permission, the Copyright robot stops every clip for your decision, and the Monetization robot rates it HIGH risk.</p>
         <div class="grid3">${F('clipLen', 'Max clip length (sec)', c.clipLen, 'number', 'min="8" max="90"')}${F('momentsPerVod', 'Moments to find per VOD', c.momentsPerVod, 'number', 'min="1" max="20"')}
         <label>Layout<select id="ch_layout"><option value="blur" ${c.layout === 'blur' ? 'selected' : ''}>Center + blurred background</option><option value="crop" ${c.layout === 'crop' ? 'selected' : ''}>Center crop</option><option value="split" ${c.layout === 'split' ? 'selected' : ''}>Facecam top / gameplay bottom</option></select></label>
-        ${F('clipTag', 'Name tag on clip', c.clipTag, 'text', 'placeholder="@streamer"')}</div>${C('introCommentary', 'Add a short AI commentary intro when it helps (adds context and originality)', c.introCommentary)}</div>` : ''}
+        ${F('clipTag', 'Name tag on clip', c.clipTag, 'text', 'placeholder="@streamer"')}</div>
+        <div class="grid3"><label>Facecam corner (for the facecam layout)<select id="ch_camCorner">${[['tl', 'Top-left'], ['tr', 'Top-right'], ['bl', 'Bottom-left'], ['br', 'Bottom-right']].map(([v, l]) => `<option value="${v}" ${c.camCorner === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label>
+        ${F('camSize', 'Facecam width (% of the stream)', c.camSize, 'number', 'min="10" max="60"')}${F('camInset', 'Facecam gap from the edge (%)', c.camInset, 'number', 'step="0.5" min="0" max="20"')}</div>
+        <div class="row"><button data-act="previewLayout">Preview layout on a VOD frame</button><span class="muted small" id="fxLayoutMsg">Drop a VOD on the line first, then check the facecam box sits on the face.</span></div>
+        <canvas id="fxLayoutPreview" width="270" height="480" style="display:none;width:270px;max-width:100%;border-radius:12px;margin:8px 0;background:#000"></canvas>
+        ${C('introCommentary', 'Add a short AI commentary intro when it helps (plays over the lead-in footage, adds context and originality)', c.introCommentary)}
+        ${C('jumpCuts', 'Jump-cut dead air (quiet pauses with no game action)', c.jumpCuts)}${C('punchZoom', 'Punch-in zoom + shake on the hype peak', c.punchZoom)}</div>` : ''}
       <div class="card"><h3>Rules</h3>${T('allowed', 'Content the AI is allowed to make', c.allowed)}${T('avoid', 'Topics and material to avoid (comma or new line)', c.avoid)}${T('originality', 'Originality policy', c.originality)}${F('monetizationGoal', 'Monetization goals / programs', c.monetizationGoal)}</div>
       <div class="card"><h3>Look & sound</h3><div class="grid3">
         <label>Voice<select id="ch_voice">${['onyx', 'alloy', 'echo', 'fable', 'nova', 'shimmer'].map((v) => `<option ${c.voice === v ? 'selected' : ''}>${v}</option>`).join('')}</select></label>
@@ -220,7 +226,7 @@
     }));
   }
   async function saveChannel() {
-    const c = FX.channel(); const num = new Set(['lengthSec', 'speed', 'captionPos', 'captionSize', 'musicVolume', 'videosPerDay', 'maxPerDay', 'clipLen', 'momentsPerVod']);
+    const c = FX.channel(); const num = new Set(['lengthSec', 'speed', 'captionPos', 'captionSize', 'musicVolume', 'videosPerDay', 'maxPerDay', 'clipLen', 'momentsPerVod', 'camSize', 'camInset']);
     $$('[id^=ch_]').forEach((el) => { const k = el.id.slice(3); c[k] = el.type === 'checkbox' ? el.checked : num.has(k) ? +el.value : el.value.trim(); });
     c.type = $('input[name=chType]:checked')?.value || c.type;
     c.platforms = $$('[data-plat]').filter((x) => x.checked).map((x) => x.dataset.plat);
@@ -359,6 +365,7 @@
         const why = prompt('EMERGENCY STOP: pauses the line and all publishing, and tries to pull back scheduled posts. Reason?', 'Manual stop'); if (why === null) return;
         const res = await FX.emergencyStop(why); toast(`Stopped. ${res.length} scheduled post(s) handled — details in the Activity log.`); return renderFloor();
       }
+      if (act === 'previewLayout') { const c = { ...FX.channel() }; $$('[id^=ch_]').forEach((el) => { c[el.id.slice(3)] = el.type === 'checkbox' ? el.checked : el.value.trim(); }); try { $('#fxLayoutMsg').textContent = await FX.previewLayout(c, $('#fxLayoutPreview')); } catch (e) { $('#fxLayoutMsg').textContent = e.message; } return; }
       if (act === 'newVideo') { if (!FX.channelReady()) { toast('Save your channel config first (Channel tab).'); S.sub = 'channel'; return renderLine(); } const r = await FX.newRecord(); toast(`${r.id} created${r.practice ? ' as a practice run (no OpenAI key)' : ''}. Start the line or press Run.`); return openRecord(r.id); }
       if (act === 'stepAll') { const r = (await FX.db.prod.all()).find((x) => ['queued', 'blocked', 'error'].includes(x.status)); if (!r) return toast('Nothing waiting.'); b.disabled = true; await FX.step(r.id); return renderLine(); }
       if (act === 'step') { b.disabled = true; b.textContent = 'Working…'; await FX.step(S.open); return openRecord(S.open); }
