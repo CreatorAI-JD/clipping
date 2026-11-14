@@ -43,7 +43,7 @@
       <g class="fb-eyes"><rect x="23" y="25" width="5" height="8" rx="2.5" fill="#7cf7d4"/><rect x="36" y="25" width="5" height="8" rx="2.5" fill="#7cf7d4"/></g>
       <path class="fb-shut" d="M22 30q3 2.5 6 0M35 30q3 2.5 6 0" stroke="#7cf7d4" stroke-width="2" fill="none" stroke-linecap="round"/>
       <rect x="16" y="46" width="32" height="20" rx="8" fill="${d.color}" opacity=".85"/>
-      <text x="32" y="61" text-anchor="middle" font-size="12">${d.icon}</text>
+      <use href="#i-${d.icon}" x="25" y="49" width="14" height="14" class="fb-ico"/>
       <rect class="fb-arm-l" x="5" y="48" width="10" height="5" rx="2.5" fill="${d.color}"/><rect class="fb-arm-r" x="49" y="48" width="10" height="5" rx="2.5" fill="${d.color}"/>
     </svg>`;
   }
@@ -82,15 +82,15 @@
     $('#fxNow').innerHTML = d ? `
       <div class="now-bot">${botSVG(d, 'working big')}</div>
       <div class="now-txt"><div class="kicker">Station ${d.n} · ${esc(d.bot)} is working</div><h2>${esc(d.name)}</h2>
-        <div class="now-line">${esc(w.text)}</div><div class="muted small">${esc(wr ? wr.id + ' — ' + title(wr) : '')}</div>
+        <div class="now-line">${esc(w.text)}</div><div class="muted small">${esc(wr ? wr.id + ': ' + title(wr) : '')}</div>
         <div class="bar ${isNaN(pct) ? 'indet' : ''}"><i style="width:${isNaN(pct) ? 35 : pct}%"></i></div></div>`
-      : `<div class="now-bot">${botSVG({ color: '#4b4366', icon: '💤' }, 'asleep big')}</div>
+      : `<div class="now-bot">${botSVG({ color: '#4b4366', icon: 'moon' }, 'asleep big')}</div>
       <div class="now-txt"><div class="kicker">${FX.stopped() ? 'Emergency stop is on' : FX.manager.running ? 'Line is running' : 'Line is paused'}</div><h2>${FX.stopped() ? 'Everything is paused' : FX.manager.running ? 'Waiting for work' : 'The crew is on break'}</h2>
         <div class="now-line">${FX.stopped() ? 'Nothing will be published until you release the stop.' : FX.manager.running ? (FX.isClips() ? 'Drop a VOD (Assembly Line → Ideas & VODs) or choose a folder on Autopilot, and the robots start.' : 'Starting the next video on the next check.') : 'Press Start line to let the robots work. You can also run one video step by step.'}</div>
         <div class="bar idle"><i style="width:0"></i></div></div>`;
-    $('#fxRun').textContent = FX.manager.running ? '⏸ Pause line' : '▶ Start line';
+    $('#fxRun').innerHTML = FX.manager.running ? ico('pause') + 'Pause line' : ico('play') + 'Start line';
     $('#fxRun').classList.toggle('primary', !FX.manager.running);
-    $('#fxStop').textContent = FX.stopped() ? '▶ Release STOP' : '🛑 STOP';
+    $('#fxStop').innerHTML = FX.stopped() ? ico('play') + 'Release STOP' : ico('stop') + 'STOP';
     document.body.classList.toggle('fx-stopped', FX.stopped());
     if (sig === S.floorSig) return; S.floorSig = sig;
     host.innerHTML = FX.DEPTS.map((dd) => {
@@ -116,7 +116,7 @@
     if (k === 'analytics') extra = `<div class="row"><button data-goto="analytics">Open analytics</button></div>`;
     if (k === 'approval') extra = `<div class="row"><button data-goto="needs">Open Review Queue</button></div>`;
     box.hidden = false;
-    box.innerHTML = `<div class="station-head"><div><div class="station-kicker">Station ${d.n} · ${esc(d.bot)} · result: ${esc(d.result)}</div><h3>${d.icon} ${esc(d.name)}</h3></div><button class="station-x" data-close>✕</button></div>
+    box.innerHTML = `<div class="station-head"><div><div class="station-kicker">Station ${d.n} · ${esc(d.bot)} · result: ${esc(d.result)}</div><h3>${ico(d.icon)}${esc(d.name)}</h3></div><button class="station-x" data-close aria-label="Close">✕</button></div>
       <p class="muted small">${esc(DESC[k])}</p>
       ${sc ? `<div class="facts">${fact('Runs', sc.runs)}${fact('Pass / warn', `${sc.pass} / ${sc.warn}`)}${fact('Fail / human', `${sc.fail} / ${sc.human}`)}${fact('Sent back here', sc.revisions)}${fact('AI cost', FX.money(sc.cost))}${fact('Avg time', sc.runs ? Math.round(sc.ms / sc.runs / 1000) + 's' : '–')}</div>` : ''}
       ${extra}
@@ -156,7 +156,7 @@
     const blocked = (await FX.db.prod.all()).filter((r) => r.status === 'blocked' && /No VODs waiting/.test(r.blocked || ''));
     if (!recs.length && !blocked.length) return '';
     return `<div class="card"><h3>From the Assembly Line <span class="muted small">${recs.length} waiting on you</span></h3>
-      ${blocked.length ? `<div class="hint-card">📥 ${blocked.length} video slot(s) are waiting for a stream VOD. <button data-sub="ideas">Add a VOD</button></div>` : ''}
+      ${blocked.length ? `<div class="hint-card">${ico('inbox')}${blocked.length} video slot(s) are waiting for a stream VOD. <button data-sub="ideas">Add a VOD</button></div>` : ''}
       ${recs.length ? recs.map((r) => `<button class="need-card" data-open="${r.id}"><span class="nc-top"><b>${esc(r.id)}</b>${stBadge(r.status)}</span><span class="nc-t">${esc(title(r))}</span><span class="muted small">${esc(r.status === 'awaiting_approval' ? `Final QC: ${r.final?.decision || '–'} · monetization risk ${r.monetization?.level || '–'}` : r.humanReason || r.blocked || r.error || '')}</span><span class="nc-go">${r.status === 'awaiting_approval' ? 'Review & approve →' : 'Decide →'}</span></button>`).join('') : ''}</div>`;
   }
   async function paneVideos() {
@@ -168,16 +168,16 @@
     const ideas = (await FX.db.ideas.all()).sort((a, b) => (a.status === 'new' ? -1 : 1) - (b.status === 'new' ? -1 : 1) || b.rank - a.rank);
     const inbox = FX.vodInbox();
     const vodRows = [];
-    for (const e of [...inbox].reverse()) vodRows.push(`<div class="vrow"><span>🎞️ <b>${esc(e.name)}</b> <small class="muted">${(e.size / 1e9).toFixed(2)} GB · ${e.from}</small></span><span>${e.status === 'new' ? 'Waiting to scan' : e.status === 'scanned' ? `${e.moments} moment(s) found` : esc(e.status)}</span><span>${(await FX.vodAvailable(e.key)) ? '<span class="ok-line">available</span>' : '<span class="muted">re-drop to use</span>'}</span></div>`);
+    for (const e of [...inbox].reverse()) vodRows.push(`<div class="vrow"><span>${ico('film')}<b>${esc(e.name)}</b> <small class="muted">${(e.size / 1e9).toFixed(2)} GB · ${e.from}</small></span><span>${e.status === 'new' ? 'Waiting to scan' : e.status === 'scanned' ? `${e.moments} moment(s) found` : esc(e.status)}</span><span>${(await FX.vodAvailable(e.key)) ? '<span class="ok-line">available</span>' : '<span class="muted">re-drop to use</span>'}</span></div>`);
     return `<div class="card"><h3>VOD inbox (GTA streams)</h3>
-        <label class="drop" id="fxVodDrop"><input type="file" id="fxVodFile" accept="video/*" multiple hidden><span>📁 Drop stream VODs here (MP4/WebM). The Moment Scout finds the hype moments.</span></label>
+        <label class="drop" id="fxVodDrop"><input type="file" id="fxVodFile" accept="video/*" multiple hidden><span>${ico('folder')}Drop stream VODs here (MP4/WebM). The Moment Scout finds the hype moments.</span></label>
         <p class="muted small">Big VODs stay on your computer; the browser only remembers them for this session. For hands-off work, choose a VOD folder on the Autopilot tab and new recordings are picked up automatically.</p>
         ${vodRows.length ? `<div class="vlist">${vodRows.join('')}</div>` : ''}</div>
-      <div class="row"><button data-act="genIdeas">${FX.isClips() ? '✨ Generate faceless ideas (for a faceless channel)' : '✨ Generate ideas now'}</button><span class="muted small">Idea database: ${ideas.length} entries. Duplicates are blocked automatically.</span></div>
+      <div class="row"><button data-act="genIdeas">${FX.isClips() ? ico('bulb') + 'Generate faceless ideas (for a faceless channel)' : ico('bulb') + 'Generate ideas now'}</button><span class="muted small">Idea database: ${ideas.length} entries. Duplicates are blocked automatically.</span></div>
       ${ideas.length ? `<div class="ideas">${ideas.slice(0, 80).map((i) => `<div class="idea ${i.status}"><div class="idea-h"><b>${esc(i.topic)}</b><span class="rank">${i.rank ?? '–'}</span></div>
         <div class="muted small">${esc(i.description || '')}</div>
-        ${i.type === 'moment' ? `<div class="small">🎞️ ${esc(i.vodName)} @ ${fmt(i.start)} · hook "${esc(i.hook)}"</div>${i.transcript ? `<div class="quote">"${esc(i.transcript.slice(0, 220))}"</div>` : ''}` : `<div class="small">Hook: "${esc(i.hook || '')}" · ${esc(i.format || '')}</div>`}
-        ${(i.concerns || []).length ? `<div class="small warn-t">⚠ ${esc(i.concerns.join('; '))}</div>` : ''}
+        ${i.type === 'moment' ? `<div class="small">${ico('film')}${esc(i.vodName)} @ ${fmt(i.start)} · hook "${esc(i.hook)}"</div>${i.transcript ? `<div class="quote">"${esc(i.transcript.slice(0, 220))}"</div>` : ''}` : `<div class="small">Hook: "${esc(i.hook || '')}" · ${esc(i.format || '')}</div>`}
+        ${(i.concerns || []).length ? `<div class="small warn-t">${ico('alert')}${esc(i.concerns.join('; '))}</div>` : ''}
         <div class="row"><span class="sb s-${i.status}">${esc(i.status)}${i.usedBy ? ' → ' + esc(i.usedBy) : ''}</span>${i.status === 'new' ? `<button data-produce="${i.id}">Produce this</button><button data-drop="${i.id}">Skip</button>` : ''}</div></div>`).join('')}</div>` : emptyBot('No ideas or moments yet.')}`;
   }
 
@@ -197,7 +197,7 @@
         ${T('audience', 'Target audience', c.audience, 2)}<div class="grid3">${F('tone', 'Tone', c.tone)}${F('personality', 'Personality', c.personality)}${F('cta', 'Call to action', c.cta)}</div>${T('style', 'Style', c.style, 2)}
         <div class="row"><b class="small">Platforms</b>${['youtube', 'tiktok', 'instagram', 'facebook', 'x', 'threads'].map((p) => `<label class="check"><input type="checkbox" data-plat="${p}" ${(c.platforms || []).includes(p) ? 'checked' : ''}> ${platName(p)}</label>`).join('')}</div></div>
       ${clips ? `<div class="card"><h3>Streams & rights</h3><div class="grid3">${F('streamer', 'Streamer name / channel', c.streamer, 'text', 'placeholder="e.g. your Twitch name"')}${F('game', 'Game', c.game)}
-        <label>Whose streams are these?<select id="ch_streamerRelation"><option value="" ${!c.streamerRelation ? 'selected' : ''}>Not set yet (every clip waits for you)</option><option value="me" ${c.streamerRelation === 'me' ? 'selected' : ''}>My own streams</option><option value="permission" ${c.streamerRelation === 'permission' ? 'selected' : ''}>Another streamer — I have written permission</option><option value="none" ${c.streamerRelation === 'none' ? 'selected' : ''}>Another streamer — no permission yet</option></select></label></div>
+        <label>Whose streams are these?<select id="ch_streamerRelation"><option value="" ${!c.streamerRelation ? 'selected' : ''}>Not set yet (every clip waits for you)</option><option value="me" ${c.streamerRelation === 'me' ? 'selected' : ''}>My own streams</option><option value="permission" ${c.streamerRelation === 'permission' ? 'selected' : ''}>Another streamer: I have written permission</option><option value="none" ${c.streamerRelation === 'none' ? 'selected' : ''}>Another streamer: no permission yet</option></select></label></div>
         <div class="grid3">${F('permissionProof', 'Permission proof (link to message/contract)', c.permissionProof)}${F('permissionDate', 'Permission date', c.permissionDate, 'date')}<span></span></div>
         ${C('gamePolicyAck', 'I have read the game publisher\'s video / monetization policy for this game', c.gamePolicyAck)}
         <p class="muted small">Without your own streams or written permission, the Copyright robot stops every clip for your decision, and the Monetization robot rates it HIGH risk.</p>
@@ -221,7 +221,7 @@
         <div class="row">${C('useStock', 'Stock video (Pexels/Pixabay)', c.useStock)}${C('useOpenverse', 'Openverse images (CC, no key)', c.useOpenverse)}${C('useAiImages', 'AI images (OpenAI)', c.useAiImages)}${C('useMyBackgrounds', 'My uploaded backgrounds (needs your rights confirmation)', c.useMyBackgrounds)}</div>
         <div class="grid3"><label>Pexels API key (free)<input id="k_pexels" type="password" value="${esc(k.pexels)}" placeholder="pexels.com/api"></label><label>Pixabay API key (free)<input id="k_pixabay" type="password" value="${esc(k.pixabay)}" placeholder="pixabay.com/api/docs"></label></div></div>
       <div class="card"><h3>Production line</h3><div class="grid3">${F('videosPerDay', 'Videos to start per day', c.videosPerDay, 'number', 'min="0" max="50"')}${F('maxPerDay', 'Hard limit per 24h (mass-production guard)', c.maxPerDay, 'number', 'min="1" max="50"')}</div>
-        ${C('autoPublish', `Earned auto-approve: let the line approve videos that look like ones you already approved (rules and progress on the Automation tab — you have approved ${ls.get('fx_humanApprovals', 0)} yourself so far)`, c.autoPublish)}</div>
+        ${C('autoPublish', `Earned auto-approve: let the line approve videos that look like ones you already approved (rules and progress on the Automation tab: you have approved ${ls.get('fx_humanApprovals', 0)} yourself so far)`, c.autoPublish)}</div>
       <div class="row"><button class="primary" data-act="saveChannel">Save channel config</button><span class="muted small">Version ${FX.channelVersion() || 'not saved yet'}${hist[0] ? ' · saved ' + when(hist[0].at) : ''}</span></div>
       ${chk.items.length ? `<h4>Config check</h4>${items(chk.items)}` : ''}`;
   }
@@ -247,7 +247,7 @@
       ${['youtube', 'tiktok', 'instagram'].map((p) => { const pol = FX.policy(p), stale = FX.policyStale(pol); return `<div class="card"><div class="row"><h3>${esc(pol.name)}</h3><span class="sb ${stale ? 's-blocked' : 's-live'}">${stale ? (pol.reviewedAt ? 'Review due' : 'Not reviewed yet') : 'Reviewed ' + when(pol.reviewedAt)}</span><span class="muted small">v${pol.version}</span></div>
         <div class="small">Official pages: ${pol.links.map((l) => `<a href="${esc(l)}" target="_blank" rel="noopener">${esc(l.replace(/^https?:\/\//, '').slice(0, 48))}</a>`).join(' · ')}</div>
         <label>Rules (one per line: id | block / review / warn | rule | keywords, comma separated)<textarea rows="${pol.rules.length + 1}" data-pol="${p}">${esc(pol.rules.map((r) => `${r.id} | ${r.severity} | ${r.text} | ${(r.keywords || []).join(', ')}`).join('\n'))}</textarea></label>
-        <div class="row"><button data-savepol="${p}">Save checklist</button><button class="primary" data-reviewpol="${p}">✓ I re-read the official rules — mark reviewed</button></div></div>`; }).join('')}`;
+        <div class="row"><button data-savepol="${p}">Save checklist</button><button class="primary" data-reviewpol="${p}">${ico('check')}I re-read the official rules: mark reviewed</button></div></div>`; }).join('')}`;
   }
   async function paneLibrary() {
     const lib = (await FX.db.library.all()).sort((a, b) => (b.addedAt || 0) - (a.addedAt || 0));
@@ -279,10 +279,10 @@
   async function paneAudit() {
     const a = (await FX.db.audit.all()).sort((x, y) => y.at - x.at).slice(0, 200), b = (await FX.db.backups.all()).sort((x, y) => y.at - x.at);
     return `<div class="card"><h3>Backups</h3><p class="muted small">Records, ideas, config, policies and the audit log. A copy is kept in this browser daily (last 7); download one to keep it safe. Video files stay in the browser and can be downloaded per video.</p>
-        <div class="row"><button class="primary" data-act="export">⬇ Download backup (.json)</button><label class="btnlike">⬆ Import backup<input type="file" id="fxImport" accept="application/json" hidden></label></div>
+        <div class="row"><button class="primary" data-act="export">${ico('download')}Download backup (.json)</button><label class="btnlike">${ico('upload')}Import backup<input type="file" id="fxImport" accept="application/json" hidden></label></div>
         ${b.map((x) => `<div class="sched"><b>${when(x.at)}</b><span>${x.data.records.length} records <button data-bk="${x.id}">Download</button></span></div>`).join('')}</div>
       <h3>Audit log</h3><p class="muted small">Approvals, overrides, rejections, config and policy changes, emergency stops and alerts.</p>
-      ${a.length ? `<div class="log">${a.map((x) => esc(`[${when(x.at)}] ${x.who === 'you' ? '👤' : '🤖'} ${x.action}${x.recId ? ' · ' + x.recId : ''}${x.detail ? ' — ' + x.detail : ''}`)).join('\n')}</div>` : emptyBot('Nothing recorded yet.')}`;
+      ${a.length ? `<div class="log">${a.map((x) => esc(`[${when(x.at)}] ${x.who === 'you' ? 'You:' : 'Line:'} ${x.action}${x.recId ? ' · ' + x.recId : ''}${x.detail ? ': ' + x.detail : ''}`)).join('\n')}</div>` : emptyBot('Nothing recorded yet.')}`;
   }
 
   /* ---------------- record detail / publishing dashboard ---------------- */
@@ -303,36 +303,36 @@
       ${k === 'trends' && rep.data?.signals ? `<p class="small">Signals: ${rep.data.signals.map((s) => `${esc(s.source)} (${s.error ? 'unavailable' : s.count})`).join(' · ')}</p>` : ''}</details>`; }).join('');
     const m = r.metricsHistory?.[r.metricsHistory.length - 1];
     box.innerHTML = `<div class="rec">
-      <div class="rec-head"><div><div class="station-kicker">${esc(r.id)} · ${r.type === 'clips' ? 'GTA clip' : 'faceless'}${r.practice ? ' · PRACTICE' : ''} · channel config v${r.channelVersion}</div><h2>${esc(title(r))}</h2><div class="row">${stBadge(r.status)}<span class="muted small">At ${esc(FX.dept(r.stage).name)} · created ${when(r.created)} · cost ${FX.money(FX.recCost(r))}</span></div></div><button class="station-x" data-closerec>✕</button></div>
+      <div class="rec-head"><div><div class="station-kicker">${esc(r.id)} · ${r.type === 'clips' ? 'GTA clip' : 'faceless'}${r.practice ? ' · PRACTICE' : ''} · channel config v${r.channelVersion}</div><h2>${esc(title(r))}</h2><div class="row">${stBadge(r.status)}<span class="muted small">At ${esc(FX.dept(r.stage).name)} · created ${when(r.created)} · cost ${FX.money(FX.recCost(r))}</span></div></div><button class="station-x" data-closerec aria-label="Close">✕</button></div>
       <div class="track">${track1}</div>
-      ${r.humanReason && human ? `<div class="alert-box">🙋 ${esc(r.humanReason)}</div>` : ''}${r.status === 'blocked' ? `<div class="alert-box block">⏸ ${esc(r.blocked || '')}</div>` : ''}${r.status === 'error' ? `<div class="alert-box">⚠ ${esc(r.error || '')}</div>` : ''}
+      ${r.humanReason && human ? `<div class="alert-box">${ico('hand')}${esc(r.humanReason)}</div>` : ''}${r.status === 'blocked' ? `<div class="alert-box block">${ico('pause')}${esc(r.blocked || '')}</div>` : ''}${r.status === 'error' ? `<div class="alert-box">${ico('alert')}${esc(r.error || '')}</div>` : ''}
       <div class="rec-grid">
-        <div class="rec-media">${vid ? `<video src="${track(URL.createObjectURL(vid))}" controls playsinline></video>` : `<div class="novid">${emptyBot('No video yet — it appears after Editing & Export.')}</div>`}
+        <div class="rec-media">${vid ? `<video src="${track(URL.createObjectURL(vid))}" controls playsinline></video>` : `<div class="novid">${emptyBot('No video yet: it appears after Editing & Export.')}</div>`}
           ${cover ? `<div class="small muted">Cover frame</div><img class="cover" src="${track(URL.createObjectURL(cover))}" alt="cover">` : ''}
-          <div class="row">${vid ? `<button data-dl="export">⬇ Video</button>` : ''}${r.captions?.srtFile ? '<button data-dl="srt">⬇ Captions</button>' : ''}${r.edit?.projectFile ? '<button data-dl="proj">⬇ Edit project</button>' : ''}<button data-dl="json">⬇ Record</button></div></div>
+          <div class="row">${vid ? `<button data-dl="export">${ico('download')}Video</button>` : ''}${r.captions?.srtFile ? `<button data-dl="srt">${ico('download')}Captions</button>` : ''}${r.edit?.projectFile ? `<button data-dl="proj">${ico('download')}Edit project</button>` : ''}<button data-dl="json">${ico('download')}Record</button></div></div>
         <div class="rec-side">
-          ${awaiting ? `<div class="card approve"><h3>🙋 Publishing dashboard</h3>
+          ${awaiting ? `<div class="card approve"><h3>${ico('hand')}Publishing dashboard</h3>
             <div class="facts">${fact('Final decision', esc(r.final?.decision || '–'))}${fact('Production', esc(r.approvals?.production || '–'))}${fact('Policy', esc(r.approvals?.policy || '–'))}${fact('Monetization risk', esc(r.monetization?.level || '–'))}</div>
             <p class="disc">ⓘ ${esc(r.final?.note || '')}</p>
             ${warnings.length ? `<h4>Outstanding warnings (${warnings.length})</h4>${items(warnings.slice(0, 12))}` : ''}
-            ${Object.entries(pp).map(([p, x]) => `<div class="meta"><b>${platName(p)}</b>${x.connected ? '' : ' <span class="muted small">(not connected — will be skipped)</span>'}<label>Title<select data-meta="${p}.title">${[...new Set([x.title, ...(x.titles || [])])].map((t) => `<option ${t === x.title ? 'selected' : ''}>${esc(t)}</option>`).join('')}</select></label><label>Description<textarea rows="4" data-meta="${p}.description">${esc(x.description)}</textarea></label>${x.disclosures?.length ? `<div class="small">Disclosures set automatically: ${esc(x.disclosures.join(', '))}</div>` : ''}</div>`).join('')}
+            ${Object.entries(pp).map(([p, x]) => `<div class="meta"><b>${platName(p)}</b>${x.connected ? '' : ' <span class="muted small">(not connected: will be skipped)</span>'}<label>Title<select data-meta="${p}.title">${[...new Set([x.title, ...(x.titles || [])])].map((t) => `<option ${t === x.title ? 'selected' : ''}>${esc(t)}</option>`).join('')}</select></label><label>Description<textarea rows="4" data-meta="${p}.description">${esc(x.description)}</textarea></label>${x.disclosures?.length ? `<div class="small">Disclosures set automatically: ${esc(x.disclosures.join(', '))}</div>` : ''}</div>`).join('')}
             <label>Publish time (blank = smart scheduler picks the best time; turn it off on the Automation tab)<input type="datetime-local" id="fxWhen"></label><label>Note (saved to the audit log)<input id="fxNote" placeholder="optional"></label>
-            ${r.practice ? '<p class="warn-t">Practice record — publishing is locked.</p>' : FX.stopped() ? '<p class="warn-t">Emergency stop is on.</p>' : ''}
-            <div class="row"><button class="ok" data-act="approve" ${r.practice || FX.stopped() ? 'disabled' : ''}>✓ Approve & publish</button><select id="fxBackTo">${backOpts}</select><button data-act="sendback">↩ Send back</button><button class="no" data-act="reject">✕ Reject</button></div></div>` : ''}
+            ${r.practice ? '<p class="warn-t">Practice record: publishing is locked.</p>' : FX.stopped() ? '<p class="warn-t">Emergency stop is on.</p>' : ''}
+            <div class="row"><button class="ok" data-act="approve" ${r.practice || FX.stopped() ? 'disabled' : ''}>${ico('check')}Approve & publish</button><select id="fxBackTo">${backOpts}</select><button data-act="sendback">↩ Send back</button><button class="no" data-act="reject">${ico('x')}Reject</button></div></div>` : ''}
           ${human || ['blocked', 'error', 'queued', 'stopped'].includes(r.status) ? `<div class="card"><h3>Your options</h3><label>Note<input id="fxNote" placeholder="why (saved to the audit log)"></label><div class="row">
-            ${human ? `<button class="ok" data-act="override">✓ Approve this step & continue</button>` : ''}${['blocked', 'error', 'queued', 'stopped'].includes(r.status) ? '<button class="primary" data-act="step">▶ Run next step now</button>' : ''}
-            <select id="fxBackTo">${backOpts}</select><button data-act="sendback">↩ Send back</button><button class="no" data-act="reject">✕ Reject</button></div></div>` : ''}
+            ${human ? `<button class="ok" data-act="override">${ico('check')}Approve this step & continue</button>` : ''}${['blocked', 'error', 'queued', 'stopped'].includes(r.status) ? `<button class="primary" data-act="step">${ico('play')}Run next step now</button>` : ''}
+            <select id="fxBackTo">${backOpts}</select><button data-act="sendback">↩ Send back</button><button class="no" data-act="reject">${ico('x')}Reject</button></div></div>` : ''}
           ${r.publish ? `<div class="card"><h3>Publishing</h3><div class="facts">${fact('When', when(r.publish.scheduledFor))}${fact('Platforms', esc(r.publish.platforms.map(platName).join(', ')))}${fact('Views', m?.views != null ? fmtNum(m.views) : '–')}${fact('Likes', m?.likes != null ? fmtNum(m.likes) : '–')}</div>${Object.entries(r.urls || {}).map(([p, u]) => `<a href="${esc(u)}" target="_blank" rel="noopener">${platName(p)} ↗</a>`).join(' · ')}${r.metricsHistory?.length > 1 ? spark(r.metricsHistory) : ''}${m?.yt ? `<p class="small">YouTube: avg view ${m.yt.avgViewDuration ?? '–'}s (${m.yt.avgViewPct ?? '–'}%) · +${m.yt.subsGained ?? 0} subs${m.yt.error ? ' · ' + esc(m.yt.error) : ''}</p>` : ''}<p class="muted small">Copyright claims and monetization status aren't available through the public APIs; check YouTube Studio / TikTok Studio.</p></div>` : ''}
         </div></div>
       <h3>Department reports</h3>${repHTML || '<p class="muted">No reports yet.</p>'}
       ${r.idea ? `<details class="rep"><summary><b>Idea</b> <span class="muted small">${esc(r.idea.topic)}</span></summary><pre>${esc(JSON.stringify({ ...r.idea, words: undefined }, null, 1).slice(0, 3000))}</pre></details>` : ''}
       ${r.research?.sources?.length ? `<details class="rep"><summary><b>Research & sources</b> <span class="muted small">${r.research.claims.length} claims</span></summary>${r.research.sources.map((s) => `<p class="small">[${s.id}] ${s.url ? `<a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.title)}</a>` : esc(s.title)} ${s.lastEdited ? '· edited ' + esc(s.lastEdited.slice(0, 10)) : ''}</p>`).join('')}${r.research.claims.map((c) => `<div class="it"><span class="sev sev-${c.status === 'confirmed' ? 'ok' : 'medium'}">${esc(c.status)}</span><span class="it-w">${esc(c.id)}</span><span class="it-i">${esc(c.text)}${c.quote ? `<em>“${esc(c.quote.slice(0, 200))}”</em>` : ''}</span></div>`).join('')}</details>` : ''}
-      ${r.script ? `<details class="rep"><summary><b>Script v${r.script.version}</b> <span class="muted small">${r.script.scenes.length} scenes · ${esc(r.script.hookStyle || '')}</span></summary><div class="scenes">${r.script.scenes.map((s) => `<div class="scene"><b>Scene ${s.n}</b> <span class="muted small">${s.start ?? ''}${s.end ? '–' + s.end + 's' : ''} · ${esc(s.transition)} · sfx ${esc(s.sfx)}</span><div>🎙 ${esc(s.vo)}</div><div>🔤 ${esc(s.onScreen)}</div><div class="muted small">🎞 ${esc(s.footage?.query || '')} (${esc(s.footage?.kind || '')})</div></div>`).join('')}</div></details>` : ''}
+      ${r.script ? `<details class="rep"><summary><b>Script v${r.script.version}</b> <span class="muted small">${r.script.scenes.length} scenes · ${esc(r.script.hookStyle || '')}</span></summary><div class="scenes">${r.script.scenes.map((s) => `<div class="scene"><b>Scene ${s.n}</b> <span class="muted small">${s.start ?? ''}${s.end ? '–' + s.end + 's' : ''} · ${esc(s.transition)} · sfx ${esc(s.sfx)}</span><div>${ico('mic', 'Voiceover')}${esc(s.vo)}</div><div>${ico('type', 'On-screen text')}${esc(s.onScreen)}</div><div class="muted small">${ico('film', 'Footage')}${esc(s.footage?.query || '')} (${esc(s.footage?.kind || '')})</div></div>`).join('')}</div></details>` : ''}
       ${r.assets?.length ? `<details class="rep"><summary><b>Asset license records</b> <span class="muted small">${r.assets.length}</span></summary><div class="ltable"><div class="lr lh"><span>Asset</span><span>Source / creator</span><span>License</span><span>Commercial</span><span>Status</span><span>Acquired</span></div>${r.assets.map((a) => `<div class="lr"><span>${a.scene ? 'S' + a.scene + ' · ' : ''}${esc(a.name)}</span><span>${esc(a.source || '')}${a.creator ? ' · ' + esc(a.creator) : ''}${a.pageUrl ? ` <a href="${esc(a.pageUrl)}" target="_blank" rel="noopener">page</a>` : ''}</span><span>${a.licenseUrl ? `<a href="${esc(a.licenseUrl)}" target="_blank" rel="noopener">${esc(a.license)}</a>` : esc(a.license)}${a.attribution === 'required' ? ' · credit required' : ''}</span><span>${esc(String(a.commercial))}</span><span>${esc(a.status)}</span><span>${esc((a.acquired || '').slice(0, 10))}</span></div>`).join('')}</div></details>` : ''}
-      <details class="rep"><summary><b>History, revisions & costs</b> <span class="muted small">${r.history.length} events · ${r.revisions.length} revisions</span></summary><div class="log">${esc(r.history.map((h) => `[${when(h.at)}] ${FX.dept(h.dept)?.name || h.dept}: ${h.event}${h.detail ? ' — ' + h.detail : ''}`).reverse().join('\n'))}</div>${r.costs.length ? `<div class="log">${esc(r.costs.map((c) => `${FX.dept(c.dept)?.name || c.dept}: ${c.service} × ${c.units} = ${FX.money(c.usd)}`).join('\n'))}</div>` : ''}</details>
+      <details class="rep"><summary><b>History, revisions & costs</b> <span class="muted small">${r.history.length} events · ${r.revisions.length} revisions</span></summary><div class="log">${esc(r.history.map((h) => `[${when(h.at)}] ${FX.dept(h.dept)?.name || h.dept}: ${h.event}${h.detail ? ': ' + h.detail : ''}`).reverse().join('\n'))}</div>${r.costs.length ? `<div class="log">${esc(r.costs.map((c) => `${FX.dept(c.dept)?.name || c.dept}: ${c.service} × ${c.units} = ${FX.money(c.usd)}`).join('\n'))}</div>` : ''}</details>
     </div>`;
   }
-  const spark = (h) => { const v = h.map((x) => x.views || 0), mx = Math.max(1, ...v); return `<svg class="spark" viewBox="0 0 200 40" preserveAspectRatio="none"><polyline fill="none" stroke="#b69cff" stroke-width="2" points="${v.map((y, i) => `${(i / (v.length - 1)) * 200},${38 - (y / mx) * 36}`).join(' ')}"/></svg>`; };
+  const spark = (h) => { const v = h.map((x) => x.views || 0), mx = Math.max(1, ...v); return `<svg class="spark" viewBox="0 0 200 40" preserveAspectRatio="none"><polyline fill="none" stroke="#ff8a65" stroke-width="2" points="${v.map((y, i) => `${(i / (v.length - 1)) * 200},${38 - (y / mx) * 36}`).join(' ')}"/></svg>`; };
   function closeRecord() { S.open = null; $('#fxRecord').hidden = true; document.body.classList.remove('modal-open'); }
 
   /* ---------------- events ---------------- */
@@ -366,11 +366,11 @@
         return dl(new Blob([JSON.stringify(r, null, 1)], { type: 'application/json' }), r.id + '.json');
       }
       const act = ds.act; if (!act) return;
-      if (act === 'run') { await FX.setRunning(!FX.manager.running); log(FX.manager.running ? '🏭 Assembly line started' : '⏸ Assembly line paused'); return renderFloor(); }
+      if (act === 'run') { await FX.setRunning(!FX.manager.running); log(FX.manager.running ? 'Assembly line started' : 'Assembly line paused'); return renderFloor(); }
       if (act === 'stop') {
         if (FX.stopped()) { await FX.releaseStop(); return renderFloor(); }
         const why = prompt('EMERGENCY STOP: pauses the line and all publishing, and tries to pull back scheduled posts. Reason?', 'Manual stop'); if (why === null) return;
-        const res = await FX.emergencyStop(why); toast(`Stopped. ${res.length} scheduled post(s) handled — details in the Activity log.`); return renderFloor();
+        const res = await FX.emergencyStop(why); toast(`Stopped. ${res.length} scheduled post(s) handled: details in the Activity log.`); return renderFloor();
       }
       if (act === 'previewLayout') { const c = { ...FX.channel() }; $$('[id^=ch_]').forEach((el) => { c[el.id.slice(3)] = el.type === 'checkbox' ? el.checked : el.value.trim(); }); try { $('#fxLayoutMsg').textContent = await FX.previewLayout(c, $('#fxLayoutPreview')); } catch (e) { $('#fxLayoutMsg').textContent = e.message; } return; }
       if (act === 'newVideo') { if (!FX.channelReady()) { toast('Save your channel config first (Channel tab).'); S.sub = 'channel'; return renderLine(); } const r = await FX.newRecord(); toast(`${r.id} created${r.practice ? ' as a practice run (no OpenAI key)' : ''}. Start the line or press Run.`); return openRecord(r.id); }
@@ -396,13 +396,13 @@
         await FX.db.library.put({ id: 'lib_' + now(), name: f.name, kind: f.type.startsWith('video') ? 'video' : 'image', source: 'Your upload', creator: 'You', license: $('#libLic').value, licenseUrl: '', commercial: true, attribution: 'not required', acquired: new Date().toISOString(), fileId: id, tags: FX.keywords($('#libTags').value + ' ' + f.name), status: 'verified', addedAt: now() });
         await FX.audit('library asset added', `${f.name} (${$('#libLic').value})`, null, 'you'); return renderLine();
       }
-    } catch (err) { toast('⚠️ ' + err.message); log('⚠️ ' + err.message); }
+    } catch (err) { toast('' + err.message); log('' + err.message); }
   });
   document.addEventListener('change', async (e) => {
     const t = e.target;
     if (t.dataset?.meta && S.open) { const r = await FX.db.prod.get(S.open); const [p, f] = t.dataset.meta.split('.'); r.publishPrep.platforms[p][f] = t.value; FX.hist(r, 'approval', 'metadata edited', `${p} ${f}`); await FX.saveRecord(r); }
     if (t.id === 'fxVodFile') { [...t.files].forEach((f) => FX.addVod(f)); renderLine(); }
-    if (t.id === 'fxImport' && t.files[0]) { try { await FX.importJSON(JSON.parse(await t.files[0].text())); toast('Backup imported'); renderLine(); } catch (err) { toast('⚠️ ' + err.message); } }
+    if (t.id === 'fxImport' && t.files[0]) { try { await FX.importJSON(JSON.parse(await t.files[0].text())); toast('Backup imported'); renderLine(); } catch (err) { toast('' + err.message); } }
   });
   document.addEventListener('dragover', (e) => { if (e.target.closest?.('#fxVodDrop')) { e.preventDefault(); e.target.closest('#fxVodDrop').classList.add('over'); } });
   document.addEventListener('drop', (e) => { const d = e.target.closest?.('#fxVodDrop'); if (!d) return; e.preventDefault(); d.classList.remove('over'); [...e.dataTransfer.files].filter((f) => f.type.startsWith('video') || /\.(mp4|mov|webm|m4v)$/i.test(f.name)).forEach((f) => FX.addVod(f)); renderLine(); });

@@ -297,7 +297,7 @@
     r.clip.brandTag = c.tagPos === 'off' ? '' : c.brandTag;
     r.clip.tagPos = c.tagPos;
     if (useHook && r.clip.filler) rep.summary += ` Split-screen hook: ${r.clip.filler.name} (${r.clip.filler.license}).`;
-    if (useHook && !r.clip.filler) rep.summary += ' Split-screen hook is on, but every filler is switched off — rendering without one.';
+    if (useHook && !r.clip.filler) rep.summary += ' Split-screen hook is on, but every filler is switched off: rendering without one.';
     if (useHook && !r.clip.filler) r.clip.layout = ch.layout === 'hook' ? 'blur' : (ch.layout || 'blur');
     return rep;
   };
@@ -473,6 +473,6 @@
         $('#hkResults').innerHTML = lastResults.length ? lastResults.map((m, i) => `<div class="hook-card">${m.thumb ? `<img src="${esc(m.thumb)}" alt="" loading="lazy">` : ''}<b>${esc(m.name)}</b><span class="muted small">${esc(m.creator)} · <a href="${esc(m.licenseUrl)}" target="_blank" rel="noopener">${esc(m.license)}</a> · <a href="${esc(m.pageUrl)}" target="_blank" rel="noopener">page</a></span><div class="row"><button data-hookadd="${i}">Add to hooks</button></div></div>`).join('') : '<p class="muted small">Nothing found. Try another word.</p>';
         return;
       }
-    } catch (err) { toast('⚠️ ' + err.message); }
+    } catch (err) { toast('' + err.message); }
   });
 })(window.FX);

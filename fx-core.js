@@ -48,7 +48,7 @@ window.FX = (function () {
 
   /* ---------------- alerts (things a person must look at) ---------------- */
   FX.alert = async (msg, recId) => {
-    log('🚨 ' + msg);
+    log('' + msg);
     await FX.audit('alert', msg, recId);
     try { toast(msg); } catch {}
     try { if (window.Notification && Notification.permission === 'granted' && document.visibilityState !== 'visible') new Notification('AutoClipper assembly line', { body: msg }); } catch {}
@@ -204,7 +204,7 @@ window.FX = (function () {
       try { return await fn(); } catch (e) {
         last = e;
         if (!e.temporary || i === tries - 1) throw e;
-        log(`↻ ${label}: ${e.message} — retrying in ${2 ** i * 2}s`);
+        log(`↻ ${label}: ${e.message}: retrying in ${2 ** i * 2}s`);
         await sleep(2 ** i * 2000);
       }
     }
@@ -319,26 +319,26 @@ window.FX = (function () {
      with one swap: captions (8) run before editing/export (9) so captions made from the
      approved voiceover can be burned into a single export instead of rendering twice. */
   FX.DEPTS = [
-    { key: 'channel', n: 1, name: 'Channel Setup', bot: 'Config-o', icon: '🧭', result: 'Channel configuration', phase: 'Plan', color: '#b69cff' },
-    { key: 'trends', n: 2, name: 'Trend Research', bot: 'Scout', icon: '📡', result: 'Approved idea', phase: 'Plan', color: '#b69cff' },
-    { key: 'factcheck', n: 3, name: 'Research & Fact-Check', bot: 'Sherlock', icon: '🔎', result: 'Verified information', phase: 'Plan', color: '#b69cff' },
-    { key: 'script', n: 4, name: 'Script Writing', bot: 'Quill', icon: '✍️', result: 'Completed script', phase: 'Create', color: '#e48ad0' },
-    { key: 'scriptqc', n: 5, name: 'Script QC', bot: 'Red Pen', icon: '🖍️', result: 'Approved script', phase: 'Inspect', color: '#ffe08a', qc: true },
-    { key: 'voice', n: 6, name: 'Voiceover', bot: 'Echo', icon: '🎙️', result: 'Approved narration', phase: 'Create', color: '#e48ad0' },
-    { key: 'assets', n: 7, name: 'Asset Production', bot: 'Magpie', icon: '🖼️', result: 'Licensed assets', phase: 'Create', color: '#e48ad0' },
-    { key: 'captions', n: 8, name: 'Caption Generation', bot: 'Subtitle Sam', icon: '💬', result: 'Synchronized captions', phase: 'Create', color: '#e48ad0' },
-    { key: 'edit', n: 9, name: 'Video Editing & Export', bot: 'Splice', icon: '🎬', result: 'Completed video', phase: 'Create', color: '#ff7a6b' },
-    { key: 'audioqc', n: 10, name: 'Audio QC', bot: 'Big Ears', icon: '🎧', result: 'Audio approval', phase: 'Inspect', color: '#ffe08a', qc: true },
-    { key: 'visualqc', n: 11, name: 'Visual QC', bot: 'Hawkeye', icon: '👁️', result: 'Visual approval', phase: 'Inspect', color: '#ffe08a', qc: true },
-    { key: 'copyright', n: 12, name: 'Copyright QC', bot: 'Rights Bot', icon: '©️', result: 'Rights review', phase: 'Inspect', color: '#ffe08a', qc: true },
-    { key: 'guidelines', n: 13, name: 'Guidelines QC', bot: 'Rulebook', icon: '📜', result: 'Policy review', phase: 'Inspect', color: '#ffe08a', qc: true },
-    { key: 'monetization', n: 14, name: 'Monetization QC', bot: 'Penny', icon: '💰', result: 'Risk assessment', phase: 'Inspect', color: '#ffe08a', qc: true },
-    { key: 'finalqc', n: 15, name: 'Final QC', bot: 'The Foreman', icon: '🏁', result: 'Production approval', phase: 'Inspect', color: '#ffe08a', qc: true },
-    { key: 'prep', n: 16, name: 'Publishing Prep', bot: 'Tagline', icon: '🏷️', result: 'Metadata completed', phase: 'Ship', color: '#7cf7d4' },
-    { key: 'approval', n: 17, name: 'Human Approval', bot: 'You', icon: '🙋', result: 'Publishing authorization', phase: 'Ship', color: '#7cf7d4', human: true },
-    { key: 'publish', n: 18, name: 'Publishing', bot: 'Courier', icon: '📤', result: 'Video posted', phase: 'Ship', color: '#7cf7d4' },
-    { key: 'monitor', n: 19, name: 'Monitoring', bot: 'Watchtower', icon: '📈', result: 'Performance data', phase: 'Learn', color: '#3fcf9f' },
-    { key: 'analytics', n: 20, name: 'Analytics', bot: 'Professor', icon: '🧠', result: 'Improvement recommendations', phase: 'Learn', color: '#3fcf9f' },
+    { key: 'channel', n: 1, name: 'Channel Setup', bot: 'Config-o', icon: 'compass', result: 'Channel configuration', phase: 'Plan', color: '#b69cff' },
+    { key: 'trends', n: 2, name: 'Trend Research', bot: 'Scout', icon: 'radio', result: 'Approved idea', phase: 'Plan', color: '#b69cff' },
+    { key: 'factcheck', n: 3, name: 'Research & Fact-Check', bot: 'Sherlock', icon: 'search', result: 'Verified information', phase: 'Plan', color: '#b69cff' },
+    { key: 'script', n: 4, name: 'Script Writing', bot: 'Quill', icon: 'pen', result: 'Completed script', phase: 'Create', color: '#e48ad0' },
+    { key: 'scriptqc', n: 5, name: 'Script QC', bot: 'Red Pen', icon: 'edit', result: 'Approved script', phase: 'Inspect', color: '#ffe08a', qc: true },
+    { key: 'voice', n: 6, name: 'Voiceover', bot: 'Echo', icon: 'mic', result: 'Approved narration', phase: 'Create', color: '#e48ad0' },
+    { key: 'assets', n: 7, name: 'Asset Production', bot: 'Magpie', icon: 'image', result: 'Licensed assets', phase: 'Create', color: '#e48ad0' },
+    { key: 'captions', n: 8, name: 'Caption Generation', bot: 'Subtitle Sam', icon: 'message', result: 'Synchronized captions', phase: 'Create', color: '#e48ad0' },
+    { key: 'edit', n: 9, name: 'Video Editing & Export', bot: 'Splice', icon: 'film', result: 'Completed video', phase: 'Create', color: '#ff7a6b' },
+    { key: 'audioqc', n: 10, name: 'Audio QC', bot: 'Big Ears', icon: 'headphones', result: 'Audio approval', phase: 'Inspect', color: '#ffe08a', qc: true },
+    { key: 'visualqc', n: 11, name: 'Visual QC', bot: 'Hawkeye', icon: 'eye', result: 'Visual approval', phase: 'Inspect', color: '#ffe08a', qc: true },
+    { key: 'copyright', n: 12, name: 'Copyright QC', bot: 'Rights Bot', icon: 'copyright', result: 'Rights review', phase: 'Inspect', color: '#ffe08a', qc: true },
+    { key: 'guidelines', n: 13, name: 'Guidelines QC', bot: 'Rulebook', icon: 'file', result: 'Policy review', phase: 'Inspect', color: '#ffe08a', qc: true },
+    { key: 'monetization', n: 14, name: 'Monetization QC', bot: 'Penny', icon: 'coins', result: 'Risk assessment', phase: 'Inspect', color: '#ffe08a', qc: true },
+    { key: 'finalqc', n: 15, name: 'Final QC', bot: 'The Foreman', icon: 'flag', result: 'Production approval', phase: 'Inspect', color: '#ffe08a', qc: true },
+    { key: 'prep', n: 16, name: 'Publishing Prep', bot: 'Tagline', icon: 'tag', result: 'Metadata completed', phase: 'Ship', color: '#7cf7d4' },
+    { key: 'approval', n: 17, name: 'Human Approval', bot: 'You', icon: 'hand', result: 'Publishing authorization', phase: 'Ship', color: '#7cf7d4', human: true },
+    { key: 'publish', n: 18, name: 'Publishing', bot: 'Courier', icon: 'send', result: 'Video posted', phase: 'Ship', color: '#7cf7d4' },
+    { key: 'monitor', n: 19, name: 'Monitoring', bot: 'Watchtower', icon: 'trending', result: 'Performance data', phase: 'Learn', color: '#3fcf9f' },
+    { key: 'analytics', n: 20, name: 'Analytics', bot: 'Professor', icon: 'bulb', result: 'Improvement recommendations', phase: 'Learn', color: '#3fcf9f' },
   ];
   FX.dept = (k) => FX.DEPTS.find((d) => d.key === k);
   // stages a single video moves through (channel + analytics are line-wide departments)
@@ -359,7 +359,7 @@ window.FX = (function () {
     };
     if (idea) { idea.status = 'used'; idea.usedBy = r.id; await FX.db.ideas.put(idea); }
     if (idea?.type === 'moment') r.stage = 'factcheck';
-    FX.hist(r, 'manager', 'created', `${r.practice ? 'Practice record (no OpenAI key) — ' : ''}starts at ${FX.dept(r.stage).name}`);
+    FX.hist(r, 'manager', 'created', `${r.practice ? 'Practice record (no OpenAI key): ' : ''}starts at ${FX.dept(r.stage).name}`);
     await FX.saveRecord(r);
     await FX.audit('video created', r.id, r.id, who);
     return r;
@@ -449,10 +449,10 @@ window.FX = (function () {
     if (!haveLock()) return;
     M.ticking = true;
     try {
-      if (now() - M.lastMonitor > 3600e3 && FX.RUN.monitorSweep) { M.lastMonitor = now(); await FX.RUN.monitorSweep().catch((e) => log('⚠️ Monitoring: ' + e.message)); }
+      if (now() - M.lastMonitor > 3600e3 && FX.RUN.monitorSweep) { M.lastMonitor = now(); await FX.RUN.monitorSweep().catch((e) => log('Monitoring: ' + e.message)); }
       if (FX.RUN.analyticsWeekly) await FX.RUN.analyticsWeekly().catch(() => {});
       // automation crew (fx-auto.js): Twitch watcher, self-repair, keep-awake. Never publishes by itself.
-      if (FX.beforeTick) await FX.beforeTick().catch((e) => log('⚠️ Automation: ' + e.message));
+      if (FX.beforeTick) await FX.beforeTick().catch((e) => log('Automation: ' + e.message));
       if (!M.running || FX.stopped() || busy) return;
       const all = await FX.db.prod.all();
       // reset jobs that were mid-run when the tab closed
@@ -468,9 +468,9 @@ window.FX = (function () {
       const active = all.filter((r) => !['live', 'rejected', 'scheduled', 'error'].includes(r.status) && r.stage !== 'monitor').length;
       if (FX.channelReady() && (!FX.canStart || await FX.canStart()) && madeToday < Math.min(+c.videosPerDay || 0, +c.maxPerDay || 99) && active < 2) {
         const r = await FX.newRecord({ who: 'manager' });
-        log(`🏭 Assembly line started ${r.id}${r.practice ? ' (practice run — no OpenAI key)' : ''}`);
+        log(`Assembly line started ${r.id}${r.practice ? ' (practice run: no OpenAI key)' : ''}`);
       }
-    } catch (e) { log('⚠️ Assembly line: ' + e.message); }
+    } catch (e) { log('Assembly line: ' + e.message); }
     finally { M.ticking = false; FX.emit('tick'); }
   };
   FX.setRunning = async (on) => {
@@ -497,7 +497,7 @@ window.FX = (function () {
     ls.set('fx_stop', true);
     await FX.setRunning(false);
     await FX.audit('EMERGENCY STOP', reason || 'pressed', null, 'you');
-    log('🛑 EMERGENCY STOP: ' + (reason || 'pressed') + ' — all publishing paused');
+    log('EMERGENCY STOP: ' + (reason || 'pressed') + ': all publishing paused');
     const results = [];
     // pause everything that was waiting to publish
     for (const r of await FX.db.prod.all()) {
@@ -508,9 +508,9 @@ window.FX = (function () {
     for (const c of future) {
       const out = [];
       if (c.jobId && val('upKey')) {
-        try { const r = await fetch(`${UP_API}/uploadposts/schedule/${encodeURIComponent(c.jobId)}`, { method: 'DELETE', headers: upHeaders() }); out.push(r.ok ? 'Upload-Post: cancelled' : `Upload-Post: could not cancel (HTTP ${r.status}) — cancel it in the Upload-Post dashboard`); }
+        try { const r = await fetch(`${UP_API}/uploadposts/schedule/${encodeURIComponent(c.jobId)}`, { method: 'DELETE', headers: upHeaders() }); out.push(r.ok ? 'Upload-Post: cancelled' : `Upload-Post: could not cancel (HTTP ${r.status}): cancel it in the Upload-Post dashboard`); }
         catch (e) { out.push('Upload-Post: could not cancel (' + e.message + ')'); }
-      } else if (c.requestId) out.push('Upload-Post: no schedule id saved — cancel it in the Upload-Post dashboard');
+      } else if (c.requestId) out.push('Upload-Post: no schedule id saved: cancel it in the Upload-Post dashboard');
       if (c.ytId && ytToken()) {
         try {
           const r = await fetch('https://www.googleapis.com/youtube/v3/videos?part=status', { method: 'PUT', headers: { Authorization: 'Bearer ' + ytToken(), 'Content-Type': 'application/json' }, body: JSON.stringify({ id: c.ytId, status: { privacyStatus: 'private', selfDeclaredMadeForKids: false } }) });
@@ -519,12 +519,12 @@ window.FX = (function () {
       }
       c.status = 'approved'; c.error = 'Paused by emergency stop'; c.stoppedAt = now(); await putClip(c);
       results.push({ title: c.title, out });
-      log(`🛑 ${c.title}: ${out.join('; ') || 'removed from local schedule'}`);
+      log(`${c.title}: ${out.join('; ') || 'removed from local schedule'}`);
     }
     FX.emit('records'); FX.emit('tick');
     return results;
   };
-  FX.releaseStop = async () => { ls.set('fx_stop', false); await FX.audit('emergency stop released', '', null, 'you'); log('▶️ Emergency stop released'); FX.emit('tick'); };
+  FX.releaseStop = async () => { ls.set('fx_stop', false); await FX.audit('emergency stop released', '', null, 'you'); log('Emergency stop released'); FX.emit('tick'); };
 
   /* ================= BACKUPS ================= */
   FX.exportJSON = async () => {

@@ -1,4 +1,4 @@
-# AutoClipper ✂️
+# AutoClipper
 
 AI stream clipper + faceless short-video generator that auto-posts to TikTok, Instagram, YouTube, Facebook, X and Threads.
 
@@ -24,7 +24,7 @@ A department-based production line with a central production manager. The main l
 - Files: `fx-core.js` (records, manager, costs, STOP), `fx-depts.js` (departments), `fx-clips.js` (GTA clip versions), `fx-quality.js` (cut planning, captions, layouts, loudness), `fx-hooks.js` (split-screen hooks, brand tag, niche presets), `fx-ui.js` + `fx.css` (screens).
 
 ## Automation crew (Assembly Line → Automation)
-Less babysitting, same safeguards (you approve the first videos, rights/policy questions always wait for you, 🛑 STOP halts everything):
+Less babysitting, same safeguards (you approve the first videos, rights/policy questions always wait for you, STOP halts everything):
 - **Mechanic (self-repair):** retries failed steps twice, swaps a clip that keeps failing quality checks for the next-best moment, frees slots when a VOD has no usable moments. Key/billing/permission errors still come to you.
 - **Smart scheduler:** approved videos without a set time go to the best open slot (GTA-audience starting guess blended with how your own posts did by hour), with a daily cap and spacing.
 - **Earned auto-approve:** the line approves a video only if every warning on it is a kind you've approved yourself several times (and not rejected lately), rights are fully verified, and recent auto posts aren't failing or underperforming; otherwise it pauses itself.
@@ -42,3 +42,13 @@ Every upload path goes through `fx-gate.js`: the Assembly Line **and** the quick
 
 ## Tests
 `node tests/publish-gate.test.mjs` (gate, rights, policies, Twitch watcher) and `node tests/assembly-line-e2e.test.mjs` (a test VOD through all 20 departments; needs ffmpeg). Both use Playwright with fake OpenAI / Upload-Post / Twitch servers, so no keys are needed and nothing is posted.
+
+## Site basics: favicon, legal pages, custom domain
+- **Favicon:** `favicon.svg` (with `favicon-32.png` and `apple-touch-icon.png` fallbacks), the same robot logo as the header.
+- **Legal pages:** `privacy.html` (what is stored and where: keys and settings in browser local storage, videos in IndexedDB, nothing on a server) and `terms.html`. Both are linked in the app footer. They are a plain-language starting point, not legal advice; have a lawyer look at them before you charge money or take on other users.
+- **Custom domain (owner step):** the site runs at `creatorai-jd.github.io/clipping` until you buy a domain.
+  1. Buy a domain (Namecheap, Cloudflare, Porkbun or similar), for example `nuggiezclips.com`.
+  2. At your registrar, add DNS records. For a subdomain like `app.nuggiezclips.com`: one `CNAME` record from `app` to `creatorai-jd.github.io`. For the bare domain: four `A` records to `185.199.108.153`, `185.199.109.153`, `185.199.110.153` and `185.199.111.153`, plus a `CNAME` from `www` to `creatorai-jd.github.io`.
+  3. On GitHub: repo **Settings → Pages → Custom domain**, enter the domain and save. GitHub adds a `CNAME` file to the repo.
+  4. When the DNS check passes (minutes to a few hours), tick **Enforce HTTPS**.
+  5. Your saved keys live in the browser per web address, so after the move paste your OpenAI and Upload-Post keys again on the new domain. If you use direct YouTube posting, add the new domain as an Authorized JavaScript origin in Google Cloud.

@@ -1,13 +1,13 @@
 /* ================= ACCESSIBILITY + MOBILE POLISH (pairs with a11y.js) ================= */
 /* visible keyboard focus everywhere (mouse clicks stay ring-free) */
-:is(button,a,summary,.drop,[role=button],[tabindex]):focus-visible{outline:2px solid var(--violet);outline-offset:2px}
+:is(button,a,summary,.drop,[role=button],[tabindex]):focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 nav button:focus-visible,.subnav button:focus-visible{outline-offset:-2px}
 #fxRecord:focus{outline:none}
 button,a,label,summary,.drop{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 
 /* Autopilot switch: the checkbox was display:none, so Tab skipped it and screen readers never saw it */
 .switch input{display:block;position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;z-index:1;cursor:pointer}
-.switch input:focus-visible+span{outline:2px solid var(--violet);outline-offset:3px}
+.switch input:focus-visible+span{outline:2px solid var(--accent);outline-offset:3px}
 
 /* brand is now the page's h1 (screen readers had no top heading) */
 h1.brand-name{font:inherit;margin:0;letter-spacing:inherit}

@@ -41,6 +41,8 @@ const EMPTY_MSG = {
   failed: 'No failed posts. The crew is doing great.',
   rejected: 'Nothing rejected.',
 };
+/* SVG icon from the sprite in index.html (no emoji icons) */
+function ico(n, label) { return `<svg class="i" ${label ? `role="img" aria-label="${label}"` : 'aria-hidden="true"'}><use href="#i-${n}"/></svg>`; }
 function emptyBot(msg) {
   return `<div class="empty"><svg class="empty-bot" viewBox="0 0 120 90" aria-hidden="true">
     <rect x="34" y="22" width="52" height="40" rx="14" fill="#2b2540" stroke="#4b4366"/>
@@ -245,7 +247,7 @@ function setupDrop(dropEl, inputEl, onFiles) {
 }
 setupDrop($('#vodDrop'), $('#vodFile'), (files) => {
   vodFile = files[0];
-  $('#vodDrop span').textContent = '🎞️ ' + vodFile.name + ' (' + (vodFile.size / 1e6).toFixed(0) + ' MB)';
+  $('#vodDrop span').textContent = '' + vodFile.name + ' (' + (vodFile.size / 1e6).toFixed(0) + ' MB)';
   $('#scanBtn').disabled = false;
 });
 
@@ -388,7 +390,7 @@ async function clipVideoFile(file, status = () => {}) {
         tr = await transcribe(await segmentWav(buffer, h.start, len), 'clip.wav');
         if (val('burnCaptions') && tr && tr.words) chunks = wordsToChunks(tr.words);
         if (tr && tr.text) meta = await clipMeta(tr.text);
-      } catch (e) { log('⚠️ AI captions skipped: ' + e.message); }
+      } catch (e) { log('AI captions skipped: ' + e.message); }
     }
     status(`Clip ${i + 1}/${hl.length}: rendering at ${fmt(h.start)} (real-time)…`);
     const blob = await recordVodSegment(h.start, len, layout, tag, chunks);
@@ -421,9 +423,9 @@ $('#scanBtn').onclick = async () => {
   const st = (t) => ($('#clipStatus').textContent = t);
   try {
     const made = await exclusive(() => clipVideoFile(vodFile, st));
-    st(`✅ Done — ${made.length} clips made. Check the Review Queue.`);
-    log(`✂️ Made ${made.length} clips from ${vodFile.name}`);
-  } catch (e) { st('⚠️ ' + e.message); log('⚠️ Clipper: ' + e.message); }
+    st(`Done: ${made.length} clips made. Check the Review Queue.`);
+    log(`Made ${made.length} clips from ${vodFile.name}`);
+  } catch (e) { st('' + e.message); log('Clipper: ' + e.message); }
   finally { btn.disabled = false; }
 };
 
@@ -444,7 +446,7 @@ setupDrop($('#bgDrop'), $('#bgFile'), async (files) => {
   bgFiles = files.slice(0, 5);
   await idb('bg', 'readwrite', (s) => s.clear());
   for (let i = 0; i < bgFiles.length; i++) await idb('bg', 'readwrite', (s) => s.put({ id: i, file: bgFiles[i] }));
-  $('#bgDrop span').textContent = `🎮 ${bgFiles.length} background video(s) saved`;
+  $('#bgDrop span').textContent = `${bgFiles.length} background video(s) saved`;
 });
 const genStatus = (t) => ($('#genStatus').textContent = t);
 
@@ -550,11 +552,11 @@ async function makeFacelessVideo(d, status) {
 
 $('#writeBtn').onclick = async () => {
   try {
-    genStatus(val('apiKey') ? 'Writing script with AI…' : 'No OpenAI key — using a built-in template…');
+    genStatus(val('apiKey') ? 'Writing script with AI…' : 'No OpenAI key: using a built-in template…');
     const d = await writeScript(val('niche'), val('topic'), +val('vidLen'));
     $('#script').value = d.script; $('#script').dataset.meta = JSON.stringify(d);
-    genStatus('Script ready — edit it if you like, then hit Generate.');
-  } catch (e) { genStatus('⚠️ ' + e.message); }
+    genStatus('Script ready: edit it if you like, then hit Generate.');
+  } catch (e) { genStatus('' + e.message); }
 };
 
 $('#genBtn').onclick = async () => {
@@ -572,11 +574,11 @@ $('#genBtn').onclick = async () => {
         d = await writeScript(val('niche'), n > 1 ? '' : val('topic'), +val('vidLen'));
       }
       await exclusive(() => makeFacelessVideo(d, genStatus));
-      log(`🤖 Made faceless video: ${d.title}`);
+      log(`Made faceless video: ${d.title}`);
     }
     $('#script').value = ''; delete $('#script').dataset.meta;
-    genStatus(`✅ Done — ${n} video(s) added to your Review Queue.`);
-  } catch (e) { genStatus('⚠️ ' + e.message); log('⚠️ Faceless: ' + e.message); }
+    genStatus(`Done: ${n} video(s) added to your Review Queue.`);
+  } catch (e) { genStatus('' + e.message); log('Faceless: ' + e.message); }
   finally { btn.disabled = false; }
 };
 
@@ -607,9 +609,9 @@ async function refreshAccounts(quiet) {
     }
     if (!upProfiles.find((p) => p.username === upProfile())) ls.set('upProfile', upProfiles[0]?.username || 'autoclipper');
     upLastError = null;
-    st(`✅ Key works (${j.plan || 'plan'} plan). Profile: ${upProfile()}`);
+    st(`Key works (${j.plan || 'plan'} plan). Profile: ${upProfile()}`);
     renderPlatforms(upProfiles.find((p) => p.username === upProfile()));
-  } catch (e) { upLastError = e.message; st('⚠️ ' + e.message); renderPlatforms(null); }
+  } catch (e) { upLastError = e.message; st('' + e.message); renderPlatforms(null); }
 }
 
 function connectedMap(profile) {
@@ -625,7 +627,7 @@ function renderPlatforms(profile) {
   $('#platformGrid').innerHTML = PLATFORMS.map(([k, name]) => {
     const a = connected[k];
     const who = a ? (a.handle || a.display_name || a.username || 'connected') : 'not connected';
-    return `<div class="plat ${a ? 'on' : ''}"><b>${a ? '✅' : '⚪'} ${name}</b><span class="tagline">${escapeHtml(String(who))}${a && a.reauth_required ? ' — ⚠️ reconnect' : ''}</span></div>`;
+    return `<div class="plat ${a ? 'on' : ''}"><b>${ico(a ? 'check' : 'circle')}${name}</b><span class="tagline">${escapeHtml(String(who))}${a && a.reauth_required ? ' · reconnect needed' : ''}</span></div>`;
   }).join('');
   $('#postTo').innerHTML = PLATFORMS.map(([k, name]) =>
     `<label class="check"><input type="checkbox" data-pt="${k}" ${selectedPlatforms().includes(k) ? 'checked' : ''}> ${name}${connected[k] ? '' : ' <span class="muted small">(not connected)</span>'}</label>`).join('');
@@ -636,7 +638,7 @@ function updatePlatformSummary() {
   const ready = selectedPlatforms().filter((k) => connected[k]);
   $('#platformSummary').innerHTML = ready.length
     ? `Posting to: <b>${ready.map((k) => PLATFORMS.find((p) => p[0] === k)[1]).join(', ')}</b>`
-    : '⚠️ No accounts connected yet — set them up in the <b>Accounts</b> tab.';
+    : `${ico('alert')}No accounts connected yet. Set them up in the <b>Accounts</b> tab.`;
 }
 const escapeHtml = (s) => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const canPost = () => selectedPlatforms().some((k) => connected[k]);
@@ -657,7 +659,7 @@ $('#connectBtn').onclick = async () => {
     });
     if (win) win.location = j.access_url; else location.href = j.access_url;
     $('#upStatus').textContent = 'Finish connecting in the new tab, then hit ↻ Refresh here.';
-  } catch (e) { if (win) win.close(); $('#upStatus').textContent = '⚠️ ' + e.message; }
+  } catch (e) { if (win) win.close(); $('#upStatus').textContent = '' + e.message; }
 };
 
 /* ---- YouTube direct (Google OAuth, token lasts ~1 hour) ---- */
@@ -679,18 +681,18 @@ $('#ytConnect').onclick = async () => {
       client_id: val('gClientId'),
       scope: 'https://www.googleapis.com/auth/youtube.upload https://www.googleapis.com/auth/youtube.readonly https://www.googleapis.com/auth/yt-analytics.readonly',
       callback: (resp) => {
-        if (resp.error) return st('⚠️ ' + resp.error);
+        if (resp.error) return st('' + resp.error);
         ls.set('ytTok', { token: resp.access_token, exp: Date.now() + resp.expires_in * 1000 });
-        st('✅ YouTube connected (Google makes you re-click this about once an hour while posting directly).');
+        st('YouTube connected (Google makes you re-click this about once an hour while posting directly).');
         refreshAccounts(true);
       },
     });
     tokenClient.requestAccessToken();
-  } catch (e) { st('⚠️ ' + e.message); }
+  } catch (e) { st('' + e.message); }
 };
 async function ytUpload(clip, when) {
   if (!window.FX?.gatePassed?.has(clip.id)) throw new Error('Publish gate: this video has not passed the guideline checks');
-  const token = ytToken(); if (!token) throw new Error('YouTube login expired — click Connect YouTube again');
+  const token = ytToken(); if (!token) throw new Error('YouTube login expired: click Connect YouTube again');
   const title = (clip.title || clip.caption).replace(/#\S+/g, '').trim().slice(0, 90) + ' #Shorts';
   const status = { privacyStatus: privateTest() ? 'private' : 'public', selfDeclaredMadeForKids: false, containsSyntheticMedia: clip.synthetic ?? clip.kind === 'faceless' };
   if (when && !privateTest()) { status.privacyStatus = 'private'; status.publishAt = new Date(when).toISOString(); }
@@ -713,7 +715,7 @@ const privateTest = () => val('tiktokPrivacy') === 'SELF_ONLY';
 function testModePlatforms(platforms) {
   if (!privateTest()) return platforms;
   const keep = platforms.filter((p) => ['tiktok', 'youtube'].includes(p)), skipped = platforms.filter((p) => !keep.includes(p));
-  if (skipped.length) log(`🧪 Private test mode (TikTok "Only me"): skipped ${skipped.join(', ')} (they can't post privately); YouTube uploads as Private.`);
+  if (skipped.length) log(`Private test mode (TikTok "Only me"): skipped ${skipped.join(', ')} (they can't post privately); YouTube uploads as Private.`);
   return keep;
 }
 
@@ -779,14 +781,14 @@ async function postClipGated(clip, { schedule } = {}) {
   clip.postResult = results.join('\n');
   clip.error = null;
   await putClip(clip);
-  log(`📤 ${when ? 'Scheduled' : 'Posted'} "${clip.title}" → ${platforms.join(', ')}${when ? ' for ' + new Date(when).toLocaleString() : ''}`);
+  log(`${when ? 'Scheduled' : 'Posted'} "${clip.title}" → ${platforms.join(', ')}${when ? ' for ' + new Date(when).toLocaleString() : ''}`);
 }
 
 async function approveClip(clip, { auto = false } = {}) {
   clip.status = 'approved'; await putClip(clip);
   if (canPost() && (!auto || val('apAutoPost'))) {
     try { await postClip(clip, { schedule: val('apAutoPost') }); }
-    catch (e) { clip.status = 'failed'; clip.error = e.message; await putClip(clip); log('⚠️ Post failed: ' + e.message); }
+    catch (e) { clip.status = 'failed'; clip.error = e.message; await putClip(clip); log('Post failed: ' + e.message); }
     return true;
   }
   return false;
@@ -795,15 +797,15 @@ async function approveClip(clip, { auto = false } = {}) {
 // Called whenever a new video is created
 async function onNewVideo(clip) {
   // every new video gets the guideline / rights / safety checks right away, so the queue shows them
-  try { if (window.FX?.gateClip) { await FX.gateClip(clip); await putClip(clip); } } catch (e) { log('⚠️ Guideline check: ' + e.message); }
+  try { if (window.FX?.gateClip) { await FX.gateClip(clip); await putClip(clip); } } catch (e) { log('Guideline check: ' + e.message); }
   await updateCount();
   if (!(apOn() && val('apAutoApprove'))) return;
-  if (!val('apiKey')) { log(`🟡 Left "${clip.title}" for your review: auto-approve needs an OpenAI key to score clips`); return; }
+  if (!val('apiKey')) { log(`Left "${clip.title}" for your review: auto-approve needs an OpenAI key to score clips`); return; }
   const min = +val('apMinScore') || 0;
-  if (clip.score != null && clip.score < min) { log(`🟡 Left "${clip.title}" for review (hype score ${clip.score})`); return; }
-  if (clip.gate?.verdict !== 'PASS') { log(`🛑 Left "${clip.title}" for your review: ${clip.gate ? clip.gate.summary : 'guideline checks did not run'}`); return; }
+  if (clip.score != null && clip.score < min) { log(`Left "${clip.title}" for review (hype score ${clip.score})`); return; }
+  if (clip.gate?.verdict !== 'PASS') { log(`Left "${clip.title}" for your review: ${clip.gate ? clip.gate.summary : 'guideline checks did not run'}`); return; }
   await approveClip(clip, { auto: true });
-  log(`✅ Auto-approved "${clip.title}"${clip.score != null ? ` (score ${clip.score})` : ''}`);
+  log(`Auto-approved "${clip.title}"${clip.score != null ? ` (score ${clip.score})` : ''}`);
   await updateCount();
 }
 
@@ -818,8 +820,8 @@ async function pollStatuses() {
       const r = await fetch(`${UP_API}/uploadposts/status?${q}`, { headers: upHeaders() });
       const j = await r.json();
       const s = JSON.stringify(j).toLowerCase();
-      if (/"status":"(completed|success|published|done)"/.test(s)) { c.status = 'posted'; c.final = true; log(`🎉 Live: "${c.title}"`); }
-      else if (/"status":"(failed|error)"/.test(s)) { c.status = 'failed'; c.error = (j.message || j.error || 'Upload-Post reported a failure').toString().slice(0, 200); c.final = true; log(`⚠️ Upload failed: "${c.title}" — ${c.error}`); }
+      if (/"status":"(completed|success|published|done)"/.test(s)) { c.status = 'posted'; c.final = true; log(`Live: "${c.title}"`); }
+      else if (/"status":"(failed|error)"/.test(s)) { c.status = 'failed'; c.error = (j.message || j.error || 'Upload-Post reported a failure').toString().slice(0, 200); c.final = true; log(`Upload failed: "${c.title}": ${c.error}`); }
       await putClip(c);
     } catch {}
   }
@@ -849,10 +851,10 @@ async function updateCount() {
   syncAutoApprove();
 }
 function statusText(c) {
-  if (c.status === 'scheduled') return c.scheduledFor > Date.now() ? `⏰ Scheduled ${new Date(c.scheduledFor).toLocaleString([], { weekday: 'short', hour: 'numeric', minute: '2-digit' })}` : '📤 Sent';
-  if (c.status === 'posted') return '🎉 Posted';
-  if (c.status === 'failed') return '⚠️ ' + (c.error || 'Failed');
-  if (c.score != null) return `🔥 Hype ${c.score}/10`;
+  if (c.status === 'scheduled') return c.scheduledFor > Date.now() ? `⏰ Scheduled ${new Date(c.scheduledFor).toLocaleString([], { weekday: 'short', hour: 'numeric', minute: '2-digit' })}` : 'Sent';
+  if (c.status === 'posted') return 'Posted';
+  if (c.status === 'failed') return '' + (c.error || 'Failed');
+  if (c.score != null) return `Hype ${c.score}/10`;
   return '';
 }
 async function renderQueue() {
@@ -866,12 +868,12 @@ async function renderQueue() {
     const url = URL.createObjectURL(c.blob); urls.push(url);
     const el = document.createElement('div'); el.className = 'item s-' + c.status;
     const btns = {
-      pending: `<button class="ok" data-a="approve">✓ ${canPost() ? (val('apAutoPost') ? 'Approve & schedule' : 'Approve & post') : 'Approve'}</button><button class="no" data-a="reject">✕</button>`,
-      approved: `${canPost() ? '<button class="ok" data-a="post">📤 Post</button>' : ''}<button data-a="download">⬇</button><button class="no" data-a="reject">✕</button>`,
-      failed: `<button class="ok" data-a="post">↻ Retry</button><button data-a="download">⬇</button><button class="no" data-a="reject">✕</button>`,
-      scheduled: `<button data-a="download">⬇ Download</button>`,
-      posted: `<button data-a="download">⬇ Download</button><button data-a="delete">🗑</button>`,
-      rejected: `<button data-a="restore">↩ Restore</button><button data-a="delete">🗑 Delete</button>`,
+      pending: `<button class="ok" data-a="approve">${ico('check')}${canPost() ? (val('apAutoPost') ? 'Approve & schedule' : 'Approve & post') : 'Approve'}</button><button class="no" data-a="reject" aria-label="Reject">${ico('x')}</button>`,
+      approved: `${canPost() ? `<button class="ok" data-a="post">${ico('send')}Post</button>` : ''}<button data-a="download" aria-label="Download">${ico('download')}</button><button class="no" data-a="reject" aria-label="Reject">${ico('x')}</button>`,
+      failed: `<button class="ok" data-a="post">↻ Retry</button><button data-a="download" aria-label="Download">${ico('download')}</button><button class="no" data-a="reject" aria-label="Reject">${ico('x')}</button>`,
+      scheduled: `<button data-a="download">${ico('download')}Download</button>`,
+      posted: `<button data-a="download">${ico('download')}Download</button><button data-a="delete" aria-label="Delete">${ico('trash')}</button>`,
+      rejected: `<button data-a="restore">↩ Restore</button><button data-a="delete">${ico('trash')}Delete</button>`,
     }[c.status] || '';
     el.innerHTML = `
       <video src="${url}" controls playsinline preload="metadata"></video>
@@ -881,10 +883,10 @@ async function renderQueue() {
         <textarea rows="3"></textarea>
         <div class="row">${btns}</div>
       </div>`;
-    el.querySelector('strong').textContent = (c.kind === 'clip' ? '🎮 ' : '🤖 ') + c.title;
+    el.querySelector('strong').textContent = c.title;
     const st = el.querySelector('.st'); st.textContent = statusText(c); if (!st.textContent) st.remove();
     const ta = el.querySelector('textarea'); ta.value = c.caption || '';
-    if (['pending', 'approved', 'failed'].includes(c.status) && !c.prodId) { const g = document.createElement('span'); g.className = 'gate g-' + (c.gate?.verdict || 'NONE'); g.textContent = c.gate ? FX.gateText(c.gate) + (c.gateAck?.gateAt === c.gate.at ? ' (you reviewed it)' : '') : '🔎 Guideline checks run when you approve'; el.querySelector('.body').insertBefore(g, ta); }
+    if (['pending', 'approved', 'failed'].includes(c.status) && !c.prodId) { const g = document.createElement('span'); g.className = 'gate g-' + (c.gate?.verdict || 'NONE'); g.textContent = c.gate ? FX.gateText(c.gate) + (c.gateAck?.gateAt === c.gate.at ? ' (you reviewed it)' : '') : 'Guideline checks run when you approve'; el.querySelector('.body').insertBefore(g, ta); }
     ta.onchange = async () => { const fresh = await getClip(c.id); if (fresh.caption !== ta.value) { fresh.caption = ta.value; fresh.gate = null; } await putClip(fresh); }; // edited caption = re-check
     el.querySelectorAll('button').forEach((b) => b.onclick = async () => {
       b.disabled = true;
@@ -915,7 +917,7 @@ async function confirmGate(clip) {
   if (clip.prodId) return true; // assembly-line video: its production record is re-checked at upload
   if (!clip.gate) { toast('Running guideline checks…'); await FX.gateClip(clip); await putClip(clip); }
   const g = clip.gate;
-  if (g.verdict === 'BLOCK') { alert('⛔ ' + g.summary + '\n\n' + g.items.filter((i) => i.sev === 'block').map((i) => '• ' + i.issue).join('\n')); return false; }
+  if (g.verdict === 'BLOCK') { alert('' + g.summary + '\n\n' + g.items.filter((i) => i.sev === 'block').map((i) => '• ' + i.issue).join('\n')); return false; }
   if (g.verdict === 'PASS' || clip.gateAck?.gateAt === g.at) return true;
   const list = g.items.filter((i) => i.sev !== 'low').map((i) => `• ${i.where}: ${i.issue}${i.fix ? ' → ' + i.fix : ''}`).join('\n');
   if (!confirm(`Guideline checks found ${g.items.filter((i) => i.sev !== 'low').length} thing(s) to check:\n\n${list}\n\nI watched it with sound and it's OK to post. Continue?`)) return false;
@@ -961,12 +963,12 @@ async function pickFolder() {
   try {
     folderHandle = await window.showDirectoryPicker({ mode: 'read' });
     await kvSet('folder', folderHandle);
-    $('#folderName').textContent = '📂 Watching: ' + folderHandle.name;
+    $('#folderName').textContent = 'Watching: ' + folderHandle.name;
     // mark existing files as already done so only NEW videos get clipped
     const seen = ls.get('seenFiles', {});
     for await (const [name, h] of folderHandle.entries()) if (h.kind === 'file') { const f = await h.getFile(); seen[`${name}|${f.size}|${f.lastModified}`] = 1; }
     ls.set('seenFiles', seen);
-    log(`📂 Watching folder "${folderHandle.name}" — new videos will be clipped automatically`);
+    log(`Watching folder "${folderHandle.name}": new videos will be clipped automatically`);
   } catch {}
 }
 $('#pickFolder').onclick = pickFolder;
@@ -992,11 +994,11 @@ async function apTick() {
         const key = `${name}|${f.size}|${f.lastModified}`;
         if (seen[key] || Date.now() - f.lastModified < 90000) continue; // skip done / still being written
         seen[key] = 1; ls.set('seenFiles', seen);
-        log(`🎞️ New VOD found: ${name} — clipping…`);
+        log(`New VOD found: ${name}: clipping…`);
         try {
           const made = await exclusive(() => clipVideoFile(f, (t) => ($('#apSummary').textContent = 'Working: ' + t)));
-          log(`✂️ Made ${made.length} clips from ${name}`);
-        } catch (e) { log(`⚠️ ${name}: ${e.message}`); }
+          log(`Made ${made.length} clips from ${name}`);
+        } catch (e) { log(`${name}: ${e.message}`); }
         return; // one job per tick
       }
     }
@@ -1012,8 +1014,8 @@ async function apTick() {
         const d = await writeScript(val('apNiche'), '', +val('vidLen') || 45);
         await exclusive(() => makeFacelessVideo(d, st));
         ls.set('facelessDay', { date: today, n: count + 1 });
-        log(`🤖 Autopilot made faceless video ${count + 1}/${per}: ${d.title}`);
-      } catch (e) { log('⚠️ Faceless: ' + e.message); ls.set('facelessDay', { date: today, n: count + 1 }); }
+        log(`Autopilot made faceless video ${count + 1}/${per}: ${d.title}`);
+      } catch (e) { log('Faceless: ' + e.message); ls.set('facelessDay', { date: today, n: count + 1 }); }
     }
   } finally {
     apTickRunning = false;
@@ -1029,7 +1031,7 @@ function updateApSummary() {
   paintWorkshop(); // wakes up the robot workshop
   if (busy && on) return;
   $('#apSummary').textContent = on
-    ? `On — checking every minute. Keep this tab open (it's fine in the background).${folderHandle ? '' : ' Tip: choose a folder to auto-clip VODs.'}`
+    ? `On: checking every minute. Keep this tab open (it's fine in the background).${folderHandle ? '' : ' Tip: choose a folder to auto-clip VODs.'}`
     : 'Off';
 }
 
@@ -1045,7 +1047,7 @@ async function startAutopilot() {
 function stopAutopilot() { clearInterval(apTimer); try { wakeLock?.release(); } catch {} updateApSummary(); }
 $('#apOn').onchange = () => {
   saveAll();
-  if (apOn()) { log('🚀 Autopilot turned ON'); startAutopilot(); } else { log('⏸ Autopilot turned OFF'); stopAutopilot(); }
+  if (apOn()) { log('Autopilot turned ON'); startAutopilot(); } else { log('Autopilot turned OFF'); stopAutopilot(); }
 };
 document.addEventListener('visibilitychange', async () => {
   if (apOn() && document.visibilityState === 'visible') { try { wakeLock = await navigator.wakeLock?.request('screen'); } catch {} }
@@ -1079,13 +1081,13 @@ $('#testKey').onclick = async () => {
   const st = (t) => ($('#setStatus').textContent = t);
   if (!val('apiKey')) return st('Paste a key first.');
   st('Testing…');
-  try { await chat('Reply with just: OK'); st('✅ OpenAI key works.'); } catch (e) { st('⚠️ ' + e.message); }
+  try { await chat('Reply with just: OK'); st('OpenAI key works.'); } catch (e) { st('' + e.message); }
 };
 $('#clearDone').onclick = async () => {
   const old = (await allClips()).filter((c) => ['posted', 'rejected'].includes(c.status) || (c.status === 'scheduled' && c.scheduledFor < Date.now() - 86400000));
   if (!confirm(`Delete ${old.length} posted/rejected videos from this browser? (Already-posted videos stay on your socials.)`)) return;
   for (const c of old) await delClip(c.id);
-  $('#setStatus').textContent = `🧹 Deleted ${old.length} videos.`;
+  $('#setStatus').textContent = `Deleted ${old.length} videos.`;
   updateCount();
 };
 
@@ -1095,12 +1097,12 @@ $('#clearDone').onclick = async () => {
    when something is posted. Click a robot (or a stat) to see what it's doing. */
 const WS = { jobs: new Map(), postUntil: 0, station: null, sig: '', urls: [], raf: 0, refreshing: false };
 const STATIONS = {
-  cut: ['Robot 1 · The cutter', '✂️ Cutting station'],
-  faceless: ['Robot 2 · The captioner', '🎬 Faceless studio'],
-  review: ['The conveyor belt', '📥 Waiting for your review'],
-  post: ['Robot 3 · The courier drone', '📤 Posting schedule'],
-  live: ['The phone', '🎉 Sent to your socials'],
-  log: ['Workshop sign', '📋 Activity log'],
+  cut: ['Robot 1 · The cutter', 'Cutting station'],
+  faceless: ['Robot 2 · The captioner', 'Faceless studio'],
+  review: ['The conveyor belt', 'Waiting for your review'],
+  post: ['Robot 3 · The courier drone', 'Posting schedule'],
+  live: ['The phone', 'Sent to your socials'],
+  log: ['Workshop sign', 'Activity log'],
 };
 const esc = (t) => String(t ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const FILTER_OF = { pending: 'pending', approved: 'approved', scheduled: 'scheduled', posted: 'scheduled', failed: 'failed', rejected: 'rejected' };
@@ -1137,10 +1139,10 @@ function paintWorkshop() {
   b.toggle('job-faceless', WS.jobs.has('faceless'));
   b.toggle('job-post', posting);
   let txt;
-  if (WS.jobs.has('cut')) txt = '✂️ Cutting: ' + WS.jobs.get('cut');
-  else if (WS.jobs.has('faceless')) txt = '🎬 Making: ' + WS.jobs.get('faceless');
-  else if (WS.jobs.has('post')) txt = '📤 ' + WS.jobs.get('post');
-  else if (posting) txt = '🎉 Just shipped a post';
+  if (WS.jobs.has('cut')) txt = 'Cutting: ' + WS.jobs.get('cut');
+  else if (WS.jobs.has('faceless')) txt = 'Making: ' + WS.jobs.get('faceless');
+  else if (WS.jobs.has('post')) txt = '' + WS.jobs.get('post');
+  else if (posting) txt = 'Just shipped a post';
   else if (on) txt = folderHandle ? `Watching "${folderHandle.name}" for new VODs` : 'Awake and checking for work every minute';
   else txt = 'Crew is on break. Flip Autopilot on to wake them up.';
   $('#wsStatus').textContent = txt;
@@ -1174,8 +1176,8 @@ function thumbs(list, empty) {
     const u = URL.createObjectURL(c.blob); WS.urls.push(u);
     return `<button class="mini" data-filter="${FILTER_OF[c.status] || 'pending'}" title="Open in Review Queue">
       <video src="${u}#t=0.5" muted playsinline loop preload="metadata"></video>
-      <span class="mini-t">${c.kind === 'clip' ? '🎮' : '🤖'} ${esc(c.title)}</span>
-      <span class="mini-s">${clipTotals(c).views != null ? `👁 ${fmtNum(clipTotals(c).views)} · ` : ''}${esc(statusText(c) || c.status)}</span></button>`;
+      <span class="mini-t">${ico(c.kind === 'clip' ? 'gamepad' : 'bot')}${esc(c.title)}</span>
+      <span class="mini-s">${clipTotals(c).views != null ? `${ico('eye', 'Views')}${fmtNum(clipTotals(c).views)} · ` : ''}${esc(statusText(c) || c.status)}</span></button>`;
   }).join('') + '</div>';
 }
 const fact = (label, value) => `<div class="fact"><span>${esc(label)}</span><b>${value}</b></div>`;
@@ -1190,7 +1192,7 @@ function stationHTML(k, all) {
     return `<div class="facts">${fact('Watching folder', folderHandle ? esc(folderHandle.name) : 'None yet')}
       ${fact('Clips made today', clips.filter((c) => c.created >= today).length)}${fact('Clips made total', clips.length)}</div>
       <div class="stage">${live}<div class="stage-r"><h4>Latest clips</h4>${thumbs(clips.slice(0, 4), 'No clips yet. Drop a VOD in Stream Clipper or choose a folder.')}</div></div>
-      <div class="row"><button data-act="folder">📂 ${folderHandle ? 'Change' : 'Choose'} folder</button><button data-tab="clipper">Open Stream Clipper</button></div>`;
+      <div class="row"><button data-act="folder">${ico('folder')}${folderHandle ? 'Change' : 'Choose'} folder</button><button data-tab="clipper">Open Stream Clipper</button></div>`;
   }
   if (k === 'faceless') {
     const vids = newest(all.filter((c) => c.kind === 'faceless'));
@@ -1202,7 +1204,7 @@ function stationHTML(k, all) {
   if (k === 'review') {
     const pend = newest(all.filter((c) => c.status === 'pending'));
     return `${thumbs(pend.slice(0, 8), 'Nothing waiting. Nice and clear!')}
-      <div class="row">${pend.length ? `<button class="primary" data-act="approveAll">✓ Approve all ${pend.length}</button>` : ''}<button data-tab="queue">Open Review Queue</button></div>`;
+      <div class="row">${pend.length ? `<button class="primary" data-act="approveAll">${ico('check')}Approve all ${pend.length}</button>` : ''}<button data-tab="queue">Open Review Queue</button></div>`;
   }
   if (k === 'post') {
     const up = all.filter((c) => c.status === 'scheduled' && c.scheduledFor > Date.now()).sort((a, b) => a.scheduledFor - b.scheduledFor);
@@ -1441,10 +1443,10 @@ async function renderStats() {
     const u = URL.createObjectURL(c.blob); statUrls.push(u); const t = clipTotals(c);
     const links = Object.entries(c.metrics).filter(([, m]) => m.url).map(([p, m]) => `<a href="${esc(m.url)}" target="_blank" rel="noopener">${esc(platName(p))} ↗</a>`).join('');
     return `<div class="topvid"><span class="rank">${i + 1}</span><video src="${u}#t=0.5" muted playsinline preload="metadata"></video>
-      <div class="tv-body"><b>${esc(c.title)}</b><div class="tv-nums"><span>👁 ${fmtNum(t.views)}</span><span>♥ ${fmtNum(t.likes)}</span><span>💬 ${fmtNum(t.comments)}</span><span>↻ ${fmtNum(t.shares)}</span></div>
+      <div class="tv-body"><b>${esc(c.title)}</b><div class="tv-nums"><span>${ico('eye', 'Views')}${fmtNum(t.views)}</span><span>${ico('heart', 'Likes')}${fmtNum(t.likes)}</span><span>${ico('message', 'Comments')}${fmtNum(t.comments)}</span><span>${ico('repeat', 'Shares')}${fmtNum(t.shares)}</span></div>
       <div class="tv-links">${links}</div></div></div>`;
   }).join('') + '</div>' : emptyBot(posts.length ? 'Your posted videos are waiting on their first numbers. Hit Refresh in a bit.' : 'Nothing posted in this range yet.')}</div>`;
-  if (cache?.errors?.length) html = `<div class="stat-warn">⚠️ ${esc(cache.errors.join('\n'))} <button data-go="accounts">Open Accounts</button></div>` + html;
+  if (cache?.errors?.length) html = `<div class="stat-warn">${ico('alert')}${esc(cache.errors.join('\n'))} <button data-go="accounts">Open Accounts</button></div>` + html;
   body.innerHTML = html;
   wireChart();
 }
@@ -1460,10 +1462,10 @@ function lineChart(series) {
   const xl = [0, Math.floor((series.length - 1) / 2), series.length - 1].map((i, n) => `<text x="${x(i)}" y="${H - 8}" class="ct" text-anchor="${['start', 'middle', 'end'][n]}">${lab(i)}</text>`).join('');
   return `<div class="chart" data-series='${esc(JSON.stringify(series))}'>
     <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Daily reach line chart">
-      <defs><linearGradient id="cfill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b69cff" stop-opacity=".28"/><stop offset="1" stop-color="#b69cff" stop-opacity="0"/></linearGradient></defs>
+      <defs><linearGradient id="cfill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff8a65" stop-opacity=".28"/><stop offset="1" stop-color="#ff8a65" stop-opacity="0"/></linearGradient></defs>
       ${grid}${xl}
       <path d="M${pts[0]} L${pts.join(' L')} L${x(series.length - 1)},${y(0)} L${x(0)},${y(0)}Z" fill="url(#cfill)"/>
-      <polyline points="${pts.join(' ')}" fill="none" stroke="#b69cff" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>
+      <polyline points="${pts.join(' ')}" fill="none" stroke="#ff8a65" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>
       <line class="cx" y1="${T}" y2="${H - B}" x1="0" x2="0"/>
     </svg><div class="cdot"></div><div class="ctip"></div>
     <details class="small muted"><summary>Show as table</summary><div class="ctable">${series.map(([d, v]) => `<span>${d}</span><b>${fmtNum(v)}</b>`).join('')}</div></details></div>`;
@@ -1497,9 +1499,9 @@ $('#statsBody').addEventListener('mouseout', (e) => { const t = e.target.closest
   renderLog();
   $('#originHint').textContent = location.origin;
   try { bgFiles = ((await idb('bg', 'readonly', (s) => s.getAll())) || []).map((r) => r.file); } catch {}
-  if (bgFiles.length) $('#bgDrop span').textContent = `🎮 ${bgFiles.length} background video(s) saved`;
+  if (bgFiles.length) $('#bgDrop span').textContent = `${bgFiles.length} background video(s) saved`;
   try { folderHandle = (await kvGet('folder')) || null; } catch {}
-  if (folderHandle) $('#folderName').textContent = '📂 Watching: ' + folderHandle.name;
+  if (folderHandle) $('#folderName').textContent = 'Watching: ' + folderHandle.name;
   renderPlatforms(null);
   await refreshAccounts(true);
   await updateCount();

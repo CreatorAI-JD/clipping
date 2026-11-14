@@ -29,7 +29,7 @@
   // every automatic action is written to the automation log, the record history and the audit log
   const note = async (kind, msg, r = null) => {
     A.log.unshift({ at: now(), kind, msg, recId: r?.id || null }); A.log = A.log.slice(0, 80); ls.set('fx_autoLog', A.log);
-    log('🤖 ' + msg);
+    log('' + msg);
     await FX.audit('automation: ' + kind, msg, r?.id || null, 'automation');
   };
 
@@ -43,7 +43,7 @@
     FX.hist(r, 'manager', 'auto-replaced', why);
     if (r.idea?.id) { const i = await FX.db.ideas.get(r.idea.id); if (i) { i.status = 'rejected'; i.rejectReason = 'Auto-replaced: ' + why; await FX.db.ideas.put(i); } }
     await FX.saveRecord(r);
-    await note('replaced', `${r.id}: ${why} — dropped it; the line moves on to the next-best moment.`, r);
+    await note('replaced', `${r.id}: ${why}: dropped it; the line moves on to the next-best moment.`, r);
   }
   A.repair = async () => {
     const c = FX.autoCfg(); if (!c.repair || FX.stopped()) return;
@@ -125,8 +125,8 @@
   A.pickSlot = async () => {
     const s = await A.bestSlots(6); if (!s.length) return null;
     // now and then try a different good slot so the scheduler keeps learning
-    if (s.length > 1 && Math.random() < (+FX.autoCfg().explore || 0)) { const x = s[1 + Math.floor(Math.random() * (s.length - 1))]; return { ...x, why: 'Exploring a different good time — ' + x.why }; }
-    return { ...s[0], why: 'Best open slot — ' + s[0].why };
+    if (s.length > 1 && Math.random() < (+FX.autoCfg().explore || 0)) { const x = s[1 + Math.floor(Math.random() * (s.length - 1))]; return { ...x, why: 'Exploring a different good time: ' + x.why }; }
+    return { ...s[0], why: 'Best open slot: ' + s[0].why };
   };
   const basePublish = R.publish;
   R.publish = async (r, say, o) => {
@@ -282,7 +282,7 @@
         let e = vods[v.id];
         if (!e) {
           e = vods[v.id] = { id: v.id, login, title: v.title, created, durSec: dur, url: v.url, clips: [], clipsAt: 0, seen: now() };
-          if (created + dur * 1000 > since) await FX.alert(`New Twitch VOD from ${login}: "${v.title}" (${v.duration}). Save it into your VOD folder and the line clips it automatically${' — viewer clips will guide the Moment Scout'}.`);
+          if (created + dur * 1000 > since) await FX.alert(`New Twitch VOD from ${login}: "${v.title}" (${v.duration}). Save it into your VOD folder and the line clips it automatically. Viewer clips will guide the Moment Scout.`);
         }
         e.durSec = dur; e.title = v.title;
         // viewer clips keep coming in for a day or two after the stream
@@ -309,7 +309,7 @@
       const g = groups[groups.length - 1];
       if (g && c.offset - g.offset < 20) g.views += c.views; else groups.push({ offset: c.offset, views: c.views, title: c.title });
     }
-    log(`🎯 ${file.name} matched Twitch VOD ${v.id}: ${groups.length} viewer-clipped moment(s)`);
+    log(`${file.name} matched Twitch VOD ${v.id}: ${groups.length} viewer-clipped moment(s)`);
     return groups.sort((a, b) => b.views - a.views).slice(0, 10).map((g) => ({ start: Math.max(0, g.offset - 3), views: Math.max(1, g.views), title: g.title }));
   };
 
@@ -349,7 +349,7 @@
 
   /* ---------------- hook into the production manager's tick ---------------- */
   FX.beforeTick = async () => {
-    await A.twPoll().catch((e) => log('⚠️ Twitch watcher: ' + e.message));
+    await A.twPoll().catch((e) => log('Twitch watcher: ' + e.message));
     if (FX.manager.running) await A.repair();
     await A.guard();
   };
@@ -367,45 +367,45 @@
     const a = FX.autoCfg(), ch = FX.channel(), st = A.kindStats(), hum = humanApprovals(), pause = A.paused();
     const slots = a.smart ? await A.bestSlots(5) : [];
     const { f, n: learnedN } = await A.hourFactors();
-    const bars = PRIOR.map((p, h) => { const d = new Date(); d.setHours(h, 0, 0, 0); const v = Math.min(1, p * f[h].factor); return `<i title="${h}:00 — ${Math.round(v * 100)}%${f[h].n ? ` (your data: ${f[h].factor.toFixed(2)}×, n=${f[h].n})` : ''}" style="height:${Math.max(4, v * 100)}%"></i>`; }).join('');
+    const bars = PRIOR.map((p, h) => { const d = new Date(); d.setHours(h, 0, 0, 0); const v = Math.min(1, p * f[h].factor); return `<i title="${h}:00, ${Math.round(v * 100)}%${f[h].n ? ` (your data: ${f[h].factor.toFixed(2)}×, n=${f[h].n})` : ''}" style="height:${Math.max(4, v * 100)}%"></i>`; }).join('');
     const kinds = Object.entries(st).sort((x, y) => y[1].approved - x[1].approved);
     const vods = Object.values(A.twVods()).sort((x, y) => y.created - x.created), match = ls.get('fx_twMatch', {});
     const matched = new Set(Object.values(match));
     const autoToday = ledger().filter((e) => e.act === 'approved' && e.by === 'trust' && e.at >= new Date().setHours(0, 0, 0, 0)).length;
-    return `<p class="muted">The automation crew keeps the line moving while you're away. Every automatic action is logged here, in the video's history and in the audit log. The safeguards stay: you approve the first videos yourself, anything with a rights or policy question waits for you, and 🛑 STOP halts all of it.</p>
-      ${A.away ? `<div class="hint-card">👋 <b>While you were away</b> (since ${when(A.away.since)}): ${esc(A.away.lines.join(' · '))} <button data-sub="needs">Open Review Queue</button></div>` : ''}
+    return `<p class="muted">The automation crew keeps the line moving while you're away. Every automatic action is logged here, in the video's history and in the audit log. The safeguards stay: you approve the first videos yourself, anything with a rights or policy question waits for you, and STOP halts all of it.</p>
+      ${A.away ? `<div class="hint-card"><b>While you were away</b> (since ${when(A.away.since)}): ${esc(A.away.lines.join(' · '))} <button data-sub="needs">Open Review Queue</button></div>` : ''}
       <div class="auto-grid">
-        <div class="card"><div class="row"><h3>🛠️ Mechanic — self-repair</h3>${chip(a.repair, a.repair ? 'On' : 'Off')}</div>
+        <div class="card"><div class="row"><h3>${ico('wrench')}Mechanic: self-repair</h3>${chip(a.repair, a.repair ? 'On' : 'Off')}</div>
           <p class="muted small">Retries a failed step twice (10 and 20 minutes later). If a clip keeps failing a quality check after ${FX.MAX_REVISIONS} revisions, or keeps erroring, it's dropped and the next-best moment takes its slot. A VOD with no usable moments frees its slot for the next VOD. Key, billing and permission errors still come to you.</p>
           ${tog('repair', 'Retry failed steps automatically', a.repair)}${tog('replace', 'Swap clips that keep failing for the next-best moment', a.replace)}
           <h4>Recent automatic actions</h4>
           ${A.log.length ? `<div class="auto-log">${A.log.slice(0, 12).map((x) => `<div><small class="muted">${when(x.at)}</small> ${esc(x.msg)}</div>`).join('')}</div>` : '<p class="muted small">Nothing yet.</p>'}</div>
 
-        <div class="card"><div class="row"><h3>🗓️ Smart scheduler</h3>${chip(a.smart, a.smart ? 'On' : 'Off')}</div>
+        <div class="card"><div class="row"><h3>${ico('calendar')}Smart scheduler</h3>${chip(a.smart, a.smart ? 'On' : 'Off')}</div>
           <p class="muted small">When you approve without picking a time, the post goes to the best open slot in the next 3 days: a starting guess for GTA viewers (evenings, weekend afternoons) blended with how your own posts did by hour (${learnedN >= 3 ? `learning from ${learnedN} posts` : 'starts learning after 3 posts with 24h of stats'}). At most ${Math.min(+ch.videosPerDay || 3, +ch.maxPerDay || 99)} per day (Channel), spaced ${a.gapMin} min apart.</p>
           <div class="hour-bars" aria-label="Expected audience by hour">${bars}</div><div class="hour-axis"><span>0</span><span>6</span><span>12</span><span>18</span><span>23</span></div>
           ${tog('smart', 'Pick posting times automatically', a.smart)}
           <div class="grid3">${num('gapMin', 'Minutes between posts', a.gapMin, 'min="0" max="720"')}${num('explore', 'Try other good times (0–0.5)', a.explore, 'min="0" max="0.5" step="0.05"')}</div>
           ${slots.length ? `<h4>Next best open slots</h4><ol class="small">${slots.map((s) => `<li>${esc(s.why)}</li>`).join('')}</ol>` : ''}</div>
 
-        <div class="card"><div class="row"><h3>🤝 Earned auto-approve</h3>${chip(ch.autoPublish && !pause, pause ? 'Paused' : ch.autoPublish ? 'On' : 'Off')}</div>
+        <div class="card"><div class="row"><h3>${ico('shield')}Earned auto-approve</h3>${chip(ch.autoPublish && !pause, pause ? 'Paused' : ch.autoPublish ? 'On' : 'Off')}</div>
           <p class="muted small">The line approves a video only when: you've approved at least ${a.minHuman} yourself (${hum} so far); Final QC is APPROVED or APPROVED WITH WARNING; every warning on it is a kind you've approved ${a.kindMin}+ times and not rejected in 30 days; all rights records are verified with no hand overrides; no rights/policy check wants a person; monetization risk isn't HIGH; and today's cap (${a.autoCap}) isn't used up (${autoToday} today). If auto posts fail or get under 35% of your approved posts' median views, it pauses itself.</p>
-          ${pause ? `<div class="hint-card">⏸ Paused ${when(pause.at)}: ${esc(pause.reason)} <button data-auto="resumeTrust">Resume</button></div>` : ''}
+          ${pause ? `<div class="hint-card">${ico('pause')}Paused ${when(pause.at)}: ${esc(pause.reason)} <button data-auto="resumeTrust">Resume</button></div>` : ''}
           <label class="check"><input type="checkbox" data-achan="autoPublish" ${ch.autoPublish ? 'checked' : ''}> Let the line approve videos that match what I approve</label>
           ${tog('guard', 'Pause automatically if auto posts fail or underperform', a.guard)}
           <div class="grid3">${num('minHuman', 'Videos you approve first', a.minHuman, 'min="1" max="50"')}${num('kindMin', 'Approvals needed per warning kind', a.kindMin, 'min="1" max="20"')}${num('autoCap', 'Max auto-approvals per day', a.autoCap, 'min="0" max="20"')}</div>
           <h4>What it has learned from you</h4>
-          ${kinds.length ? `<div class="vlist">${kinds.map(([k, s]) => `<div class="vrow"><span>${esc(A.kindLabel(k))}</span><span>${s.approved} approved by you${s.auto ? ` · ${s.auto} auto` : ''}${s.bad ? ` · <b class="warn-t">${s.bad} rejected/sent back</b>` : ''}</span><span>${s.bad ? '<span class="sev sev-high">Needs you</span>' : s.approved >= a.kindMin ? '<span class="sev sev-ok">Trusted</span>' : `<span class="sev sev-medium">Learning ${s.approved}/${a.kindMin}</span>`}</span></div>`).join('')}</div>` : '<p class="muted small">Nothing yet — every approve, reject or send-back you make teaches it which warnings you accept.</p>'}</div>
+          ${kinds.length ? `<div class="vlist">${kinds.map(([k, s]) => `<div class="vrow"><span>${esc(A.kindLabel(k))}</span><span>${s.approved} approved by you${s.auto ? ` · ${s.auto} auto` : ''}${s.bad ? ` · <b class="warn-t">${s.bad} rejected/sent back</b>` : ''}</span><span>${s.bad ? '<span class="sev sev-high">Needs you</span>' : s.approved >= a.kindMin ? '<span class="sev sev-ok">Trusted</span>' : `<span class="sev sev-medium">Learning ${s.approved}/${a.kindMin}</span>`}</span></div>`).join('')}</div>` : '<p class="muted small">Nothing yet: every approve, reject or send-back you make teaches it which warnings you accept.</p>'}</div>
 
-        <div class="card"><div class="row"><h3>📡 Twitch watcher</h3>${chip(a.twitch && twToken(), a.twitch ? (twToken() ? 'Connected' : 'Not connected') : 'Off')}</div>
+        <div class="card"><div class="row"><h3>${ico('radio')}Twitch watcher</h3>${chip(a.twitch && twToken(), a.twitch ? (twToken() ? 'Connected' : 'Not connected') : 'Off')}</div>
           <p class="muted small">Every 30 minutes it checks your Twitch channel(s) for new VODs and alerts you, and pulls the clips viewers made during the stream. When you drop or save that VOD (with the VOD id in the file name, or the full-length file), the Moment Scout adds the viewer-clipped moments and ranks them higher. Twitch doesn't offer VOD downloads in its API, so saving the file is still your step (TwitchDownloader names files with the id).</p>
           ${tog('twitch', 'Watch Twitch channels', a.twitch)}
           <div class="grid3">${txt('twLogins', 'Twitch channel(s), comma separated', a.twLogins, 'yourchannel')}${txt('twClient', 'Twitch app Client ID', a.twClient, 'from dev.twitch.tv/console')}</div>
           <p class="muted small">Create an app at dev.twitch.tv/console with this OAuth redirect URL: <code>${esc(redirectUri())}</code></p>
           <div class="row"><button data-auto="twConnect">${twToken() ? 'Reconnect Twitch' : 'Connect Twitch'}</button><button data-auto="twPoll" ${twToken() ? '' : 'disabled'}>Check now</button><span class="muted small">${ls.get('fx_twAt', 0) ? 'Last check ' + when(ls.get('fx_twAt', 0)) : 'Not checked yet'}</span></div>
-          ${vods.length ? `<div class="vlist">${vods.slice(0, 8).map((v) => `<div class="vrow"><span>🎞️ <b>${esc(v.title)}</b> <small class="muted">${esc(v.login)} · ${when(v.created)} · ${fmt(v.durSec)}</small></span><span>${v.clips.length} viewer clip(s)</span><span>${matched.has(v.id) ? '<span class="ok-line">matched a local file</span>' : '<span class="muted">waiting for the file</span>'}</span></div>`).join('')}</div>` : ''}</div>
+          ${vods.length ? `<div class="vlist">${vods.slice(0, 8).map((v) => `<div class="vrow"><span>${ico('film')}<b>${esc(v.title)}</b> <small class="muted">${esc(v.login)} · ${when(v.created)} · ${fmt(v.durSec)}</small></span><span>${v.clips.length} viewer clip(s)</span><span>${matched.has(v.id) ? '<span class="ok-line">matched a local file</span>' : '<span class="muted">waiting for the file</span>'}</span></div>`).join('')}</div>` : ''}</div>
 
-        <div class="card"><div class="row"><h3>☕ Stay awake</h3>${chip(a.awake, a.awake ? 'On' : 'Off')}</div>
+        <div class="card"><div class="row"><h3>${ico('sun')}Stay awake</h3>${chip(a.awake, a.awake ? 'On' : 'Off')}</div>
           <p class="muted small">While the line runs, the screen stays awake so the browser doesn't freeze the tab mid-render, and you get a summary when you come back. Posts already scheduled go out from Upload-Post/YouTube even if this tab is closed; producing new clips needs the tab open.</p>
           ${tog('awake', 'Keep the screen awake while the line runs', a.awake)}</div>
       </div>`;
@@ -428,7 +428,7 @@
       if (act === 'twConnect') return A.twConnect();
       if (act === 'twPoll') { b.disabled = true; b.textContent = 'Checking…'; await A.twPoll({ force: true }); toast('Twitch checked.'); }
       if (act === 'resumeTrust') { ls.set('fx_trustPause', null); await FX.audit('earned auto-approve resumed', '', null, 'you'); }
-    } catch (err) { toast('⚠️ ' + err.message); }
+    } catch (err) { toast('' + err.message); }
     FX.renderLine?.();
   });
 })(window.FX);

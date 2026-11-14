@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#09080d">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap">
+<link rel="stylesheet" href="legal.css">
+<title>Privacy Policy · AutoClipper</title>
+<meta name="description" content="What AutoClipper stores, where it is stored, and which services it talks to.">
+</head>
+<body>
+<header><a href="./"><img src="favicon.svg" alt="" width="28" height="28"><span translate="no">AutoClipper</span></a></header>
+<main>
+<h1>Privacy Policy</h1>
+<p class="muted">Effective 14 November 2026</p>
+
+<p>AutoClipper is a tool that runs entirely in your web browser. It cuts stream VODs into short vertical clips, makes faceless videos, and posts them to the social accounts you connect. There is no AutoClipper server and no AutoClipper account. We never receive your videos, your keys or your login details.</p>
+
+<h2>What is stored, and where</h2>
+<p>Everything AutoClipper saves stays in the browser you use it in, on your own computer:</p>
+<div class="wrap"><table>
+<thead><tr><th>Data</th><th>Where it is kept</th></tr></thead>
+<tbody>
+<tr><td>Your API keys (OpenAI, Upload-Post, Pexels, Pixabay, Twitch) and your Google OAuth client ID</td><td>Browser local storage, only in this browser. Keys are sent only to the service they belong to.</td></tr>
+<tr><td>Settings (posting times, channel rules, hashtags, caption style)</td><td>Browser local storage</td></tr>
+<tr><td>Videos you add, clips it makes, production records, reports and stats</td><td>Browser IndexedDB storage</td></tr>
+<tr><td>The VOD folder you choose</td><td>A folder permission your browser keeps. AutoClipper can only read that folder, and only while the tab is open.</td></tr>
+</tbody>
+</table></div>
+<p>Clearing this site's data in your browser deletes all of it. The Assembly Line tab can also download a backup file, which you keep yourself.</p>
+
+<h2>Services AutoClipper talks to</h2>
+<p>When you use a feature, your browser sends the data that feature needs straight to the service. Each service handles that data under its own privacy policy.</p>
+<ul>
+<li><b>OpenAI</b> (only with your OpenAI key): transcripts, scripts, frames for safety checks, and text for voiceover and captions.</li>
+<li><b>Upload-Post</b> (only with your Upload-Post key): the finished video, its title and caption, and requests for post stats. Upload-Post then posts to TikTok, Instagram, YouTube, Facebook, X or Threads for you.</li>
+<li><b>Google / YouTube</b> (only if you set up direct YouTube posting): Google sign-in, video uploads and YouTube stats.</li>
+<li><b>Twitch</b> (only if you turn on the Twitch watcher): the channel names you enter, to find new VODs and viewer clips.</li>
+<li><b>Pexels, Pixabay, Openverse, Wikipedia, Wikimedia and Reddit</b>: search words, to find licensed stock footage and trending topics.</li>
+<li><b>Google Fonts</b>: loads the page fonts, which shares your IP address with Google like any website font.</li>
+</ul>
+
+<h2>What we do not do</h2>
+<ul>
+<li>No analytics, tracking pixels, ads or cookies.</li>
+<li>No selling or sharing of your data. We never have it to begin with.</li>
+<li>Nothing is posted without your approval, unless you turn on an auto-approve rule yourself.</li>
+</ul>
+
+<h2>Children</h2>
+<p>AutoClipper is not meant for anyone under 13, or under the minimum age the connected social platforms require.</p>
+
+<h2>Changes</h2>
+<p>If this policy changes, the new version will be posted on this page with a new effective date.</p>
+
+<h2>Contact</h2>
+<p>Questions about this policy: open an issue at <a href="https://github.com/CreatorAI-JD/clipping/issues">github.com/CreatorAI-JD/clipping/issues</a>.</p>
+</main>
+<footer>
+  <a href="./">Back to AutoClipper</a>
+  <a href="privacy.html">Privacy Policy</a>
+  <a href="terms.html">Terms &amp; Conditions</a>
+</footer>
+</body>
+</html>
