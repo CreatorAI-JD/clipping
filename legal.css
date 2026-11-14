@@ -1,0 +1,23 @@
+/* Privacy + Terms pages: same dark theme as the app, plain reading layout */
+:root{--bg:#09080d;--text:#f4f2f8;--muted:#9a96a8;--line:rgba(255,255,255,.08);--accent:#ff8a65;--font:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
+*{box-sizing:border-box}
+html{color-scheme:dark}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.65 var(--font);-webkit-font-smoothing:antialiased}
+header{display:flex;align-items:center;gap:10px;padding:14px 20px;border-bottom:1px solid var(--line)}
+header a{display:flex;align-items:center;gap:10px;color:var(--text);text-decoration:none;font-weight:800;letter-spacing:-.02em}
+header img{width:28px;height:28px}
+main{max-width:720px;margin:0 auto;padding:32px 20px 48px}
+h1{font-size:34px;line-height:1.15;letter-spacing:-.03em;margin:0 0 6px;text-wrap:balance}
+h2{font-size:20px;letter-spacing:-.01em;margin:32px 0 8px;scroll-margin-top:16px;text-wrap:balance}
+p,li{color:#d9d6e3}
+.muted{color:var(--muted);font-size:14px}
+a{color:var(--accent);text-underline-offset:3px}
+a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+table{width:100%;border-collapse:collapse;font-size:14px;margin:8px 0}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--muted);font-weight:600}
+.wrap{overflow-x:auto}
+footer{max-width:720px;margin:0 auto;padding:20px;border-top:1px solid var(--line);font-size:14px;color:var(--muted);display:flex;gap:16px;flex-wrap:wrap}
+footer a{color:var(--muted)}
+footer a:hover{color:var(--text)}
+@media (max-width:600px){h1{font-size:28px}th,td{padding:6px}}

@@ -212,5 +212,5 @@
     if (g.verdict !== 'PASS' && !(clip.gateAck && clip.gateAck.gateAt === g.at)) throw new Error(`Publish gate: needs your review first (${g.summary})`);
     FX.gatePassed.add(clip.id);
   };
-  FX.gateText = (g) => !g ? '' : `${{ PASS: '✅ Checks passed', WARNING: '🟡 Warnings', HUMAN_REVIEW: '🛑 Needs your review', BLOCK: '⛔ Blocked' }[g.verdict]}${g.items?.filter((i) => i.sev !== 'low').length ? ': ' + g.items.filter((i) => i.sev !== 'low').map((i) => i.issue).join(' · ') : ''}`;
+  FX.gateText = (g) => !g ? '' : `${{ PASS: 'Checks passed', WARNING: 'Warnings', HUMAN_REVIEW: 'Needs your review', BLOCK: 'Blocked' }[g.verdict]}${g.items?.filter((i) => i.sev !== 'low').length ? ': ' + g.items.filter((i) => i.sev !== 'low').map((i) => i.issue).join(' · ') : ''}`;
 })(window.FX);

@@ -17,7 +17,7 @@
   FX.addVod = (file, from = 'dropped') => {
     const key = keyOf(file); FX.vods.set(key, file);
     const inbox = FX.vodInbox();
-    if (!inbox.find((e) => e.key === key)) { inbox.push({ key, name: file.name, size: file.size, added: now(), from, status: 'new' }); log(`📥 VOD added to the assembly line: ${file.name}`); }
+    if (!inbox.find((e) => e.key === key)) { inbox.push({ key, name: file.name, size: file.size, added: now(), from, status: 'new' }); log(`VOD added to the assembly line: ${file.name}`); }
     saveInbox(inbox);
   };
   FX.vodAvailable = async (key) => !!(await getVod(key));
@@ -80,7 +80,7 @@
     if (a.license === 'Streamer permission (undocumented)') return { status: 'manual_review', reason: 'Permission is marked but there is no proof/date saved. Add the link or screenshot reference in Channel.' };
     if (a.license === 'Game publisher video policy (not reviewed)') return { status: 'manual_review', reason: 'Confirm you have read the game publisher\'s video/monetization policy (tick it in Channel).' };
     if (a.license === 'My own stream' || a.license === 'Game publisher video policy (reviewed)') return a.name && a.source ? { status: 'verified', reason: 'Verified' } : { status: 'rejected', reason: 'Incomplete record' };
-    if (a.license === 'Streamer permission (documented)') return a.attributionText ? { status: 'verified', reason: 'Verified — streamer credit added to descriptions' } : { status: 'rejected', reason: 'Credit text missing' };
+    if (a.license === 'Streamer permission (documented)') return a.attributionText ? { status: 'verified', reason: 'Verified: streamer credit added to descriptions' } : { status: 'rejected', reason: 'Credit text missing' };
     return baseCheck(a);
   };
 
@@ -275,7 +275,7 @@
     } else items.push(item('low', 'Method', 'AI review skipped (no OpenAI key). Watch the clip before approving.', ''));
     const dup = items.some((i) => i.where === 'Duplicate');
     const v = verdictFrom(items);
-    return { verdict: dup ? 'REJECTED' : v, sendBackTo: 'script', summary: dup ? 'Duplicate of an existing clip — rejected.' : v === 'FAIL' ? 'Returned to the clip plan with fixes.' : 'Clip plan approved.', items, method };
+    return { verdict: dup ? 'REJECTED' : v, sendBackTo: 'script', summary: dup ? 'Duplicate of an existing clip: rejected.' : v === 'FAIL' ? 'Returned to the clip plan with fixes.' : 'Clip plan approved.', items, method };
   };
 
   /* 6. INTRO VOICEOVER (stream audio is used as-is) */
@@ -305,7 +305,7 @@
     const lic = rel === 'me' ? 'My own stream' : rel === 'permission' ? (proof ? 'Streamer permission (documented)' : 'Streamer permission (undocumented)') : 'No permission recorded';
     const mk = (o2) => ({ id: 'a_' + now().toString(36) + Math.random().toString(36).slice(2, 6), acquired: new Date().toISOString(), ...o2 });
     const assets = [
-      mk({ scene: n, name: `${cl.vodName} ${fmt(cl.start)}–${fmt(cl.start + cl.len)}`, kind: 'stream', source: `${c.streamer || 'Streamer'} stream VOD`, creator: c.streamer || 'You', license: lic, licenseUrl: c.permissionProof || '', commercial: rel === 'me' || (rel === 'permission' && proof) ? true : 'unknown', attribution: rel === 'permission' ? 'required' : 'not required', attributionText: rel === 'permission' && c.streamer ? `Clip from ${c.streamer}'s stream, used with permission (${c.permissionDate})` : '', note: `Permission: ${rel === 'me' ? 'your own stream' : rel === 'permission' ? `granted ${c.permissionDate || '(no date)'} — ${c.permissionProof || 'no proof saved'}` : 'none recorded'}` }),
+      mk({ scene: n, name: `${cl.vodName} ${fmt(cl.start)}–${fmt(cl.start + cl.len)}`, kind: 'stream', source: `${c.streamer || 'Streamer'} stream VOD`, creator: c.streamer || 'You', license: lic, licenseUrl: c.permissionProof || '', commercial: rel === 'me' || (rel === 'permission' && proof) ? true : 'unknown', attribution: rel === 'permission' ? 'required' : 'not required', attributionText: rel === 'permission' && c.streamer ? `Clip from ${c.streamer}'s stream, used with permission (${c.permissionDate})` : '', note: `Permission: ${rel === 'me' ? 'your own stream' : rel === 'permission' ? `granted ${c.permissionDate || '(no date)'}: ${c.permissionProof || 'no proof saved'}` : 'none recorded'}` }),
       mk({ scene: n, name: `${c.game} gameplay shown in the stream`, kind: 'game', source: 'Game publisher', creator: 'Game publisher', license: c.gamePolicyAck ? 'Game publisher video policy (reviewed)' : 'Game publisher video policy (not reviewed)', licenseUrl: '', commercial: c.gamePolicyAck ? true : 'unknown', attribution: 'not required' }),
     ];
     if (cl.intro) assets.push(mk({ scene: 1, name: 'Commentary intro voice', kind: 'audio', source: 'OpenAI tts-1', creator: 'Generated for this video', license: 'AI voice (OpenAI TTS output)', licenseUrl: 'https://openai.com/policies/terms-of-use/', commercial: true, attribution: 'not required', aiGenerated: true }));

@@ -185,7 +185,7 @@
           else if (TIME_WORDS.test(c.text)) { c.status = 'time-sensitive'; c.note = 'Time-sensitive wording; phrase as "as of <date>" or drop'; }
         }
       }
-      if (c.status !== 'confirmed') items.push(item(c.status === 'time-sensitive' ? 'low' : 'medium', c.id, `${c.status.toUpperCase()}: "${c.text}"${c.note ? ' — ' + c.note : ''}`, c.status === 'time-sensitive' ? 'May be used with a date qualifier.' : 'Removed from the plan. The script may not present it as fact.'));
+      if (c.status !== 'confirmed') items.push(item(c.status === 'time-sensitive' ? 'low' : 'medium', c.id, `${c.status.toUpperCase()}: "${c.text}"${c.note ? ': ' + c.note : ''}`, c.status === 'time-sensitive' ? 'May be used with a date qualifier.' : 'Removed from the plan. The script may not present it as fact.'));
     });
     conflicts.forEach((x) => items.push(item('medium', 'Conflict', x, 'Script must not take a side on this without a source.')));
     for (const s of sources) if (s.lastEdited && now() - Date.parse(s.lastEdited) > 3 * 365 * 864e5) items.push(item('low', s.id, `Source not edited in 3+ years (${s.lastEdited.slice(0, 10)})`, 'Fine for history; re-check if the topic is current.'));
@@ -299,7 +299,7 @@
         `Check: hook quality, grammar, spelling, sentence structure, storytelling, repetition, factual accuracy vs the verified claims, unsupported statements, originality (does it read like a copy of a known creator's script?), community-guidelines risks, advertiser-suitability risks, whether the ending makes sense.\n` +
         `Return JSON {"hookScore": 1-10, "issues": [{"severity": "high"|"medium"|"low", "scene": number|null, "sentence": exact text, "category": string, "issue": string, "fix": exact replacement or instruction}]}. Use "high" only for factual errors, unsupported claims, policy risks, or a broken script.`, { temperature: 0.2 });
       hookScore = out?.hookScore ?? null;
-      (out?.issues || []).forEach((i) => items.push(item(i.severity || 'low', `${i.scene ? 'Scene ' + i.scene : 'Script'} · ${i.category || ''}`, `${i.issue}${i.sentence ? ` — "${i.sentence}"` : ''}`, i.fix || '')));
+      (out?.issues || []).forEach((i) => items.push(item(i.severity || 'low', `${i.scene ? 'Scene ' + i.scene : 'Script'} · ${i.category || ''}`, `${i.issue}${i.sentence ? `: "${i.sentence}"` : ''}`, i.fix || '')));
       if (hookScore != null && hookScore < 5) items.push(item('medium', 'Scene 1 (hook)', `Hook scored ${hookScore}/10`, 'Write a stronger first line.'));
     } else if (!r.practice) return needKey('script review');
     const verdict = verdictFrom(items);
@@ -397,11 +397,11 @@
     if (/BY-SA/i.test(a.license)) return { status: 'manual_review', reason: 'Share-alike license: a video using it may have to be shared under the same license. Needs a human decision.' };
     if (/ND|NC/i.test(a.license)) return { status: 'rejected', reason: `${a.license} does not allow commercial use or edits` };
     const L = LICENSES[a.license.replace(/ \d.*$/, '')] || LICENSES[a.license];
-    if (!L) return { status: 'rejected', reason: `Unknown license "${a.license}" — never assume online footage is free to use` };
+    if (!L) return { status: 'rejected', reason: `Unknown license "${a.license}": never assume online footage is free to use` };
     if (a.commercial !== true) return { status: 'rejected', reason: 'Commercial use not confirmed' };
     if (L.attribution && !a.attributionText) return { status: 'rejected', reason: 'Attribution required but creator/attribution text missing' };
     if (!a.licenseUrl && L.url !== '') return { status: 'rejected', reason: 'No link to the license documentation' };
-    return { status: 'verified', reason: L.attribution ? 'Verified — attribution will be added to the description' : 'Verified' };
+    return { status: 'verified', reason: L.attribution ? 'Verified: attribution will be added to the description' : 'Verified' };
   };
   const fetchBlob = async (url, max = 45e6) => {
     const res = await fetch(url, { mode: 'cors' });
@@ -493,7 +493,7 @@
         }
         if (got) break;
       }
-      if (!got) got = mkAsset(s.n, { name: `Generated animated background (scene ${s.n})`, kind: 'generated', source: 'AutoClipper renderer', creator: 'AutoClipper', license: 'Original work (generated in AutoClipper)', licenseUrl: '', commercial: true, attribution: 'not required', status: 'verified', check: 'Verified — made from scratch by the app', note: 'No licensed footage found; using an original generated background' });
+      if (!got) got = mkAsset(s.n, { name: `Generated animated background (scene ${s.n})`, kind: 'generated', source: 'AutoClipper renderer', creator: 'AutoClipper', license: 'Original work (generated in AutoClipper)', licenseUrl: '', commercial: true, attribution: 'not required', status: 'verified', check: 'Verified: made from scratch by the app', note: 'No licensed footage found; using an original generated background' });
       assets.push(got);
       if (got.status === 'verified' && got.fileId && !got.libraryId && got.source !== 'Your uploaded background') {
         const libId = 'lib_' + (got.ext || got.id).replace(/[^\w:-]/g, '');
@@ -503,9 +503,9 @@
     }
     // narration, music and sound effects get license records too
     assets.push(
-      mkAsset(0, { name: 'Narration', kind: 'audio', source: r.practice ? 'Silent placeholder' : 'OpenAI tts-1 (voice: ' + c.voice + ')', creator: 'Generated for this video', license: r.practice ? 'Original work (generated in AutoClipper)' : 'AI voice (OpenAI TTS output)', licenseUrl: r.practice ? '' : 'https://openai.com/policies/terms-of-use/', commercial: true, attribution: 'not required', aiGenerated: !r.practice, status: 'verified', check: 'Verified — synthetic voice must be disclosed' }),
-      mkAsset(0, { name: 'Background music (generated pad)', kind: 'audio', source: 'AutoClipper WebAudio synth', creator: 'AutoClipper', license: 'Original work (generated in AutoClipper)', licenseUrl: '', commercial: true, attribution: 'not required', status: 'verified', check: 'Verified — composed in the app, no samples' }),
-      mkAsset(0, { name: 'Sound effects (whoosh/pop/riser)', kind: 'audio', source: 'AutoClipper WebAudio synth', creator: 'AutoClipper', license: 'Original work (generated in AutoClipper)', licenseUrl: '', commercial: true, attribution: 'not required', status: 'verified', check: 'Verified — synthesized in the app' }),
+      mkAsset(0, { name: 'Narration', kind: 'audio', source: r.practice ? 'Silent placeholder' : 'OpenAI tts-1 (voice: ' + c.voice + ')', creator: 'Generated for this video', license: r.practice ? 'Original work (generated in AutoClipper)' : 'AI voice (OpenAI TTS output)', licenseUrl: r.practice ? '' : 'https://openai.com/policies/terms-of-use/', commercial: true, attribution: 'not required', aiGenerated: !r.practice, status: 'verified', check: 'Verified: synthetic voice must be disclosed' }),
+      mkAsset(0, { name: 'Background music (generated pad)', kind: 'audio', source: 'AutoClipper WebAudio synth', creator: 'AutoClipper', license: 'Original work (generated in AutoClipper)', licenseUrl: '', commercial: true, attribution: 'not required', status: 'verified', check: 'Verified: composed in the app, no samples' }),
+      mkAsset(0, { name: 'Sound effects (whoosh/pop/riser)', kind: 'audio', source: 'AutoClipper WebAudio synth', creator: 'AutoClipper', license: 'Original work (generated in AutoClipper)', licenseUrl: '', commercial: true, attribution: 'not required', status: 'verified', check: 'Verified: synthesized in the app' }),
     );
     r.assets = assets; r.assetRejects = rejected;
     assets.filter((a) => a.status === 'manual_review').forEach((a) => items.push(item('high', `Scene ${a.scene} · ${a.name}`, a.check, 'Confirm ownership in Library, or send back to replace it.')));
@@ -568,7 +568,7 @@
     for (const q of cues) { const prev = merged[merged.length - 1]; if (prev && (prev.end - prev.start < 0.3) && q.start - prev.end < 0.15 && prev.text.split(' ').length < 4) { prev.text += ' ' + q.text; prev.end = q.end; } else merged.push({ ...q }); }
     cues = merged;
     const emph = new Set([...r.script.scenes.flatMap((s) => FX.keywords(s.onScreen)), ...FX.keywords(r.idea?.topic)]);
-    cues.forEach((q) => { q.hl = q.text.split(' ').map((w) => /\d/.test(w) || emph.has(FX.norm(w))); const cps = q.text.length / Math.max(0.05, q.end - q.start); if (q.end - q.start < 0.25 || cps > 22) items.push(item('medium', FX.ts(q.start), `Caption "${q.text}" on screen ${(q.end - q.start).toFixed(2)}s (${Math.round(cps)} chars/sec) — too fast to read`, 'Slow the voice slightly or shorten the line.')); });
+    cues.forEach((q) => { q.hl = q.text.split(' ').map((w) => /\d/.test(w) || emph.has(FX.norm(w))); const cps = q.text.length / Math.max(0.05, q.end - q.start); if (q.end - q.start < 0.25 || cps > 22) items.push(item('medium', FX.ts(q.start), `Caption "${q.text}" on screen ${(q.end - q.start).toFixed(2)}s (${Math.round(cps)} chars/sec): too fast to read`, 'Slow the voice slightly or shorten the line.')); });
     if (c.captionPos < 0.5 || c.captionPos > 0.76) items.push(item('medium', 'Style', `Caption position ${Math.round(c.captionPos * 100)}% from top is outside the platform-safe zone (50–76%)`, 'Change it in Channel.'));
     if (c.captionSize < 56) items.push(item('medium', 'Style', `Caption size ${c.captionSize}px is small on phones`, 'Use 64px or more.'));
     if (c.captionSize > 110) items.push(item('low', 'Style', `Caption size ${c.captionSize}px may wrap a lot`, 'Use 80–100px.'));
@@ -912,7 +912,7 @@
     }
     for (const p of plats) {
       const pol = FX.policy(p), out = { status: 'ok', items: [], disclosures: [], policyVersion: pol.version, reviewedAt: pol.reviewedAt };
-      for (const rule of pol.rules) for (const k of rule.keywords || []) if (FX.hasPhrase(text, k)) out.items.push(item(rule.severity === 'block' ? 'high' : 'medium', `${pol.name} · ${rule.id}`, `Matches "${k}" — ${rule.text}`, 'Rephrase or remove.'));
+      for (const rule of pol.rules) for (const k of rule.keywords || []) if (FX.hasPhrase(text, k)) out.items.push(item(rule.severity === 'block' ? 'high' : 'medium', `${pol.name} · ${rule.id}`, `Matches "${k}": ${rule.text}`, 'Rephrase or remove.'));
       const a = ai?.platforms?.[p];
       (a?.findings || []).forEach((f) => { const rule = pol.rules.find((x) => x.id === f.rule); out.items.push(item(a.status === 'violation' && rule?.severity === 'block' ? 'high' : 'medium', `${pol.name} · ${f.rule || ''} · ${f.where || ''}`, f.issue, f.fix || '')); });
       out.disclosures = [...new Set([...(a?.disclosures || []), ...(r.disclosures.containsSyntheticMedia ? ['AI-generated / synthetic content label'] : [])])];
@@ -979,7 +979,7 @@
       const rep = r.reports[k], ov = r.overrides?.[k];
       const v = ov ? 'APPROVED BY HUMAN' : rep?.verdict || 'MISSING';
       rows.push({ key: k, label, verdict: v });
-      if (!rep && !ov) items.push(item('high', label, 'Report missing — department did not run', 'Run it.'));
+      if (!rep && !ov) items.push(item('high', label, 'Report missing: department did not run', 'Run it.'));
       else if (!ov && rep.verdict === 'FAIL') items.push(item('high', label, rep.summary, 'Department must fix it.'));
       else if (!ov && rep.verdict === 'HUMAN_REVIEW') items.push(item('review', label, rep.summary, 'Needs a human decision.'));
       else if (rep?.verdict === 'WARNING' || ov) items.push(item('low', label, ov ? `Overridden by you: ${ov.note || ''}` : rep.summary, 'Non-blocking, documented.'));
@@ -1023,7 +1023,7 @@
     const res = {};
     for (const p of plats) {
       const m = meta[p] || { titles: [r.script.title, `${r.idea.topic}: what most people miss`, `The truth about ${r.idea.topic}`], description: `${r.idea.description}`, hashtags: r.type === 'clips' ? ['gta', 'gtarp', 'gta5', 'gaming', 'streamer', 'clips'].concat(FX.keywords(c.streamer).slice(0, 1)) : FX.keywords(r.idea.topic).slice(0, 4).concat(['facts', 'learnontiktok', 'shorts']), category: r.type === 'clips' ? 'Gaming' : 'Education', youtubeCategoryId: r.type === 'clips' ? '20' : '27' };
-      if (r.type === 'clips' && !meta[p]) m.description = `${r.clip?.hook || r.script.title}${c.streamer ? ` — clip from ${c.streamer}'s stream` : ''}`;
+      if (r.type === 'clips' && !meta[p]) m.description = `${r.clip?.hook || r.script.title}${c.streamer ? `, clip from ${c.streamer}'s stream` : ''}`;
       const tags = (m.hashtags || []).map((h) => '#' + String(h).replace(/^#/, '').replace(/\s+/g, ''));
       const title = (m.titles?.[0] || r.script.title).slice(0, p === 'youtube' ? 90 : 150);
       const desc = p === 'youtube' ? `${m.description}${aiLine}${sources}${credits}\n\n${tags.join(' ')}` : `${m.description} ${tags.join(' ')}${aiLine}${credits}`;
@@ -1089,7 +1089,7 @@
   }
 
   R.publish = async (r, say) => {
-    if (r.practice) return { verdict: 'WAIT', status: 'practice_done', summary: 'Practice record — the line ends here and nothing is published. Add an OpenAI key and start a real video.' };
+    if (r.practice) return { verdict: 'WAIT', status: 'practice_done', summary: 'Practice record: the line ends here and nothing is published. Add an OpenAI key and start a real video.' };
     if (FX.stopped()) return { verdict: 'WAIT', status: 'stopped', summary: 'Emergency stop is on; not publishing.' };
     if (!r.approval?.approved) return { verdict: 'FAIL', sendBackTo: 'approval', summary: 'No human approval on record; returning to Human Approval.', items: [] };
     const c = FX.channel(), plats = testModePlatforms((c.platforms || []).filter((p) => connected[p]));
@@ -1115,7 +1115,7 @@
     await putClip(clip); updateCount();
     r.publish = out;
     await FX.audit(when ? 'scheduled' : 'published', `${plats.join(', ')}${when ? ' for ' + new Date(when).toLocaleString() : ''}`, r.id);
-    log(`📤 ${r.id} ${when ? 'scheduled' : 'sent'} → ${plats.join(', ')}`);
+    log(`${r.id} ${when ? 'scheduled' : 'sent'} → ${plats.join(', ')}`);
     return { verdict: 'PASS', status: when ? 'scheduled' : 'live', summary: `${when ? 'Scheduled for ' + new Date(when).toLocaleString() : 'Sent'} to ${plats.map(platName).join(', ')}. Platform confirmation arrives via Monitoring.`, items: [] };
   };
 
@@ -1135,7 +1135,7 @@
   FX.snapshot = async (r) => {
     const clip = await getClip('fx_' + r.id); if (!clip) return r;
     const tot = clipTotals(clip), cache = ls.get('statsCache', {});
-    if (clip.status === 'failed' && r.status !== 'error') { r.status = 'error'; r.error = 'Platform upload failed: ' + (clip.error || ''); await FX.alert(`${r.id}: upload failed — ${clip.error || 'see Review Queue'}`, r.id); }
+    if (clip.status === 'failed' && r.status !== 'error') { r.status = 'error'; r.error = 'Platform upload failed: ' + (clip.error || ''); await FX.alert(`${r.id}: upload failed: ${clip.error || 'see Review Queue'}`, r.id); }
     else if (['posted'].includes(clip.status) || (clip.status === 'scheduled' && clip.scheduledFor <= now())) { if (r.status === 'scheduled') { r.status = 'live'; FX.hist(r, 'monitor', 'live', 'Platform accepted the post'); } }
     const ytId = clip.ytId || (clip.metrics?.youtube?.url || '').split('/').pop() || null;
     let ya = null; if (ytId && ytToken()) ya = await ytAnalytics(ytId, r.publish?.at || r.created);
@@ -1181,7 +1181,7 @@
       if (best.avg > worst.avg * 1.3) notes.push(`${name === 'hook' ? 'Hook style' : name[0].toUpperCase() + name.slice(1)} "${best.k}" averages ${fmtNum(Math.round(best.avg))} views vs ${fmtNum(Math.round(worst.avg))} for "${worst.k}" (n=${best.n}/${worst.n})`);
       if (name === 'hook') ok.forEach((x) => (hookBoost[x.k] = Math.round((x.avg / avgAll) * 100) / 100));
     }
-    if (drops.length >= 3) notes.push(`Viewers drop below 50% retention around ${Math.round(drops.reduce((a, x) => a + x, 0) / drops.length)}s on average — tighten that part of scripts`);
+    if (drops.length >= 3) notes.push(`Viewers drop below 50% retention around ${Math.round(drops.reduce((a, x) => a + x, 0) / drops.length)}s on average: tighten that part of scripts`);
     const bestHook = dims.hook.filter((x) => x.n >= 3)[0]?.k || null;
     const out = { at: now(), n: recs.length, avgViews: avgAll, engagement: eng.length ? eng.reduce((a, x) => a + x, 0) / eng.length : null, dims, notes, hookBoost, bestHook, dropAvg: drops.length ? drops.reduce((a, x) => a + x, 0) / drops.length : null, top: recs.sort((a, b) => views(b) - views(a)).slice(0, 5).map((r) => ({ id: r.id, title: r.script?.title, views: views(r) })), bottom: recs.slice(-3).map((r) => ({ id: r.id, title: r.script?.title, views: views(r) })) };
     if (recs.length >= 3) ls.set('fx_learnings', { at: out.at, notes, hookBoost, bestHook });
