@@ -1053,7 +1053,7 @@
       await FX.audit('auto-approved for publishing', 'Final QC: APPROVED with no warnings', r.id, 'system');
       return { verdict: 'PASS', summary: 'Auto-approved under your rule (clean Final QC, after your first human approval).', items: [] };
     }
-    return { verdict: 'WAIT', status: 'awaiting_approval', summary: 'Waiting for your approval in the publishing dashboard.' };
+    return { verdict: 'WAIT', status: 'awaiting_approval', summary: 'Waiting for your approval in the Review Queue.' };
   };
   FX.approve = async (id, { note = '', when = null } = {}) => {
     const r = await FX.db.prod.get(id);

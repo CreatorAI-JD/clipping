@@ -37,7 +37,7 @@
   </div>
   <nav aria-label="Sections">
     <button data-tab="workshop" class="active"><svg class="i" aria-hidden="true"><use href="#i-bot"/></svg>Workshop</button>
-    <button data-tab="line"><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>Assembly Line <span id="fxNeedPill" class="pill" hidden></span></button>
+    <button data-tab="line"><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>Assembly Line</button>
     <button data-tab="autopilot"><svg class="i" aria-hidden="true"><use href="#i-bolt"/></svg>Autopilot</button>
     <button data-tab="clipper"><svg class="i" aria-hidden="true"><use href="#i-scissors"/></svg>Stream Clipper</button>
     <button data-tab="faceless"><svg class="i" aria-hidden="true"><use href="#i-film"/></svg>Faceless Generator</button>
@@ -278,7 +278,7 @@
           <h3><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>Approval</h3>
           <label class="check"><input type="checkbox" id="apAutoApprove"> Auto-approve (skip my review)</label>
           <label>…only if AI hype score is at least <input type="number" id="apMinScore" min="0" max="10" value="6"></label>
-          <p class="muted small">Score needs an OpenAI key. Without one, auto-approve approves everything.</p>
+          <p class="muted small" id="apApproveNote">Hype scores need an OpenAI key. Without one, auto-approve stays off and every video waits for you.</p>
         </div>
         <div class="sub">
           <h3><svg class="i" aria-hidden="true"><use href="#i-send"/></svg>Auto-post</h3>
@@ -363,14 +363,15 @@
   <!-- REVIEW QUEUE -->
   <section id="queue" class="tab">
     <h2>Review Queue</h2>
-    <p class="muted">Approve to post (or schedule) to your connected accounts. Edit the caption first if you want.</p>
+    <p class="muted">The one place you approve videos. Nothing is published until you approve it here (unless you turn on auto-approve on the Autopilot tab). Assembly Line videos waiting on you are listed first, then clips from Stream Clipper and Faceless.</p>
+    <div id="fxNeeds"></div>
     <div class="row">
       <button data-filter="pending" class="filter active">Pending</button>
       <button data-filter="approved" class="filter">Approved</button>
       <button data-filter="scheduled" class="filter">Scheduled / Posted</button>
       <button data-filter="failed" class="filter">Failed</button>
       <button data-filter="rejected" class="filter">Rejected</button>
-      <button id="approveAll">✓ Approve all pending</button>
+      <button id="approveAll" disabled>✓ Approve all pending</button>
     </div>
     <div id="queueList" class="queue"></div>
   </section>

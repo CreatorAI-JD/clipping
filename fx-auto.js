@@ -171,6 +171,7 @@
     const no = (reason) => ({ ok: false, reason });
     if (!ch.autoPublish) return no('earned auto-approve is off');
     if (r.practice) return no('practice record');
+    if (!val('apiKey')) return no('no OpenAI key, so the AI checks can\'t vouch for it');
     if (FX.stopped()) return no('emergency stop is on');
     const hum = humanApprovals();
     if (hum < Math.max(1, +a.minHuman || 1)) return no(`you have approved ${hum} of the first ${a.minHuman} videos yourself`);
@@ -207,7 +208,7 @@
       await note('auto-approved', `${r.id} auto-approved: ${t.why}.`, r);
       return { verdict: 'PASS', summary: `Auto-approved by your earned-trust rule: ${t.why}.`, items: [] };
     }
-    return { verdict: 'WAIT', status: 'awaiting_approval', summary: `Waiting for your approval in the publishing dashboard. (Auto-approve: ${t.reason}.)` };
+    return { verdict: 'WAIT', status: 'awaiting_approval', summary: `Waiting for your approval in the Review Queue. (Auto-approve: ${t.reason}.)` };
   };
   // learn from every human decision
   const baseApprove = FX.approve;
@@ -372,7 +373,7 @@
     const matched = new Set(Object.values(match));
     const autoToday = ledger().filter((e) => e.act === 'approved' && e.by === 'trust' && e.at >= new Date().setHours(0, 0, 0, 0)).length;
     return `<p class="muted">The automation crew keeps the line moving while you're away. Every automatic action is logged here, in the video's history and in the audit log. The safeguards stay: you approve the first videos yourself, anything with a rights or policy question waits for you, and 🛑 STOP halts all of it.</p>
-      ${A.away ? `<div class="hint-card">👋 <b>While you were away</b> (since ${when(A.away.since)}): ${esc(A.away.lines.join(' · '))} <button data-sub="needs">Open Needs you</button></div>` : ''}
+      ${A.away ? `<div class="hint-card">👋 <b>While you were away</b> (since ${when(A.away.since)}): ${esc(A.away.lines.join(' · '))} <button data-sub="needs">Open Review Queue</button></div>` : ''}
       <div class="auto-grid">
         <div class="card"><div class="row"><h3>🛠️ Mechanic — self-repair</h3>${chip(a.repair, a.repair ? 'On' : 'Off')}</div>
           <p class="muted small">Retries a failed step twice (10 and 20 minutes later). If a clip keeps failing a quality check after ${FX.MAX_REVISIONS} revisions, or keeps erroring, it's dropped and the next-best moment takes its slot. A VOD with no usable moments frees its slot for the next VOD. Key, billing and permission errors still come to you.</p>
