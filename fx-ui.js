@@ -415,6 +415,8 @@
     await renderFloor(); updatePills();
     if (FX.manager.running && !FX.stopped()) { clearInterval(FX.manager.timer); FX.manager.timer = setInterval(FX.tick, 15000); setTimeout(FX.tick, 4000); }
     setInterval(() => { if (document.visibilityState === 'visible') renderFloor(); }, 4000);
-    try { if (window.Notification && Notification.permission === 'default') document.addEventListener('pointerdown', () => Notification.requestPermission().catch(() => {}), { once: true }); } catch {}
+    // ask for notification permission only when the user starts something that will want to alert them
+    const askNotify = () => { try { if (window.Notification && Notification.permission === 'default') Notification.requestPermission().catch(() => {}); } catch {} };
+    $('#fxRun')?.addEventListener('click', askNotify, { once: true }); $('#apOn')?.addEventListener('change', askNotify, { once: true });
   })();
 })(window.FX);
