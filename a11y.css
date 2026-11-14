@@ -1,0 +1,43 @@
+/* ================= ACCESSIBILITY + MOBILE POLISH (pairs with a11y.js) ================= */
+/* visible keyboard focus everywhere (mouse clicks stay ring-free) */
+:is(button,a,summary,.drop,[role=button],[tabindex]):focus-visible{outline:2px solid var(--violet);outline-offset:2px}
+nav button:focus-visible,.subnav button:focus-visible{outline-offset:-2px}
+#fxRecord:focus{outline:none}
+button,a,label,summary,.drop{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+
+/* Autopilot switch: the checkbox was display:none, so Tab skipped it and screen readers never saw it */
+.switch input{display:block;position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;z-index:1;cursor:pointer}
+.switch input:focus-visible+span{outline:2px solid var(--violet);outline-offset:3px}
+
+/* brand is now the page's h1 (screen readers had no top heading) */
+h1.brand-name{font:inherit;margin:0;letter-spacing:inherit}
+
+/* numbers line up in stats and tables */
+.stat-n,.kpi-n,.pr,.dr,.rr,.lr,.sched b{font-variant-numeric:tabular-nums}
+h2,h3,.hero-title{text-wrap:balance}
+
+/* sticky header must not cover focused / scrolled-to content */
+.tab :is(h2,h3,.card,button,input,select,textarea){scroll-margin-top:130px}
+
+/* phone */
+@media (max-width:600px){
+  /* the tab bar scrolls sideways with a hidden scrollbar; fade the edge that has more tabs so it doesn't look like only 3 exist */
+  nav.more-r{-webkit-mask-image:linear-gradient(90deg,#000 82%,transparent);mask-image:linear-gradient(90deg,#000 82%,transparent)}
+  nav.more-l{-webkit-mask-image:linear-gradient(90deg,transparent,#000 18%);mask-image:linear-gradient(90deg,transparent,#000 18%)}
+  nav.more-l.more-r{-webkit-mask-image:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent);mask-image:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent)}
+  /* header was ~110px tall; tighten it */
+  header{gap:8px;padding:8px 12px}
+  .brand{font-size:16px}
+  .logo{width:26px;height:26px}
+  /* the sleeping robot used to fill the whole first screen */
+  .fx-now{flex-direction:row;align-items:center;min-height:0;gap:14px}
+  .fx-now .now-bot{width:64px}
+  .fx-now .now-bot svg{width:64px;height:72px}
+  .fx-top .fx-ctrl{width:100%}
+  .fx-top .fx-ctrl button{flex:1}
+}
+
+/* reduced motion: cover every loop (station belts, pulses, progress bars), not only the workshop SVG */
+@media (prefers-reduced-motion:reduce){
+  *,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+}

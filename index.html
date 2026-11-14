@@ -10,6 +10,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="fx.css">
+<link rel="stylesheet" href="a11y.css">
+<script src="a11y.js" defer></script>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -31,18 +33,18 @@
 <header>
   <div class="brand">
     <svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b69cff"/><stop offset="1" stop-color="#ff7a6b"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="9" fill="url(#lg)"/><rect x="8" y="10" width="16" height="11" rx="4" fill="#0b0a10"/><circle cx="13" cy="15.5" r="2" fill="#7cf7d4"/><circle cx="19" cy="15.5" r="2" fill="#7cf7d4"/><rect x="15" y="5" width="2" height="5" rx="1" fill="#0b0a10"/></svg>
-    <span>AutoClipper</span> <span id="apBadge" class="badge off">Autopilot OFF</span>
+    <h1 class="brand-name">AutoClipper</h1> <span id="apBadge" class="badge off">Autopilot OFF</span>
   </div>
-  <nav>
-    <button data-tab="workshop" class="active"><svg class="i"><use href="#i-bot"/></svg>Workshop</button>
-    <button data-tab="line"><svg class="i"><use href="#i-check"/></svg>Assembly Line <span id="fxNeedPill" class="pill" hidden></span></button>
-    <button data-tab="autopilot"><svg class="i"><use href="#i-bolt"/></svg>Autopilot</button>
-    <button data-tab="clipper"><svg class="i"><use href="#i-scissors"/></svg>Stream Clipper</button>
-    <button data-tab="faceless"><svg class="i"><use href="#i-film"/></svg>Faceless Generator</button>
-    <button data-tab="queue"><svg class="i"><use href="#i-inbox"/></svg>Review Queue <span id="qcount" class="pill">0</span></button>
-    <button data-tab="stats"><svg class="i"><use href="#i-chart"/></svg>Stats</button>
-    <button data-tab="accounts"><svg class="i"><use href="#i-link"/></svg>Accounts</button>
-    <button data-tab="settings"><svg class="i"><use href="#i-sliders"/></svg>Settings</button>
+  <nav aria-label="Sections">
+    <button data-tab="workshop" class="active"><svg class="i" aria-hidden="true"><use href="#i-bot"/></svg>Workshop</button>
+    <button data-tab="line"><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>Assembly Line <span id="fxNeedPill" class="pill" hidden></span></button>
+    <button data-tab="autopilot"><svg class="i" aria-hidden="true"><use href="#i-bolt"/></svg>Autopilot</button>
+    <button data-tab="clipper"><svg class="i" aria-hidden="true"><use href="#i-scissors"/></svg>Stream Clipper</button>
+    <button data-tab="faceless"><svg class="i" aria-hidden="true"><use href="#i-film"/></svg>Faceless Generator</button>
+    <button data-tab="queue"><svg class="i" aria-hidden="true"><use href="#i-inbox"/></svg>Review Queue <span id="qcount" class="pill">0</span></button>
+    <button data-tab="stats"><svg class="i" aria-hidden="true"><use href="#i-chart"/></svg>Stats</button>
+    <button data-tab="accounts"><svg class="i" aria-hidden="true"><use href="#i-link"/></svg>Accounts</button>
+    <button data-tab="settings"><svg class="i" aria-hidden="true"><use href="#i-sliders"/></svg>Settings</button>
   </nav>
 </header>
 
@@ -58,7 +60,7 @@
     <div class="fx-floor" id="fxFloor"></div>
     <div class="station card" id="fxStation" hidden></div>
     <h3 class="ws-title">Clip workshop <span class="muted small">— the Autopilot crew (Stream Clipper, Faceless, Review Queue, posting)</span></h3>
-    <div class="workshop" aria-label="Robot workshop: little robots cutting, captioning and shipping clips. They work when Autopilot is on and nap when it is off." role="img">
+    <div class="workshop" aria-label="Robot workshop: little robots cutting, captioning and shipping clips. They work when Autopilot is on and nap when it is off." role="group">
         <svg viewBox="0 0 480 280" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <linearGradient id="wsBody" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c9bcff"/><stop offset="1" stop-color="#8c76f0"/></linearGradient>
@@ -254,7 +256,7 @@
         <h2 class="hero-title">Clips made <em>while you sleep.</em></h2>
         <p class="muted">Turn this on, leave the tab open, and AutoClipper clips new VODs from your folder, makes faceless videos every day, and schedules everything to your connected accounts.</p>
         <div class="toggle-row">
-          <label class="switch"><input type="checkbox" id="apOn"><span></span></label>
+          <label class="switch"><input type="checkbox" id="apOn" role="switch" aria-label="Autopilot" aria-describedby="apSummary"><span aria-hidden="true"></span></label>
           <div><strong>Autopilot</strong><div class="muted small" id="apSummary">Off</div></div>
         </div>
       </div>
@@ -262,24 +264,24 @@
     <div class="card">
       <div class="grid2">
         <div class="sub">
-          <h3><svg class="i"><use href="#i-folder"/></svg>Auto-clip new VODs</h3>
+          <h3><svg class="i" aria-hidden="true"><use href="#i-folder"/></svg>Auto-clip new VODs</h3>
           <p class="muted small">Pick a folder (like your OBS recordings or Downloads). Every new video dropped in gets clipped automatically.</p>
           <button id="pickFolder">Choose folder</button>
           <div class="small" id="folderName">No folder chosen</div>
         </div>
         <div class="sub">
-          <h3><svg class="i"><use href="#i-bot"/></svg>Daily faceless videos</h3>
+          <h3><svg class="i" aria-hidden="true"><use href="#i-bot"/></svg>Daily faceless videos</h3>
           <label>Videos per day <input type="number" id="apFacelessPerDay" min="0" max="20" value="3"></label>
           <label>Niche <select id="apNiche"></select></label>
         </div>
         <div class="sub">
-          <h3><svg class="i"><use href="#i-check"/></svg>Approval</h3>
+          <h3><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>Approval</h3>
           <label class="check"><input type="checkbox" id="apAutoApprove"> Auto-approve (skip my review)</label>
           <label>…only if AI hype score is at least <input type="number" id="apMinScore" min="0" max="10" value="6"></label>
           <p class="muted small">Score needs an OpenAI key. Without one, auto-approve approves everything.</p>
         </div>
         <div class="sub">
-          <h3><svg class="i"><use href="#i-send"/></svg>Auto-post</h3>
+          <h3><svg class="i" aria-hidden="true"><use href="#i-send"/></svg>Auto-post</h3>
           <label class="check"><input type="checkbox" id="apAutoPost"> Auto-schedule approved videos</label>
           <label>Posts per day <input type="number" id="apPostsPerDay" min="1" max="24" value="3"></label>
           <label>Posting window <span class="row"><input type="time" id="apStart" value="11:00"> to <input type="time" id="apEnd" value="21:00"></span></label>
@@ -403,7 +405,7 @@
         <li>Make a free account at <a href="https://app.upload-post.com" target="_blank" rel="noopener">app.upload-post.com</a>.</li>
         <li>Open <b>API Keys</b> in their dashboard, create a key, paste it here.</li>
       </ol>
-      <label>API key <input type="password" id="upKey" placeholder="paste your Upload-Post API key" data-save></label>
+      <label>API key <input type="password" id="upKey" placeholder="Paste your Upload-Post API key…" autocomplete="off" spellcheck="false" data-save></label>
       <button class="primary" id="upSave">Save & check</button>
       <div id="upStatus" class="status"></div>
     </div>
@@ -448,7 +450,7 @@
     <h2>Settings</h2>
     <div class="card">
       <label>OpenAI API key (AI scripts, voiceover, captions, hype scores)
-        <input type="password" id="apiKey" placeholder="sk-..." data-save>
+        <input type="password" id="apiKey" placeholder="sk-…" autocomplete="off" spellcheck="false" data-save>
       </label>
       <p class="muted small">Get one at <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener">platform.openai.com/api-keys</a>. Keys are stored only in this browser.</p>
       <div class="grid3">
