@@ -179,7 +179,8 @@
     if (!['APPROVED', 'APPROVED WITH WARNING'].includes(d)) return no(`Final QC decision is ${d || 'missing'}`);
     if (Object.keys(r.overrides || {}).length) return no('a step on this video was approved by hand, so you decide this one');
     if ((r.assets || []).some((x) => x.status !== 'verified')) return no('not every rights record is verified');
-    if (r.type === 'clips' && ch.streamerRelation === 'none') return no('no permission recorded to clip this streamer');
+    if (r.type === 'clips' && !['me', 'permission'].includes(ch.streamerRelation)) return no('no permission recorded to clip this streamer');
+    if (!r.moderation?.ran) return no('the safety scan did not run on this video');
     for (const k of ['factcheck', 'assets', 'copyright', 'guidelines']) if (['HUMAN_REVIEW', 'FAIL'].includes(r.reports?.[k]?.verdict)) return no(`${FX.dept(k).name} wants a person`);
     if (r.monetization?.level === 'HIGH') return no('monetization risk is HIGH');
     const today = new Date(); today.setHours(0, 0, 0, 0);

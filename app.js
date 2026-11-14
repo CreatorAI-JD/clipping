@@ -304,6 +304,9 @@ function drawVodFrame(layout, tag, cap) {
   let capY = H * 0.72;
   if (layout === 'crop') {
     ctx.drawImage(vod, ...coverRect(vw, vh, 0, 0, W, H));
+  } else if (layout === 'hook' && window.FX?.hooks) {
+    FX.drawClipFrame(ctx, vod, {}, 'hook', { filler: hookFiller, t: vod.currentTime });
+    capY = H * FX.layoutZones('hook').caption;
   } else if (layout === 'split') {
     const fw = vw * 0.3, fh = vh * 0.3, corner = val('camCorner') || 'tl';
     const sx = corner.includes('r') ? vw - fw : 0, sy = corner.includes('b') ? vh - fh : 0;
@@ -324,7 +327,9 @@ function drawVodFrame(layout, tag, cap) {
   }
   if (tag) drawCaption(tag, layout === 'blur' ? 330 : 200, 64, '#fff');
   if (cap) drawCaption(cap, capY, 96);
+  if (window.FX?.hooks) FX.hooks.drawTag(ctx, null, layout);
 }
+let hookFiller = null;
 
 async function loadVod(file) {
   if (vod.src) URL.revokeObjectURL(vod.src);
@@ -345,6 +350,7 @@ async function recordVodSegment(start, len, layout, tag, chunks) {
   vod.muted = false;
   vod.currentTime = start;
   await new Promise((r) => (vod.onseeked = r));
+  hookFiller?.dispose?.(); hookFiller = layout === 'hook' && window.FX?.hooks ? await FX.hooks.prep(await FX.hooks.pick()) : null;
   drawVodFrame(layout, tag, null);
   const rec = startRecorder(mediaDest.stream);
   await vod.play();
@@ -375,11 +381,11 @@ async function clipVideoFile(file, status = () => {}) {
   const made = [];
   for (let i = 0; i < hl.length; i++) {
     const h = hl[i];
-    let chunks = null, meta = null;
+    let chunks = null, meta = null, tr = null;
     if (val('apiKey')) {
       try {
         status(`Clip ${i + 1}/${hl.length}: transcribing…`);
-        const tr = await transcribe(await segmentWav(buffer, h.start, len), 'clip.wav');
+        tr = await transcribe(await segmentWav(buffer, h.start, len), 'clip.wav');
         if (val('burnCaptions') && tr && tr.words) chunks = wordsToChunks(tr.words);
         if (tr && tr.text) meta = await clipMeta(tr.text);
       } catch (e) { log('⚠️ AI captions skipped: ' + e.message); }
@@ -390,7 +396,7 @@ async function clipVideoFile(file, status = () => {}) {
       id: Date.now() + '_' + i, kind: 'clip',
       title: meta?.title || `${file.name.replace(/\.\w+$/, '')} @ ${fmt(h.start)}`,
       blob, caption: meta ? `${meta.caption} ${meta.hashtags}` : `Wait for it… 😳 ${val('hashtags')}`,
-      score: meta?.score ?? null, status: 'pending', created: Date.now(),
+      score: meta?.score ?? null, status: 'pending', created: Date.now(), transcript: tr?.text || '',
     };
     await putClip(clip);
     made.push(clip);
@@ -535,7 +541,7 @@ async function makeFacelessVideo(d, status) {
   const blob = await renderFaceless(d, status);
   const clip = {
     id: Date.now() + '_f', kind: 'faceless', title: d.title, blob,
-    caption: `${d.caption} ${d.hashtags || val('hashtags')}`.trim(), score: null, status: 'pending', created: Date.now(),
+    caption: `${d.caption} ${d.hashtags || val('hashtags')}`.trim(), score: null, status: 'pending', created: Date.now(), transcript: d.script || '',
   };
   await putClip(clip);
   await onNewVideo(clip);
@@ -683,14 +689,15 @@ $('#ytConnect').onclick = async () => {
   } catch (e) { st('⚠️ ' + e.message); }
 };
 async function ytUpload(clip, when) {
+  if (!window.FX?.gatePassed?.has(clip.id)) throw new Error('Publish gate: this video has not passed the guideline checks');
   const token = ytToken(); if (!token) throw new Error('YouTube login expired — click Connect YouTube again');
   const title = (clip.title || clip.caption).replace(/#\S+/g, '').trim().slice(0, 90) + ' #Shorts';
-  const status = { privacyStatus: 'public', selfDeclaredMadeForKids: false, containsSyntheticMedia: clip.kind === 'faceless' };
-  if (when) { status.privacyStatus = 'private'; status.publishAt = new Date(when).toISOString(); }
+  const status = { privacyStatus: privateTest() ? 'private' : 'public', selfDeclaredMadeForKids: false, containsSyntheticMedia: clip.synthetic ?? clip.kind === 'faceless' };
+  if (when && !privateTest()) { status.privacyStatus = 'private'; status.publishAt = new Date(when).toISOString(); }
   const init = await fetch('https://www.googleapis.com/upload/youtube/v3/videos?uploadType=resumable&part=snippet,status', {
     method: 'POST',
     headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json; charset=UTF-8', 'X-Upload-Content-Type': clip.blob.type, 'X-Upload-Content-Length': clip.blob.size },
-    body: JSON.stringify({ snippet: { title, description: clip.caption, categoryId: '20' }, status }),
+    body: JSON.stringify({ snippet: { title, description: clip.caption, categoryId: clip.categoryId || '20' }, status }),
   });
   if (!init.ok) throw new Error('YouTube: ' + (await init.text()).slice(0, 200));
   const loc = init.headers.get('Location');
@@ -700,7 +707,18 @@ async function ytUpload(clip, when) {
   return 'https://youtube.com/shorts/' + j.id;
 }
 
+// "Only me (test)" on TikTok = private test mode everywhere: YouTube uploads as Private,
+// platforms that can't post privately (Instagram, Facebook, X, Threads) are skipped.
+const privateTest = () => val('tiktokPrivacy') === 'SELF_ONLY';
+function testModePlatforms(platforms) {
+  if (!privateTest()) return platforms;
+  const keep = platforms.filter((p) => ['tiktok', 'youtube'].includes(p)), skipped = platforms.filter((p) => !keep.includes(p));
+  if (skipped.length) log(`🧪 Private test mode (TikTok "Only me"): skipped ${skipped.join(', ')} (they can't post privately); YouTube uploads as Private.`);
+  return keep;
+}
+
 async function upUpload(clip, platforms, when) {
+  if (!window.FX?.gatePassed?.has(clip.id)) throw new Error('Publish gate: this video has not passed the guideline checks');
   const fd = new FormData();
   const ext = clip.blob.type.includes('mp4') ? 'mp4' : 'webm';
   fd.append('user', upProfile());
@@ -709,13 +727,15 @@ async function upUpload(clip, platforms, when) {
   fd.append('video', new File([clip.blob], `autoclipper_${clip.id}.${ext}`, { type: clip.blob.type }));
   fd.append('youtube_title', ((clip.title || clip.caption).replace(/#\S+/g, '').trim().slice(0, 90) + ' #Shorts'));
   fd.append('youtube_description', clip.caption);
-  fd.append('privacyStatus', 'public');
+  fd.append('privacyStatus', privateTest() ? 'private' : 'public');
   fd.append('privacy_level', val('tiktokPrivacy') || 'PUBLIC_TO_EVERYONE');
   fd.append('async_upload', 'true');
   fd.append('external_id', clip.id);
+  fd.append('selfDeclaredMadeForKids', 'false');
   if (clip.kind === 'faceless') { fd.append('tiktok_is_ai_generated', 'true'); fd.append('is_ai_generated', 'true'); fd.append('containsSyntheticMedia', 'true'); }
   if (when) { fd.append('scheduled_date', new Date(when).toISOString()); fd.append('timezone', Intl.DateTimeFormat().resolvedOptions().timeZone); }
-  return upFetch('/upload', { method: 'POST', body: fd });
+  clip.postAttempt = (clip.postAttempt || 0) + 1; // same key on network retries = Upload-Post won't post twice
+  return upFetch('/upload', { method: 'POST', body: fd, headers: { 'Idempotency-Key': `${clip.id}-${clip.postAttempt}` } });
 }
 
 // Next free posting slot inside the posting window, N per day
@@ -737,8 +757,13 @@ function nextSlot() {
 }
 
 async function postClip(clip, { schedule } = {}) {
-  const platforms = selectedPlatforms().filter((k) => connected[k]);
-  if (!platforms.length) throw new Error('No connected accounts selected (Accounts tab)');
+  if (!window.FX?.assertClipPublishable) throw new Error('Publish gate did not load; refusing to post.');
+  await FX.assertClipPublishable(clip); // guideline / rights / safety checks; throws if not cleared
+  try { return await postClipGated(clip, { schedule }); } finally { FX.gatePassed.delete(clip.id); }
+}
+async function postClipGated(clip, { schedule } = {}) {
+  const platforms = testModePlatforms(selectedPlatforms().filter((k) => connected[k]));
+  if (!platforms.length) throw new Error(privateTest() ? 'Private test mode only posts to TikTok and YouTube; connect one of them' : 'No connected accounts selected (Accounts tab)');
   const when = schedule ? nextSlot() : null;
   const ytDirect = platforms.includes('youtube') && connected.youtube?.direct && ytToken();
   const viaUp = platforms.filter((p) => !(p === 'youtube' && ytDirect));
@@ -769,10 +794,13 @@ async function approveClip(clip, { auto = false } = {}) {
 
 // Called whenever a new video is created
 async function onNewVideo(clip) {
+  // every new video gets the guideline / rights / safety checks right away, so the queue shows them
+  try { if (window.FX?.gateClip) { await FX.gateClip(clip); await putClip(clip); } } catch (e) { log('⚠️ Guideline check: ' + e.message); }
   await updateCount();
   if (!(apOn() && val('apAutoApprove'))) return;
   const min = +val('apMinScore') || 0;
   if (clip.score != null && clip.score < min) { log(`🟡 Left "${clip.title}" for review (hype score ${clip.score})`); return; }
+  if (clip.gate?.verdict !== 'PASS') { log(`🛑 Left "${clip.title}" for your review: ${clip.gate ? clip.gate.summary : 'guideline checks did not run'}`); return; }
   await approveClip(clip, { auto: true });
   log(`✅ Auto-approved "${clip.title}"${clip.score != null ? ` (score ${clip.score})` : ''}`);
   await updateCount();
@@ -842,12 +870,16 @@ async function renderQueue() {
     el.querySelector('strong').textContent = (c.kind === 'clip' ? '🎮 ' : '🤖 ') + c.title;
     const st = el.querySelector('.st'); st.textContent = statusText(c); if (!st.textContent) st.remove();
     const ta = el.querySelector('textarea'); ta.value = c.caption || '';
-    ta.onchange = async () => { const fresh = await getClip(c.id); fresh.caption = ta.value; await putClip(fresh); };
+    if (['pending', 'approved', 'failed'].includes(c.status) && !c.prodId) { const g = document.createElement('span'); g.className = 'gate g-' + (c.gate?.verdict || 'NONE'); g.textContent = c.gate ? FX.gateText(c.gate) + (c.gateAck?.gateAt === c.gate.at ? ' (you reviewed it)' : '') : '🔎 Guideline checks run when you approve'; el.querySelector('.body').insertBefore(g, ta); }
+    ta.onchange = async () => { const fresh = await getClip(c.id); if (fresh.caption !== ta.value) { fresh.caption = ta.value; fresh.gate = null; } await putClip(fresh); }; // edited caption = re-check
     el.querySelectorAll('button').forEach((b) => b.onclick = async () => {
       b.disabled = true;
-      const fresh = await getClip(c.id); fresh.caption = ta.value;
+      const fresh = await getClip(c.id); if (fresh.caption !== ta.value) { fresh.caption = ta.value; fresh.gate = null; }
       const a = b.dataset.a;
       try {
+        if (a === 'approve' || a === 'post') {
+          if (!(await confirmGate(fresh))) return;
+        }
         if (a === 'approve') {
           const posted = await approveClip(fresh);
           if (!posted) { download(fresh, url); copy(ta.value); toast('Approved ✓ Downloaded & caption copied. Connect accounts to auto-post.'); }
@@ -863,10 +895,29 @@ async function renderQueue() {
     list.appendChild(el);
   }
 }
+// a person must look at every warning before a video that didn't pass cleanly can be posted
+async function confirmGate(clip) {
+  if (!window.FX?.gateClip) { alert('The guideline checker did not load. Reload the page.'); return false; }
+  if (clip.prodId) return true; // assembly-line video: its production record is re-checked at upload
+  if (!clip.gate) { toast('Running guideline checks…'); await FX.gateClip(clip); await putClip(clip); }
+  const g = clip.gate;
+  if (g.verdict === 'BLOCK') { alert('⛔ ' + g.summary + '\n\n' + g.items.filter((i) => i.sev === 'block').map((i) => '• ' + i.issue).join('\n')); return false; }
+  if (g.verdict === 'PASS' || clip.gateAck?.gateAt === g.at) return true;
+  const list = g.items.filter((i) => i.sev !== 'low').map((i) => `• ${i.where}: ${i.issue}${i.fix ? ' → ' + i.fix : ''}`).join('\n');
+  if (!confirm(`Guideline checks found ${g.items.filter((i) => i.sev !== 'low').length} thing(s) to check:\n\n${list}\n\nI watched it with sound and it's OK to post. Continue?`)) return false;
+  clip.gateAck = { at: Date.now(), gateAt: g.at }; await putClip(clip);
+  return true;
+}
 $('#approveAll').onclick = async () => {
   const pend = (await allClips()).filter((c) => c.status === 'pending');
-  for (const c of pend) await approveClip(c);
-  if (!canPost() && pend.length) toast('Approved. Connect accounts in the Accounts tab to post them automatically.');
+  let held = 0;
+  for (const c of pend) {
+    if (!c.gate && window.FX?.gateClip) { await FX.gateClip(c); await putClip(c); }
+    if (c.gate?.verdict !== 'PASS' && c.gateAck?.gateAt !== c.gate?.at) { held++; continue; } // warnings need a one-by-one look
+    await approveClip(c);
+  }
+  if (held) toast(`${held} video(s) with guideline warnings stayed in Pending. Approve those one by one.`);
+  else if (!canPost() && pend.length) toast('Approved. Connect accounts in the Accounts tab to post them automatically.');
   await updateCount(); renderQueue();
 };
 function download(c, url) {

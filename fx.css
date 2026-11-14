@@ -176,3 +176,13 @@ body.modal-open{overflow:hidden}
 .hour-bars{display:flex;align-items:flex-end;gap:2px;height:70px;margin:10px 0 2px}
 .hour-bars i{flex:1;background:linear-gradient(180deg,var(--violet,#b69cff),rgba(182,156,255,.35));border-radius:3px 3px 0 0;min-width:0}
 .hour-axis{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:8px}
+
+/* ---------- Hooks (split-screen satisfying / ASMR filler) ---------- */
+.hook-top { display: grid; grid-template-columns: 270px 1fr; gap: 16px; align-items: start; margin: 8px 0 16px; }
+.hook-top > canvas { width: 270px; max-width: 100%; border-radius: 14px; background: #000; box-shadow: 0 6px 24px rgba(0,0,0,.25); }
+.hook-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin: 8px 0 16px; }
+.hook-card { display: flex; flex-direction: column; gap: 6px; padding: 10px; border-radius: 12px; background: var(--card, rgba(127,127,127,.08)); border: 1px solid var(--line, rgba(127,127,127,.2)); }
+.hook-card canvas, .hook-card img { width: 100%; aspect-ratio: 9 / 8; object-fit: cover; border-radius: 8px; background: #000; }
+.hook-card.off { opacity: .5; }
+.hook-card .row { gap: 8px; flex-wrap: wrap; }
+@media (max-width: 700px) { .hook-top { grid-template-columns: 1fr; } .hook-top > canvas { justify-self: center; } }

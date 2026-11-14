@@ -139,9 +139,9 @@
       say('Ranking moments…');
       signals = await gtaSignals(c);
       ai = await FX.ai(r, 'trends', `You are the clip scout for a ${c.game} streamer clip channel. You pick moments that are funny, clutch, chaotic or wholesome AND make sense to a stranger scrolling TikTok. Channel avoids: ${c.avoid}.`,
-        `Trending in GTA communities right now:\n${signals.filter((s) => s.items.length).map((s) => `${s.source}: ${s.items.slice(0, 8).join(' | ')}`).join('\n') || '(unavailable)'}\n\nCandidate moments from the VOD "${file.name}" (loudness = audio hype vs the rest of the stream):\n` +
+        `Trending in ${c.game || 'this niche'} communities right now:\n${signals.filter((s) => s.items.length).map((s) => `${s.source}: ${s.items.slice(0, 8).join(' | ')}`).join('\n') || '(unavailable)'}\n\nCandidate moments from the VOD "${file.name}" (loudness = audio hype vs the rest of the stream):\n` +
         ms.map((m) => `#${m.i} at ${fmt(m.start)} (loudness ${m.energy}): "${m.transcript.slice(0, 700)}"`).join('\n') +
-        `\n\nReturn JSON {"moments":[{"i": number, "hype": 1-10, "standalone": 1-10 (understandable without context), "trending": 1-10 (fits what GTA fans talk about now), "title": short title, "hook": on-screen hook max 8 words, "concerns": [policy/copyright concerns like slurs, real threats, personal info, radio music, other streamers' content], "skip": boolean, "why": string}]}`, { temperature: 0.4 });
+        `\n\nReturn JSON {"moments":[{"i": number, "hype": 1-10, "standalone": 1-10 (understandable without context), "trending": 1-10 (fits what ${c.game || 'this niche'} fans talk about now), "title": short title, "hook": on-screen hook max 8 words, "concerns": [policy/copyright concerns like slurs, real threats, personal info, radio music, other streamers' content], "skip": boolean, "why": string}]}`, { temperature: 0.4 });
     }
     const out = [];
     for (const m of ms) {
@@ -198,7 +198,7 @@
     if (!t) items.push(item('low', 'Transcript', 'No transcript (no OpenAI key), so context could not be checked.', 'Watch the clip before approving.'));
     if (t && FX.hasAI()) {
       say('Checking context and real-world claims…');
-      const out = await FX.ai(r, 'factcheck', 'You review a moment from a GTA livestream before it is clipped. In-game events are fiction. You care about real-world risk: claims about real people, real threats, personal information, slurs.',
+      const out = await FX.ai(r, 'factcheck', `You review a moment from a ${FX.channel().game || 'game'} livestream before it is clipped. In-game events are fiction. You care about real-world risk: claims about real people, real threats, personal information, slurs.`,
         `Transcript: "${t.slice(0, 3000)}"\nReturn JSON {"standalone": 1-10, "contextNeeded": string, "realWorldClaims": [{"claim": string, "risk": "low"|"medium"|"high"}], "personalInfo": boolean, "realThreats": boolean, "slurs": boolean, "notes": string}`, { temperature: 0.1 });
       (out?.realWorldClaims || []).forEach((x, i) => { r.research.claims.push({ id: 'C' + (i + 1), text: x.claim, kind: 'streamer statement', status: 'unverified', note: 'Said on stream; titles must not present it as fact' }); if (x.risk !== 'low') items.push(item(x.risk === 'high' ? 'high' : 'medium', 'Real-world claim', `"${x.claim}"`, 'Don\'t repeat it as fact in title/description; cut it if it could be defamatory.')); });
       if (out?.personalInfo) items.push(item('high', 'Transcript', 'Possible personal information', 'Cut it or skip this moment.'));
@@ -229,7 +229,7 @@
       say('Planning the cut, hook and title…');
       method = 'AI clip plan';
       const fix = r.revisionNote ? `\nTHIS IS A REVISION. Fix: ${(r.reports[r.revisionNote.from]?.items || []).filter((i) => i.sev !== 'low').map((i) => `${i.where}: ${i.issue} → ${i.fix}`).join(' | ')}` : '';
-      const out = await FX.ai(r, 'script', `You edit GTA stream clips for TikTok/Shorts/Reels. ${c.style}. Tone: ${c.tone}. Never put words in the streamer's mouth.`,
+      const out = await FX.ai(r, 'script', `You edit ${c.game || 'stream'} clips for TikTok/Shorts/Reels. ${c.style}. Tone: ${c.tone}. Never put words in the streamer's mouth.`,
         `Moment transcript with timestamps (seconds from clip start, clip is ${m.len.toFixed(1)}s):\n${(m.words || []).map((w) => `${w.start.toFixed(1)} ${w.word}`).join(' ').slice(0, 5000)}\n${r.research?.context ? `Context note: ${r.research.context}\n` : ''}${fix}\n` +
         `Pick the tightest window (8–${c.clipLen}s) that starts as late as possible while keeping the setup, ends right after the payoff/reaction, and does not cut mid-sentence. The first 2 seconds must already be interesting. Return JSON {"trimStart": seconds, "trimEnd": seconds, "hook": on-screen hook max 8 words (no false claims), "title": short honest title, "intro": ${c.introCommentary ? 'ONE short spoken sentence (max 14 words) that gives the context a stranger needs, in our own voice, or "" if the clip explains itself' : '""'}}`, { temperature: 0.5 });
       if (out) {
@@ -269,7 +269,7 @@
     let method = 'rules';
     if (FX.hasAI() && m.transcript) {
       method = 'rules + independent AI review';
-      const out = await FX.ai(r, 'scriptqc', 'You review a planned GTA stream clip before rendering. Be specific and practical. In-game violence is normal for GTA.',
+      const out = await FX.ai(r, 'scriptqc', `You review a planned ${c.game || 'stream'} clip before rendering. Be specific and practical. In-game violence is normal in video games.`,
         `Title: ${cl.title}\nHook overlay: ${cl.hook}\nIntro commentary: ${cl.intro || '(none)'}\nWhat the streamer says in the clip: "${clipVO(r)}"\nCheck: is the title/hook honest about what happens (no clickbait about things that don't happen), hook quality, intro grammar, slurs, harassment of real people, sexual content, anything that breaks: ${c.avoid}.\nReturn JSON {"issues":[{"severity":"high"|"medium"|"low","where":string,"issue":string,"fix":string}]}`, { temperature: 0.2 });
       (out?.issues || []).forEach((i) => items.push(item(i.severity || 'low', i.where || 'Clip', i.issue, i.fix || '')));
     } else items.push(item('low', 'Method', 'AI review skipped (no OpenAI key). Watch the clip before approving.', ''));
@@ -341,7 +341,7 @@
       cues.forEach((q) => { q.hl = q.text.split(' ').map((w) => /\d/.test(w) || emph.has(FX.norm(w)) || PROFANITY.test(w) || /^(no|yo|bro|what|wait|oh|omg|bruh)\W*$/i.test(w)); PROFANITY.lastIndex = 0; const cps = q.text.length / Math.max(0.05, q.end - q.start); if (cps > 26) items.push(item('low', FX.ts(q.start), `"${q.text}" is on screen ${(q.end - q.start).toFixed(2)}s`, 'Fast speech; readable but quick.')); });
     } else items.push(item('medium', 'Captions', 'No captions: the stream audio was not transcribed (needs an OpenAI key).', 'Captions roughly double watch time on shorts; add a key.'));
     const z = FX.layoutZones(cl.layout);
-    const style = { color: c.captionColor, highlight: c.highlightColor, pos: cl.layout === 'blur' ? z.caption : (cl.layout === 'split' ? z.caption : c.captionPos), size: c.captionSize };
+    const style = { color: c.captionColor, highlight: c.highlightColor, pos: ['blur', 'split', 'hook'].includes(cl.layout) ? z.caption : c.captionPos, size: c.captionSize };
     if (style.pos < 0.3 || style.pos > 0.78) items.push(item('medium', 'Style', 'Caption position outside the platform-safe zone', 'Change it in Channel.'));
     const srt = cues.map((q, i) => `${i + 1}\n${FX.srtT(q.start)} --> ${FX.srtT(q.end)}\n${q.text}\n`).join('\n');
     r.captions = { cues, style, method: words.length ? 'stream transcription (Whisper word timings), mapped through jump cuts' : 'none', srtFile: await FX.saveFile(new Blob([srt], { type: 'text/plain' }), r.id + '.srt', { recId: r.id, role: 'captions' }), at: now() };
@@ -387,13 +387,16 @@
     const playAt = introEnd ? introEnd - (keep[0][0] - pre) : 0; // wall-clock second when the VOD starts moving
     vod.muted = false; vod.currentTime = pre; await waitEv(vod, 'seeked');
     let t = 0, vt = pre;
+    // split-screen hook filler (fx-hooks.js): generated loop or a licensed clip from the hook library, always muted
+    const filler = cl.layout === 'hook' && FX.hooks ? await FX.hooks.prep(cl.filler) : null;
     const draw = () => {
-      FX.drawClipFrame(ctx, vod, c, cl.layout, FX.clipFx(vt, cl.peak, t, introEnd, c.punchZoom !== false));
+      FX.drawClipFrame(ctx, vod, c, cl.layout, { ...FX.clipFx(vt, cl.peak, t, introEnd, c.punchZoom !== false), filler, t });
       if (t < introEnd) { const g = ctx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, 'rgba(8,6,14,.35)'); g.addColorStop(1, 'rgba(8,6,14,.15)'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H); }
       const hookUntil = Math.max(introEnd, 0) + 2.8;
       if (t < hookUntil) banner(cl.hook, Math.min(1, (hookUntil - t) / 0.3), H * z.hook, t < 0.18 ? 0.85 + 0.15 * (t / 0.18) + 0.06 * Math.sin((t / 0.18) * Math.PI) : 1);
       if (cl.tag) drawCaption(cl.tag, cl.layout === 'split' ? H * 0.06 : H * 0.95, 48, '#fff');
       const cue = p.captions.find((q) => t >= q.start && t < q.end); if (cue) FX.drawCue(cue, p.captionStyle, t);
+      if (cl.brandTag && FX.hooks) FX.hooks.drawTag(ctx, cl.brandTag, cl.layout, { pos: cl.tagPos });
     };
     draw();
     const rec = startRecorder(dest.stream);
@@ -428,6 +431,7 @@
       return t >= p.duration || vod.ended;
     });
     vod.pause(); try { mediaSrc.disconnect(sg); } catch {}
+    filler?.dispose?.();
     const blob = await rec.stop();
     vod.removeAttribute('src'); vod.load();
     blob.stats = { frames, fps: frames / Math.max(1, p.duration), drawMs: drawMs / Math.max(1, frames) };
@@ -488,23 +492,45 @@
     if (!isClip(r)) return rep;
     const t = r.idea?.transcript || '';
     if (rep.verdict === 'PASS') rep.verdict = 'WARNING';
-    rep.items.push(item('medium', 'Music', 'GTA\'s in-game radio and streamers\' background music are licensed songs and commonly trigger Content ID claims.', 'Listen to the clip; if a song is audible, mute it or pick another moment.'));
+    rep.items.push(item('medium', 'Music', 'In-game radio (e.g. GTA) and streamers\' background music are licensed songs and commonly trigger Content ID claims.', 'Listen to the clip; if a song is audible, mute it or pick another moment.'));
     if (/♪|\(music\)|\[music\]/i.test(t)) { rep.items.push(item('high', 'Music', 'The transcript shows music playing in this moment', 'A person must check it; music claims can block monetization.')); rep.verdict = 'HUMAN_REVIEW'; rep.summary = 'Music detected in the clip. A person must check it before publishing.'; }
     return rep;
   };
 
-  /* 14. MONETIZATION for clips: reused-content risk depends on who owns the stream */
+  /* 14. MONETIZATION for clips: reused-content risk depends on who owns the stream and what we add.
+     Rules checked (Nov 2026): YouTube YPP reused + inauthentic content (permission does not exempt; added value must be visible),
+     Shorts >60s with a Content ID claim are blocked worldwide, TikTok Creator Rewards pays only original videos 60s+,
+     Instagram stops recommending accounts whose recent posts are mostly reposts. */
   R.monetization = async (r, say, o) => {
     const rep = await base.monetization(r, say, o);
     if (!isClip(r)) return rep;
-    const c = FX.channel();
+    const c = FX.channel(), plats = (c.platforms || []).length ? c.platforms : ['youtube'];
     rep.items = rep.items.filter((i) => i.where !== 'Automation');
     let score = r.monetization.score - 1;
-    if (c.streamerRelation === 'none') { score += 5; rep.items.push(item('high', 'Reused content', 'Clips of someone else\'s stream without documented permission are not eligible for YouTube monetization and risk strikes.', 'Clip your own streams or get written permission.')); }
-    else if (c.streamerRelation === 'permission' && !r.clip?.intro) { score += 2; rep.items.push(item('medium', 'Reused content', 'Permitted clips with no added commentary can still be judged "reused content" by YouTube.', 'Turn on commentary intros or add your own edits.')); }
-    else if (c.streamerRelation === 'me') rep.items.push(item('low', 'Reused content', 'Your own stream: low reused-content risk. Keep uploads varied.', ''));
+    const rel = c.streamerRelation, intro = !!r.clip?.intro, len = r.edit?.duration || r.script?.duration || r.clip?.outLen || 0;
+    const add = (n, sev, where, issue, fix) => { score += n; rep.items.push(item(sev, where, issue, fix)); };
+    if (!rel) add(5, 'high', 'Reused content', 'You have not said whose streams these are (Channel → Streams & rights).', 'Pick "My own streams" or record the streamer\'s written permission.');
+    else if (rel === 'none') add(5, 'high', 'Reused content', 'Clips of someone else\'s stream without documented permission are not eligible for YouTube monetization and risk strikes.', 'Clip your own streams or get written permission.');
+    else if (rel === 'permission' && !intro) add(3, 'medium', 'Reused content', 'YouTube says permission does NOT make a clip original. A clip with only captions and a hook can be judged "reused content".', 'Turn on commentary intros (Channel) or add your own story/edit to this one.');
+    else if (rel === 'permission') rep.items.push(item('low', 'Reused content', 'Another streamer\'s footage with our commentary intro: keep the commentary substantive, not filler.', ''));
+    else rep.items.push(item('low', 'Reused content', 'Your own stream: low reused-content risk. Keep uploads varied.', ''));
+    // the same stretch of the same VOD already went out (or is on its way) = duplicate upload
+    if (r.clip?.vodKey) {
+      const a0 = r.clip.start, a1 = r.clip.start + r.clip.len;
+      const dup = (await FX.db.prod.all()).find((x) => x.id !== r.id && x.clip?.vodKey === r.clip.vodKey && !['rejected'].includes(x.status) && !x.replaced && Math.min(a1, x.clip.start + x.clip.len) - Math.max(a0, x.clip.start) > 0.5 * Math.min(r.clip.len, x.clip.len));
+      if (dup) add(4, 'high', 'Duplicate', `Mostly the same moment as ${dup.id} (${dup.status}). Re-uploading the same footage counts as repetitive/inauthentic content.`, 'Reject one of them.');
+    }
+    const music = (r.reports.copyright?.items || []).some((i) => i.where === 'Music' && i.sev === 'high');
+    if (plats.includes('youtube') && len > 60) add(music ? 4 : 1, music ? 'high' : 'medium', 'YouTube Shorts length', `${len.toFixed(0)}s long. Shorts over 1 minute with any Content ID claim (GTA radio, background music) are blocked worldwide.`, 'Keep it at 60s or less, or make sure no music is audible.');
+    if (plats.includes('tiktok') && len < 60) rep.items.push(item('low', 'TikTok Creator Rewards', `${len.toFixed(0)}s long. Creator Rewards only pays for original videos of 60s or more, so this one can grow the account but won't earn.`, 'If you want TikTok payouts, raise Max clip length to 60–90s for strong moments.'));
+    if (plats.includes('instagram')) {
+      const recent = (await FX.db.prod.all()).filter((x) => x.type === 'clips' && x.publish && x.publish.at > now() - 30 * 864e5);
+      const reposts = recent.filter((x) => (x.channelSnapshot?.streamerRelation || 'me') !== 'me' && !x.clip?.intro).length;
+      if (recent.length >= 5 && reposts / recent.length > 0.5) add(2, 'medium', 'Instagram originality', `${reposts} of your last ${recent.length} posts are other streamers' footage without commentary. Instagram stops recommending accounts that mostly repost.`, 'Add commentary intros, or post as a Collab with the streamer.');
+    }
+    if (!c.gamePolicyAck) rep.items.push(item('low', 'Game publisher', 'Rockstar/Take-Two\'s video policy only covers non-commercial use and doesn\'t mention ad revenue; most GTA channels monetize anyway, but it is not a written OK.', 'Read it once (support.rockstargames.com → "Policy on posting copyrighted Rockstar Games material") and tick the box in Channel. Never post leaks, isolated cutscenes or cheat/mod promotion.'));
     const level = score >= 6 ? 'HIGH' : score >= 3 ? 'MEDIUM' : 'LOW';
-    r.monetization = { ...r.monetization, score, level };
+    r.monetization = { ...r.monetization, score, level, lengthSec: Math.round(len) };
     return { ...rep, verdict: level === 'HIGH' ? 'HUMAN_REVIEW' : level === 'MEDIUM' ? 'WARNING' : 'PASS', summary: `Monetization risk: ${level} (score ${score}).`, data: { ...rep.data, level, score } };
   };
 })(window.FX);
