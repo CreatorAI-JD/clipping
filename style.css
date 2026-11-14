@@ -327,3 +327,8 @@ nav button.active .i{opacity:1;color:var(--violet)}
 }
 .stats-empty .empty{border:0;padding:16px 0 0}
 .stat-warn{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;white-space:pre-wrap;font-size:13px;color:#ffd2d6;background:rgba(255,92,108,.1);border:1px solid rgba(255,92,108,.35);border-radius:14px;padding:10px 14px;margin-bottom:14px}
+/* publish gate result on Review Queue cards */
+.gate{display:block;font-size:12px;line-height:1.35;border-radius:10px;padding:6px 9px;background:rgba(255,255,255,.06)}
+.gate.g-PASS{background:rgba(63,207,159,.12);color:var(--green)}
+.gate.g-WARNING{background:rgba(255,224,138,.12);color:var(--sun)}
+.gate.g-HUMAN_REVIEW,.gate.g-BLOCK{background:rgba(255,92,108,.14);color:var(--red)}

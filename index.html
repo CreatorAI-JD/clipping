@@ -396,7 +396,7 @@
   <!-- ACCOUNTS -->
   <section id="accounts" class="tab">
     <h2>Connected Accounts</h2>
-    <p class="muted">Connect TikTok, Instagram, YouTube, Facebook, X and Threads once, and AutoClipper posts for you. Posting runs through <a href="https://www.upload-post.com" target="_blank" rel="noopener">Upload-Post</a> (free plan: 10 posts/month, paid from ~$16/mo for unlimited).</p>
+    <p class="muted">Connect TikTok, Instagram, YouTube, Facebook, X and Threads once, and AutoClipper posts for you. Posting runs through <a href="https://www.upload-post.com" target="_blank" rel="noopener">Upload-Post</a> (free plan: 10 posts/month and no TikTok; Basic from ~$16/mo adds TikTok and unlimited posts).</p>
     <div class="card">
       <h3>Step 1 — Upload-Post API key</h3>
       <ol class="small muted">
@@ -422,7 +422,7 @@
       <label>TikTok privacy
         <select id="tiktokPrivacy" data-save>
           <option value="PUBLIC_TO_EVERYONE">Public</option>
-          <option value="SELF_ONLY">Only me (test)</option>
+          <option value="SELF_ONLY">Only me — private test mode (YouTube uploads as Private; Instagram, Facebook, X, Threads are skipped)</option>
           <option value="FOLLOWER_OF_CREATOR">Followers</option>
         </select>
       </label>
@@ -460,7 +460,7 @@
           </select>
         </label>
         <label>Caption color <input type="color" id="capColor" value="#ffd400" data-save></label>
-        <label>Default hashtags <input type="text" id="hashtags" value="#gta6 #gaming #fyp #viral" data-save></label>
+        <label>Default hashtags <input type="text" id="hashtags" value="#gaming #gtarp #gta5 #streamer" data-save></label>
       </div>
       <div class="row">
         <button class="primary" id="testKey">Test OpenAI key</button>
@@ -482,5 +482,6 @@
 <script src="fx-hooks.js"></script>
 <script src="fx-ui.js"></script>
 <script src="fx-auto.js"></script>
+<script src="fx-gate.js"></script>
 </body>
 </html>

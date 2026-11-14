@@ -497,18 +497,40 @@
     return rep;
   };
 
-  /* 14. MONETIZATION for clips: reused-content risk depends on who owns the stream */
+  /* 14. MONETIZATION for clips: reused-content risk depends on who owns the stream and what we add.
+     Rules checked (Nov 2026): YouTube YPP reused + inauthentic content (permission does not exempt; added value must be visible),
+     Shorts >60s with a Content ID claim are blocked worldwide, TikTok Creator Rewards pays only original videos 60s+,
+     Instagram stops recommending accounts whose recent posts are mostly reposts. */
   R.monetization = async (r, say, o) => {
     const rep = await base.monetization(r, say, o);
     if (!isClip(r)) return rep;
-    const c = FX.channel();
+    const c = FX.channel(), plats = (c.platforms || []).length ? c.platforms : ['youtube'];
     rep.items = rep.items.filter((i) => i.where !== 'Automation');
     let score = r.monetization.score - 1;
-    if (c.streamerRelation === 'none') { score += 5; rep.items.push(item('high', 'Reused content', 'Clips of someone else\'s stream without documented permission are not eligible for YouTube monetization and risk strikes.', 'Clip your own streams or get written permission.')); }
-    else if (c.streamerRelation === 'permission' && !r.clip?.intro) { score += 2; rep.items.push(item('medium', 'Reused content', 'Permitted clips with no added commentary can still be judged "reused content" by YouTube.', 'Turn on commentary intros or add your own edits.')); }
-    else if (c.streamerRelation === 'me') rep.items.push(item('low', 'Reused content', 'Your own stream: low reused-content risk. Keep uploads varied.', ''));
+    const rel = c.streamerRelation, intro = !!r.clip?.intro, len = r.edit?.duration || r.script?.duration || r.clip?.outLen || 0;
+    const add = (n, sev, where, issue, fix) => { score += n; rep.items.push(item(sev, where, issue, fix)); };
+    if (!rel) add(5, 'high', 'Reused content', 'You have not said whose streams these are (Channel → Streams & rights).', 'Pick "My own streams" or record the streamer\'s written permission.');
+    else if (rel === 'none') add(5, 'high', 'Reused content', 'Clips of someone else\'s stream without documented permission are not eligible for YouTube monetization and risk strikes.', 'Clip your own streams or get written permission.');
+    else if (rel === 'permission' && !intro) add(3, 'medium', 'Reused content', 'YouTube says permission does NOT make a clip original. A clip with only captions and a hook can be judged "reused content".', 'Turn on commentary intros (Channel) or add your own story/edit to this one.');
+    else if (rel === 'permission') rep.items.push(item('low', 'Reused content', 'Another streamer\'s footage with our commentary intro: keep the commentary substantive, not filler.', ''));
+    else rep.items.push(item('low', 'Reused content', 'Your own stream: low reused-content risk. Keep uploads varied.', ''));
+    // the same stretch of the same VOD already went out (or is on its way) = duplicate upload
+    if (r.clip?.vodKey) {
+      const a0 = r.clip.start, a1 = r.clip.start + r.clip.len;
+      const dup = (await FX.db.prod.all()).find((x) => x.id !== r.id && x.clip?.vodKey === r.clip.vodKey && !['rejected'].includes(x.status) && !x.replaced && Math.min(a1, x.clip.start + x.clip.len) - Math.max(a0, x.clip.start) > 0.5 * Math.min(r.clip.len, x.clip.len));
+      if (dup) add(4, 'high', 'Duplicate', `Mostly the same moment as ${dup.id} (${dup.status}). Re-uploading the same footage counts as repetitive/inauthentic content.`, 'Reject one of them.');
+    }
+    const music = (r.reports.copyright?.items || []).some((i) => i.where === 'Music' && i.sev === 'high');
+    if (plats.includes('youtube') && len > 60) add(music ? 4 : 1, music ? 'high' : 'medium', 'YouTube Shorts length', `${len.toFixed(0)}s long. Shorts over 1 minute with any Content ID claim (GTA radio, background music) are blocked worldwide.`, 'Keep it at 60s or less, or make sure no music is audible.');
+    if (plats.includes('tiktok') && len < 60) rep.items.push(item('low', 'TikTok Creator Rewards', `${len.toFixed(0)}s long. Creator Rewards only pays for original videos of 60s or more, so this one can grow the account but won't earn.`, 'If you want TikTok payouts, raise Max clip length to 60–90s for strong moments.'));
+    if (plats.includes('instagram')) {
+      const recent = (await FX.db.prod.all()).filter((x) => x.type === 'clips' && x.publish && x.publish.at > now() - 30 * 864e5);
+      const reposts = recent.filter((x) => (x.channelSnapshot?.streamerRelation || 'me') !== 'me' && !x.clip?.intro).length;
+      if (recent.length >= 5 && reposts / recent.length > 0.5) add(2, 'medium', 'Instagram originality', `${reposts} of your last ${recent.length} posts are other streamers' footage without commentary. Instagram stops recommending accounts that mostly repost.`, 'Add commentary intros, or post as a Collab with the streamer.');
+    }
+    if (!c.gamePolicyAck) rep.items.push(item('low', 'Game publisher', 'Rockstar/Take-Two\'s video policy only covers non-commercial use and doesn\'t mention ad revenue; most GTA channels monetize anyway, but it is not a written OK.', 'Read it once (support.rockstargames.com → "Policy on posting copyrighted Rockstar Games material") and tick the box in Channel. Never post leaks, isolated cutscenes or cheat/mod promotion.'));
     const level = score >= 6 ? 'HIGH' : score >= 3 ? 'MEDIUM' : 'LOW';
-    r.monetization = { ...r.monetization, score, level };
+    r.monetization = { ...r.monetization, score, level, lengthSec: Math.round(len) };
     return { ...rep, verdict: level === 'HIGH' ? 'HUMAN_REVIEW' : level === 'MEDIUM' ? 'WARNING' : 'PASS', summary: `Monetization risk: ${level} (score ${score}).`, data: { ...rep.data, level, score } };
   };
 })(window.FX);
