@@ -2,7 +2,7 @@
 'use strict';
 (function (FX) {
   const now = FX.now;
-  const S = { sub: ls.get('fx_sub', 'needs'), open: null, station: null, urls: [], floorSig: '' };
+  const S = { sub: ls.get('fx_sub', 'videos') === 'needs' ? 'videos' : ls.get('fx_sub', 'videos'), open: null, station: null, urls: [], floorSig: '' };
   const VCLASS = { PASS: 'v-pass', WARNING: 'v-warn', FAIL: 'v-fail', HUMAN_REVIEW: 'v-human', REJECTED: 'v-fail', BLOCKED: 'v-block', 'APPROVED BY HUMAN': 'v-pass' };
   const STATUS_TXT = { queued: 'In line', working: 'Working', needs_human: 'Needs you', awaiting_approval: 'Awaiting your approval', blocked: 'Blocked', error: 'Error', scheduled: 'Scheduled', live: 'Live', rejected: 'Rejected', stopped: 'Stopped', practice_done: 'Practice done' };
   const badge = (v) => `<span class="vb ${VCLASS[v] || ''}">${esc(String(v).replace('_', ' '))}</span>`;
@@ -64,7 +64,7 @@
     monetization: 'Compares with all previous videos for repetition and reused content, checks advertiser-friendliness, and writes a risk report. Not a guarantee of ad eligibility.',
     finalqc: 'Combines every report into one decision: APPROVED, APPROVED WITH WARNING, NEEDS REVISION, HUMAN REVIEW or REJECTED.',
     prep: 'Writes different titles, descriptions and hashtags per platform, adds credits and AI disclosures, checks metadata for misleading claims, grabs a cover frame.',
-    approval: 'You. Nothing is published until you approve it in the publishing dashboard (an optional auto rule only unlocks after your first approval).',
+    approval: 'You. Nothing is published until you approve it in the Review Queue (an optional auto rule only unlocks after your first approval).',
     publish: 'Uploads through Upload-Post and the YouTube API with AI-content flags, schedules into your posting window, and saves the result.',
     monitor: 'Tracks views, likes, comments, shares, watch time and retention (where the platform API provides them) over time.',
     analytics: 'Finds what works (hooks, lengths, times, formats) and feeds lessons back to research and scripting. Weekly reports.',
@@ -114,7 +114,7 @@
     let extra = '';
     if (k === 'channel') { const ch = FX.channelCheck(); extra = `<h4>Config check</h4>${ch.items.length ? items(ch.items) : '<p class="ok-line">✓ Complete (version ' + ch.version + ')</p>'}<div class="row"><button data-goto="channel">Open channel setup</button></div>`; }
     if (k === 'analytics') extra = `<div class="row"><button data-goto="analytics">Open analytics</button></div>`;
-    if (k === 'approval') extra = `<div class="row"><button data-goto="needs">Open the publishing dashboard</button></div>`;
+    if (k === 'approval') extra = `<div class="row"><button data-goto="needs">Open Review Queue</button></div>`;
     box.hidden = false;
     box.innerHTML = `<div class="station-head"><div><div class="station-kicker">Station ${d.n} · ${esc(d.bot)} · result: ${esc(d.result)}</div><h3>${d.icon} ${esc(d.name)}</h3></div><button class="station-x" data-close>✕</button></div>
       <p class="muted small">${esc(DESC[k])}</p>
@@ -125,7 +125,7 @@
   }
 
   /* ================= ASSEMBLY LINE TAB ================= */
-  const SUBS = [['needs', 'Needs you'], ['videos', 'Videos'], ['ideas', 'Ideas & VODs'], ['channel', 'Channel'], ['policies', 'Policies'], ['hooks', 'Hooks (ASMR)'], ['library', 'Library'], ['analytics', 'Analytics'], ['automation', 'Automation'], ['costs', 'Costs & limits'], ['audit', 'Audit & backups']];
+  const SUBS = [['videos', 'Videos'], ['ideas', 'Ideas & VODs'], ['channel', 'Channel'], ['policies', 'Policies'], ['hooks', 'Hooks (ASMR)'], ['library', 'Library'], ['analytics', 'Analytics'], ['automation', 'Automation'], ['costs', 'Costs & limits'], ['audit', 'Audit & backups']];
   function recList(recs) {
     return `<div class="rtable"><div class="rr rh"><span>Video</span><span>Station</span><span>Status</span><span>Cost</span><span>Updated</span></div>${recs.map((r) => `<button class="rr" data-open="${r.id}"><span><b>${esc(r.id)}</b><small>${esc(title(r))}${r.practice ? ' · practice' : ''}${r.type === 'clips' ? ' · clip' : ''}</small></span><span>${FX.dept(r.stage).icon} ${esc(FX.dept(r.stage).name)}</span><span>${stBadge(r.status)}</span><span>${FX.money(FX.recCost(r))}</span><span>${when(r.updated)}</span></button>`).join('')}</div>`;
   }
@@ -133,26 +133,31 @@
 
   async function renderLine() {
     const pane = $('#fxPane'); if (!pane) return;
-    $('#fxSubnav').innerHTML = SUBS.map(([k, l]) => `<button class="${S.sub === k ? 'active' : ''}" data-sub="${k}">${l}${k === 'needs' ? ' <span class="pill" id="fxNeedPill2"></span>' : ''}</button>`).join('');
+    $('#fxSubnav').innerHTML = SUBS.map(([k, l]) => `<button class="${S.sub === k ? 'active' : ''}" data-sub="${k}">${l}</button>`).join('');
     S.urls.forEach(URL.revokeObjectURL); S.urls = [];
-    const fn = { needs: paneNeeds, videos: paneVideos, ideas: paneIdeas, channel: paneChannel, policies: panePolicies, library: paneLibrary, analytics: paneAnalytics, automation: () => FX.autoPane(), hooks: () => FX.hooks.pane(), costs: paneCosts, audit: paneAudit }[S.sub] || paneNeeds;
+    const fn = { videos: paneVideos, ideas: paneIdeas, channel: paneChannel, policies: panePolicies, library: paneLibrary, analytics: paneAnalytics, automation: () => FX.autoPane(), hooks: () => FX.hooks.pane(), costs: paneCosts, audit: paneAudit }[S.sub] || paneVideos;
     pane.innerHTML = await fn();
     updatePills();
     if (S.sub === 'channel') wireChannel();
     if (S.sub === 'hooks') FX.hooks.wire();
   }
   FX.renderLine = () => renderLine();
+  FX.needCount = async () => (await FX.db.prod.all()).filter(needsYou).length;
+  FX.renderNeeds = async (el) => { if (el) el.innerHTML = await paneNeeds(); };
   async function updatePills() {
     const n = (await FX.db.prod.all()).filter(needsYou).length;
-    for (const id of ['#fxNeedPill', '#fxNeedPill2']) { const el = $(id); if (el) { el.textContent = n; el.hidden = !n; } }
+    if (typeof updateCount === 'function') updateCount();
+    if ($('#queue')?.classList.contains('active') && $('#fxNeeds') && !document.activeElement?.closest?.('#fxNeeds')) FX.renderNeeds($('#fxNeeds'));
+    return n;
   }
 
   async function paneNeeds() {
     const recs = (await FX.db.prod.all()).filter(needsYou).sort((a, b) => (a.status === 'awaiting_approval' ? -1 : 1) - (b.status === 'awaiting_approval' ? -1 : 1) || b.updated - a.updated);
     const blocked = (await FX.db.prod.all()).filter((r) => r.status === 'blocked' && /No VODs waiting/.test(r.blocked || ''));
-    return `<p class="muted">Videos waiting on a decision from you. Approving here is the only way anything gets published.</p>
+    if (!recs.length && !blocked.length) return '';
+    return `<div class="card"><h3>From the Assembly Line <span class="muted small">${recs.length} waiting on you</span></h3>
       ${blocked.length ? `<div class="hint-card">📥 ${blocked.length} video slot(s) are waiting for a stream VOD. <button data-sub="ideas">Add a VOD</button></div>` : ''}
-      ${recs.length ? recs.map((r) => `<button class="need-card" data-open="${r.id}"><span class="nc-top"><b>${esc(r.id)}</b>${stBadge(r.status)}</span><span class="nc-t">${esc(title(r))}</span><span class="muted small">${esc(r.status === 'awaiting_approval' ? `Final QC: ${r.final?.decision || '–'} · monetization risk ${r.monetization?.level || '–'}` : r.humanReason || r.blocked || r.error || '')}</span><span class="nc-go">${r.status === 'awaiting_approval' ? 'Review & approve →' : 'Decide →'}</span></button>`).join('') : emptyBot('Nothing needs you right now.')}`;
+      ${recs.length ? recs.map((r) => `<button class="need-card" data-open="${r.id}"><span class="nc-top"><b>${esc(r.id)}</b>${stBadge(r.status)}</span><span class="nc-t">${esc(title(r))}</span><span class="muted small">${esc(r.status === 'awaiting_approval' ? `Final QC: ${r.final?.decision || '–'} · monetization risk ${r.monetization?.level || '–'}` : r.humanReason || r.blocked || r.error || '')}</span><span class="nc-go">${r.status === 'awaiting_approval' ? 'Review & approve →' : 'Decide →'}</span></button>`).join('') : ''}</div>`;
   }
   async function paneVideos() {
     const recs = (await FX.db.prod.all()).sort((a, b) => b.created - a.created);
@@ -332,13 +337,14 @@
 
   /* ---------------- events ---------------- */
   document.addEventListener('click', async (e) => {
-    const b = e.target.closest('button, [data-open], .rep-mini'); if (!b || !e.target.closest('#workshop, #line, #fxRecord')) return;
+    const b = e.target.closest('button, [data-open], .rep-mini'); if (!b || !e.target.closest('#workshop, #line, #fxRecord, #fxNeeds')) return;
     const ds = b.dataset;
     try {
       if (ds.st) { S.station = S.station === ds.st ? null : ds.st; S.floorSig = ''; if (!S.station) $('#fxStation').hidden = true; renderFloor(); return; }
       if (ds.close !== undefined) { S.station = null; $('#fxStation').hidden = true; S.floorSig = ''; renderFloor(); return; }
       if (ds.open) return openRecord(ds.open);
       if (ds.closerec !== undefined) return closeRecord();
+      if (ds.sub === 'needs' || ds.goto === 'needs') { closeRecord(); return openTab('queue'); }
       if (ds.sub) { S.sub = ds.sub; ls.set('fx_sub', ds.sub); if (!e.target.closest('#line')) openTab('line'); return renderLine(); }
       if (ds.goto) { S.sub = ds.goto; ls.set('fx_sub', ds.goto); openTab('line'); return renderLine(); }
       if (ds.produce) { const i = await FX.db.ideas.get(ds.produce); const r = await FX.newRecord({ idea: i }); toast(`${r.id} created`); return renderLine(); }

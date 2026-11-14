@@ -798,6 +798,7 @@ async function onNewVideo(clip) {
   try { if (window.FX?.gateClip) { await FX.gateClip(clip); await putClip(clip); } } catch (e) { log('⚠️ Guideline check: ' + e.message); }
   await updateCount();
   if (!(apOn() && val('apAutoApprove'))) return;
+  if (!val('apiKey')) { log(`🟡 Left "${clip.title}" for your review: auto-approve needs an OpenAI key to score clips`); return; }
   const min = +val('apMinScore') || 0;
   if (clip.score != null && clip.score < min) { log(`🟡 Left "${clip.title}" for review (hype score ${clip.score})`); return; }
   if (clip.gate?.verdict !== 'PASS') { log(`🛑 Left "${clip.title}" for your review: ${clip.gate ? clip.gate.summary : 'guideline checks did not run'}`); return; }
@@ -831,9 +832,21 @@ $$('.filter').forEach((b) => b.onclick = () => {
   $$('.filter').forEach((x) => x.classList.toggle('active', x === b));
   renderQueue();
 });
+// auto-approve can't run without an OpenAI key (no hype scores, no AI checks), so the switch is disabled until there is one
+function syncAutoApprove() {
+  const box = $('#apAutoApprove'); if (!box) return;
+  const noKey = !val('apiKey');
+  box.disabled = noKey;
+  if (noKey && box.checked) { box.checked = false; ls.set('f_apAutoApprove', false); }
+  box.closest('label').title = noKey ? 'Add an OpenAI key in Settings to use auto-approve' : '';
+}
 async function updateCount() {
   const all = await allClips();
-  $('#qcount').textContent = all.filter((c) => c.status === 'pending').length;
+  const pend = all.filter((c) => c.status === 'pending').length;
+  const line = window.FX?.needCount ? await FX.needCount() : 0;
+  $('#qcount').textContent = pend + line;
+  $('#approveAll').disabled = !pend;
+  syncAutoApprove();
 }
 function statusText(c) {
   if (c.status === 'scheduled') return c.scheduledFor > Date.now() ? `⏰ Scheduled ${new Date(c.scheduledFor).toLocaleString([], { weekday: 'short', hour: 'numeric', minute: '2-digit' })}` : '📤 Sent';
@@ -843,6 +856,7 @@ function statusText(c) {
   return '';
 }
 async function renderQueue() {
+  if (window.FX?.renderNeeds) FX.renderNeeds($('#fxNeeds')).catch(() => {});
   urls.forEach(URL.revokeObjectURL); urls = [];
   const list = $('#queueList');
   const match = (c) => filter === 'scheduled' ? ['scheduled', 'posted'].includes(c.status) : c.status === filter;
@@ -910,6 +924,10 @@ async function confirmGate(clip) {
 }
 $('#approveAll').onclick = async () => {
   const pend = (await allClips()).filter((c) => c.status === 'pending');
+  if (!pend.length) return toast('Nothing is waiting for approval.');
+  const ready = pend.filter((c) => !c.gate || c.gate.verdict === 'PASS' || c.gateAck?.gateAt === c.gate?.at).length;
+  const dest = canPost() ? (val('apAutoPost') ? 'scheduled to your connected accounts' : 'posted to your connected accounts right away') : 'marked approved (no accounts connected, so nothing posts yet)';
+  if (!confirm(`Approve ${pend.length} pending video(s)?\n\nUp to ${ready} will be ${dest}. Any with guideline warnings stay in Pending for a one-by-one look.\n\nThis can't be undone once they're live.`)) return;
   let held = 0;
   for (const c of pend) {
     if (!c.gate && window.FX?.gateClip) { await FX.gateClip(c); await putClip(c); }
@@ -1046,7 +1064,7 @@ function loadAll() {
 function saveAll() {
   for (const id of saveIds()) { const el = document.getElementById(id); ls.set('f_' + id, el.type === 'checkbox' ? el.checked : el.value); }
 }
-document.addEventListener('change', (e) => { if (e.target.id && saveIds().includes(e.target.id)) { saveAll(); if (e.target.id.startsWith('ap')) updateApSummary(); } });
+document.addEventListener('change', (e) => { if (e.target.id && saveIds().includes(e.target.id)) { saveAll(); if (e.target.id.startsWith('ap')) updateApSummary(); if (e.target.id === 'apiKey') syncAutoApprove(); } });
 
 $$('nav button').forEach((b) => b.onclick = () => {
   $$('nav button').forEach((x) => x.classList.toggle('active', x === b));

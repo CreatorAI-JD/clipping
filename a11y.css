@@ -41,3 +41,5 @@ h2,h3,.hero-title{text-wrap:balance}
 @media (prefers-reduced-motion:reduce){
   *,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
 }
+/* disabled options (e.g. auto-approve without an OpenAI key) look disabled */
+.check:has(input:disabled){opacity:.5;cursor:not-allowed}
