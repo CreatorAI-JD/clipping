@@ -27,3 +27,15 @@ Less babysitting, same safeguards (you approve the first videos, rights/policy q
 - **Earned auto-approve:** the line approves a video only if every warning on it is a kind you've approved yourself several times (and not rejected lately), rights are fully verified, and recent auto posts aren't failing or underperforming; otherwise it pauses itself.
 - **Twitch watcher:** checks your Twitch channel(s) for new VODs (official Helix API) and uses the clips viewers made as hype markers in the Moment Scout. Saving the VOD file is still your step.
 - **Stay awake + catch-up:** keeps the screen awake while the line runs and summarizes what happened while you were away.
+
+## Publish gate (guideline, rights & monetization checks)
+Every upload path goes through `fx-gate.js`: the Assembly Line **and** the quick Stream Clipper / Faceless / Autopilot / Review Queue path. The low-level upload functions refuse any video that didn't pass it.
+- **Safety scan:** OpenAI's free moderation model checks what is said (stream transcript), the commentary intro, on-screen text, title/caption and sampled frames. Hate/slurs, threats, sexual content, self-harm → a person must decide; sexual content involving minors → blocked forever. GTA gameplay violence alone is fine. If the scan can't run (no key, no credit), nothing auto-posts.
+- **Platform checklists (Nov 2026):** YouTube reused + inauthentic content (permission doesn't exempt a clip; added value must be visible), Shorts over 60s with a Content ID claim are blocked worldwide, TikTok For You originality + Creator Rewards (original videos 60s+ only), Instagram's 2026 originality rule, AI labels. Saved checklists get new rules merged in and must be re-reviewed. Keyword rules match whole words only.
+- **Clips monetization:** rights must be set (own streams / written permission), duplicate moments from the same VOD are flagged, music + over-60s Shorts flagged, Rockstar/Take-Two video-policy note.
+- **Right before upload:** every inspection report must exist and be resolved, the video must not have been re-edited after inspection, the final title/description is re-scanned, and auto-approval is refused for HIGH risk or hand-approved steps.
+- **Quick path:** Autopilot only auto-approves clips that pass every check; anything with warnings waits in the Review Queue, where you confirm you watched it before it can post.
+- **Private test mode:** TikTok privacy "Only me" uploads YouTube as Private and skips Instagram/Facebook/X/Threads (they can't post privately). Uploads send an `Idempotency-Key` so retries never double-post.
+
+## Tests
+`node tests/publish-gate.test.mjs` (gate, rights, policies, Twitch watcher) and `node tests/assembly-line-e2e.test.mjs` (a test VOD through all 20 departments; needs ffmpeg). Both use Playwright with fake OpenAI / Upload-Post / Twitch servers, so no keys are needed and nothing is posted.
