@@ -186,3 +186,4 @@ body.modal-open{overflow:hidden}
 .hook-card.off { opacity: .5; }
 .hook-card .row { gap: 8px; flex-wrap: wrap; }
 @media (max-width: 700px) { .hook-top { grid-template-columns: 1fr; } .hook-top > canvas { justify-self: center; } }
+.campaign-rules{margin:6px 0 8px}.campaign-rules li{margin:2px 0}
