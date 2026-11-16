@@ -52,3 +52,14 @@ Every upload path goes through `fx-gate.js`: the Assembly Line **and** the quick
   3. On GitHub: repo **Settings → Pages → Custom domain**, enter the domain and save. GitHub adds a `CNAME` file to the repo.
   4. When the DNS check passes (minutes to a few hours), tick **Enforce HTTPS**.
   5. Your saved keys live in the browser per web address, so after the move paste your OpenAI and Upload-Post keys again on the new domain. If you use direct YouTube posting, add the new domain as an Authorized JavaScript origin in Google Cloud.
+
+## Clipping campaigns (TJR)
+
+Stream Clipper has a **Clipping campaign** box. Picking **TJR** (Reach campaign on Content Rewards, rules checked 2026-11-14):
+- adds `#TJR` and "Not financial advice. For education and entertainment only." to every caption automatically
+- turns off the brand tag (no logos), AI voice intros, AI images, stock footage, music and split-screen filler. AI still finds, cuts and captions the real clips
+- adds finance checks to the publish gate: profit promises in our own title or caption ("guaranteed profits", "risk-free", "can't lose", "100% win rate") are blocked until edited; hype or buy/sell calls, or TJR saying something like that, go to a person
+- flags missing tags, non-English text and AI content
+- reminds you to submit each link on Content Rewards within 30 minutes of posting
+
+Clearing the campaign puts your old settings back. Tests: `node tests/campaign.test.mjs`.
