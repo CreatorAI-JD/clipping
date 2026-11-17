@@ -136,12 +136,16 @@
     $('#fxSubnav').innerHTML = SUBS.map(([k, l]) => `<button class="${S.sub === k ? 'active' : ''}" data-sub="${k}">${l}</button>`).join('');
     S.urls.forEach(URL.revokeObjectURL); S.urls = [];
     const fn = { videos: paneVideos, ideas: paneIdeas, channel: paneChannel, policies: panePolicies, library: paneLibrary, analytics: paneAnalytics, automation: () => FX.autoPane(), hooks: () => FX.hooks.pane(), costs: paneCosts, audit: paneAudit }[S.sub] || paneVideos;
-    pane.innerHTML = await fn();
+    const seq = (S.lineSeq = (S.lineSeq || 0) + 1);
+    const html = await fn();
+    if (seq !== S.lineSeq) return; // a newer render started (fast clicks); don't paint a stale pane over it
+    pane.innerHTML = html;
     updatePills();
     if (S.sub === 'channel') wireChannel();
     if (S.sub === 'hooks') FX.hooks.wire();
   }
   FX.renderLine = () => renderLine();
+  FX.openSub = (k) => { S.sub = k; ls.set('fx_sub', k); if (!$('#line').classList.contains('active')) openTab('line'); return renderLine(); };
   FX.needCount = async () => (await FX.db.prod.all()).filter(needsYou).length;
   FX.renderNeeds = async (el) => { if (el) el.innerHTML = await paneNeeds(); };
   async function updatePills() {

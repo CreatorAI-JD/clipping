@@ -15,12 +15,17 @@
   };
   tabs.forEach((b) => b.addEventListener('click', () => {
     syncNav();
-    if (location.hash.slice(1) !== b.dataset.tab) history.replaceState(null, '', '#' + b.dataset.tab);
+    if (location.hash.slice(1).split('/')[0] !== b.dataset.tab) history.pushState(null, '', '#' + b.dataset.tab);
     window.scrollTo({ top: 0 });
   }));
   // in-page buttons that jump to a tab (e.g. "Open Review Queue") go through the nav buttons, so they're covered too
-  const fromHash = () => { const id = location.hash.slice(1); if (known.has(id)) $(`nav button[data-tab="${id}"]`).click(); };
+  const fromHash = () => {
+    const id = location.hash.slice(1) || 'workshop';
+    const b = $(`nav button[data-tab="${id}"]`);
+    if (known.has(id) && !b.classList.contains('active')) b.click();
+  };
   window.addEventListener('hashchange', fromHash);
+  window.addEventListener('popstate', fromHash);
   fromHash(); syncNav();
 
   /* nav fade hints on small screens: show which side has more tabs */
