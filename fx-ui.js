@@ -170,6 +170,7 @@
   }
   async function paneIdeas() {
     const ideas = (await FX.db.ideas.all()).sort((a, b) => (a.status === 'new' ? -1 : 1) - (b.status === 'new' ? -1 : 1) || b.rank - a.rank);
+    const shown = FX.scout ? FX.scout.filter(ideas, FX.scout.q) : ideas;
     const inbox = FX.vodInbox();
     const vodRows = [];
     for (const e of [...inbox].reverse()) vodRows.push(`<div class="vrow"><span>${ico('film')}<b>${esc(e.name)}</b> <small class="muted">${(e.size / 1e9).toFixed(2)} GB · ${e.from}</small></span><span>${e.status === 'new' ? 'Waiting to scan' : e.status === 'scanned' ? `${e.moments} moment(s) found` : esc(e.status)}</span><span>${(await FX.vodAvailable(e.key)) ? '<span class="ok-line">available</span>' : '<span class="muted">re-drop to use</span>'}</span></div>`);
@@ -178,9 +179,10 @@
         <p class="muted small">Big VODs stay on your computer; the browser only remembers them for this session. For hands-off work, choose a VOD folder on the Autopilot tab and new recordings are picked up automatically.</p>
         ${vodRows.length ? `<div class="vlist">${vodRows.join('')}</div>` : ''}</div>
       <div class="row"><button data-act="genIdeas">${FX.isClips() ? ico('bulb') + 'Generate faceless ideas (for a faceless channel)' : ico('bulb') + 'Generate ideas now'}</button><span class="muted small">Idea database: ${ideas.length} entries. Duplicates are blocked automatically.</span></div>
-      ${ideas.length ? `<div class="ideas">${ideas.slice(0, 80).map((i) => `<div class="idea ${i.status}"><div class="idea-h"><b>${esc(i.topic)}</b><span class="rank">${i.rank ?? '–'}</span></div>
+      ${ideas.length && FX.scout ? FX.scout.searchBar(shown.length, ideas.length) : ''}
+      ${ideas.length ? `<div class="ideas">${shown.slice(0, 80).map((i) => `<div class="idea ${i.status}" data-hay="${FX.scout ? FX.scout.hayAttr(i) : ''}"><div class="idea-h"><b>${esc(i.topic)}</b><span class="rank">${i.rank ?? '–'}</span></div>
         <div class="muted small">${esc(i.description || '')}</div>
-        ${i.type === 'moment' ? `<div class="small">${ico('film')}${esc(i.vodName)} @ ${fmt(i.start)} · hook "${esc(i.hook)}"</div>${i.transcript ? `<div class="quote">"${esc(i.transcript.slice(0, 220))}"</div>` : ''}` : `<div class="small">Hook: "${esc(i.hook || '')}" · ${esc(i.format || '')}</div>`}
+        ${i.type === 'moment' ? `<div class="small">${ico('film')}${esc(i.vodName)} @ ${fmt(i.start)} · hook "${esc(i.hook)}"</div>${i.transcript ? `<div class="quote">"${esc(i.transcript.slice(0, 220))}"</div>` : ''}${FX.scout ? FX.scout.card(i) : ''}` : `<div class="small">Hook: "${esc(i.hook || '')}" · ${esc(i.format || '')}</div>`}
         ${(i.concerns || []).length ? `<div class="small warn-t">${ico('alert')}${esc(i.concerns.join('; '))}</div>` : ''}
         <div class="row"><span class="sb s-${i.status}">${esc(i.status)}${i.usedBy ? ' → ' + esc(i.usedBy) : ''}</span>${i.status === 'new' ? `<button data-produce="${i.id}">Produce this</button><button data-drop="${i.id}">Skip</button>` : ''}</div></div>`).join('')}</div>` : emptyBot('No ideas or moments yet.')}`;
   }
