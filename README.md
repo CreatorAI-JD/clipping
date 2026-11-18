@@ -11,6 +11,27 @@ AI stream clipper + faceless short-video generator that auto-posts to TikTok, In
 
 Everything runs in your browser; keys are stored only on your computer.
 
+## Live Watch (catch moments while the stream is live)
+
+Live Watch tab → type the Twitch channel(s) → **Start watching**. Keep the tab open.
+
+- It reads each channel's public chat anonymously (no login) and learns that chat's normal pace over the first few minutes.
+- When the last 10 seconds jump well above normal, with enough *different* people reacting (hype emotes, "clip it", copy-paste waves, raids), that's a moment. One person spamming can't trigger it (each chatter counts for at most 3 points).
+- On a moment it can: make a **Twitch clip** instantly, save the **VOD timestamp** (when you drop that VOD later, the Moment Scout ranks those spots first), and beep + send a desktop notification. These two need Twitch connected (Live Watch → Twitch connection; it now asks for the `clips:edit` permission, so press Reconnect once if you connected before).
+- **Record clips from this player**: share this tab when Chrome asks (keep "Also share tab audio" on and unmute the player). AutoClipper keeps a rolling recording of the player, and each moment becomes a captioned 1080×1920 clip in your Review Queue (25 s before the spike + 10 s after by default; change it under "What to do when a moment hits"). The raw recording is kept so you can download it.
+- **Test a spike** fakes a burst of chat so you can see the whole flow without waiting.
+- Sensitivity: "Only huge moments", "Balanced", "Catch more moments", plus minimum score, chatters needed and the wait between moments.
+
+Nothing is posted from Live Watch: every clip still goes through the publish gate and your approval. Only clip channels you are allowed to post (your own, a clipping campaign, or written permission).
+
+## Getting around
+
+- Pages are grouped in the sidebar (Make clips / Automate / Publish / Setup). On a phone, tap the menu button.
+- **Jump to…** (Ctrl K, Cmd K or `/`) searches every page, every Assembly Line section and common actions ("approve", "openai key", "stop", "live"…).
+- Number keys 1–9 and 0 open the pages in sidebar order; `?` lists the shortcuts.
+- The Back button works between pages, and Assembly Line sections have links (e.g. `#line/policies`).
+- **Get set up** on the Workshop shows what's left (keys, accounts, channel, Live Watch, first clip) and takes you to each one. Warnings in the Review Queue that name a setting get a **Fix it** button.
+
 ## Assembly line (Workshop + Assembly Line tabs)
 A department-based production line with a central production manager. The main line is **GTA streamer clips**: drop VODs (or choose a VOD folder on Autopilot) → Moment Scout finds hype moments → context check → clip plan (cut, hook, title, optional AI commentary intro) → clip QC → intro voice → rights records → captions from the stream audio → 1080×1920 export → audio/visual/copyright/guidelines/monetization QC → Final QC → per-platform metadata → **your approval** → publishing → monitoring → analytics. A faceless "researched facts" channel type uses the same 20 departments.
 
@@ -41,7 +62,7 @@ Every upload path goes through `fx-gate.js`: the Assembly Line **and** the quick
 - **Private test mode:** TikTok privacy "Only me" uploads YouTube as Private and skips Instagram/Facebook/X/Threads (they can't post privately). Uploads send an `Idempotency-Key` so retries never double-post.
 
 ## Tests
-`node tests/publish-gate.test.mjs` (gate, rights, policies, Twitch watcher) and `node tests/assembly-line-e2e.test.mjs` (a test VOD through all 20 departments; needs ffmpeg). Both use Playwright with fake OpenAI / Upload-Post / Twitch servers, so no keys are needed and nothing is posted.
+`node tests/publish-gate.test.mjs` (gate, rights, policies, Twitch watcher) and `node tests/assembly-line-e2e.test.mjs` (a test VOD through all 20 departments; needs ffmpeg). Both use Playwright with fake OpenAI / Upload-Post / Twitch servers, so no keys are needed and nothing is posted. `node tests/live-watch.test.mjs` checks Live Watch (fake Twitch chat and API, tab recording) and the navigation (Jump to, number keys, Back button, phone menu, setup checklist).
 
 ## Site basics: favicon, legal pages, custom domain
 - **Favicon:** `favicon.svg` (with `favicon-32.png` and `apple-touch-icon.png` fallbacks), the same robot logo as the header.

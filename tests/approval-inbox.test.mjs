@@ -32,7 +32,7 @@ await page.goto(BASE);
 await page.waitForFunction(() => window.FX && FX.renderNeeds && FX.db);
 
 // 1. no OpenAI key -> auto-approve switch disabled, and onNewVideo leaves clips pending
-const disabled = await page.evaluate(() => { updateCount(); return document.getElementById('apAutoApprove').disabled; });
+const disabled = await page.evaluate(async () => { await updateCount(); syncAutoApprove(); await new Promise((r) => setTimeout(r, 200)); return document.getElementById('apAutoApprove').disabled; });
 check('auto-approve disabled without an OpenAI key', disabled);
 const left = await page.evaluate(async () => {
   document.getElementById('apOn').checked = true; document.getElementById('apAutoApprove').disabled = false; document.getElementById('apAutoApprove').checked = true;

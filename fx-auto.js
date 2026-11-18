@@ -258,7 +258,7 @@
   A.twConnect = () => {
     const c = FX.autoCfg(); if (!c.twClient) return toast('Paste your Twitch app Client ID first.');
     const st = Math.random().toString(36).slice(2); ls.set('fx_twState', st);
-    location.href = `https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=${encodeURIComponent(c.twClient)}&redirect_uri=${encodeURIComponent(redirectUri())}&scope=&state=${st}`;
+    location.href = `https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=${encodeURIComponent(c.twClient)}&redirect_uri=${encodeURIComponent(redirectUri())}&scope=${encodeURIComponent('clips:edit')}&state=${st}`;
   };
   const twGet = async (path) => {
     try { return await FX.fetchJSON(TW + path, { headers: { 'Client-Id': FX.autoCfg().twClient, Authorization: 'Bearer ' + twToken() } }, 'Twitch'); }
