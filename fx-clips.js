@@ -135,25 +135,35 @@
     const maxE = Math.max(1, ...ms.map((m) => m.energy));
     const maxChat = Math.max(1, ...ms.map((m) => m.chat));
     let ai = null, signals = [];
-    if (FX.hasAI() && ms.some((m) => m.transcript)) {
+    // look at the footage too (a few small frames per moment), so silent action and visual chaos count
+    const frames = [];
+    if (FX.hasAI() && FX.scout && c.scoutLook !== false) {
+      say('Looking at the footage…');
+      for (const m of ms) { const f = await FX.scout.frames(file, FX.scout.frameTimes(m)); m.frameCount = f.length; frames.push(...f); }
+    }
+    if (FX.hasAI() && (ms.some((m) => m.transcript) || frames.length)) {
       say('Ranking moments…');
       signals = await gtaSignals(c);
       ai = await FX.ai(r, 'trends', `You are the clip scout for a ${c.game} streamer clip channel. You pick moments that are funny, clutch, chaotic or wholesome AND make sense to a stranger scrolling TikTok. Channel avoids: ${c.avoid}.`,
         `Trending in ${c.game || 'this niche'} communities right now:\n${signals.filter((s) => s.items.length).map((s) => `${s.source}: ${s.items.slice(0, 8).join(' | ')}`).join('\n') || '(unavailable)'}\n\nCandidate moments from the VOD "${file.name}" (loudness = audio hype vs the rest of the stream):\n` +
-        ms.map((m) => `#${m.i} at ${fmt(m.start)} (loudness ${m.energy}): "${m.transcript.slice(0, 700)}"`).join('\n') +
-        `\n\nReturn JSON {"moments":[{"i": number, "hype": 1-10, "standalone": 1-10 (understandable without context), "trending": 1-10 (fits what ${c.game || 'this niche'} fans talk about now), "title": short title, "hook": on-screen hook max 8 words, "concerns": [policy/copyright concerns like slurs, real threats, personal info, radio music, other streamers' content], "skip": boolean, "why": string}]}`, { temperature: 0.4 });
+        ms.map((m) => `#${m.i} at ${fmt(m.start)} (loudness ${m.energy}${m.frameCount ? `, ${m.frameCount} frames attached` : ''}): "${m.transcript.slice(0, 700)}"`).join('\n') +
+        (frames.length ? `\n\nThe attached images are frames in moment order (#${ms.filter((m) => m.frameCount).map((m) => `${m.i}×${m.frameCount}`).join(', #')}): just before, on, and just after each hype peak. Use them to judge what visibly happens.` : '') +
+        `\n\nReturn JSON {"moments":[{"i": number, "hype": 1-10, "standalone": 1-10 (understandable without context), "trending": 1-10 (fits what ${c.game || 'this niche'} fans talk about now), "see": one sentence on what happens on screen ("" if no frames), "hookScore": 1-10 (would the first 3 seconds stop a scroller), "story": 1-10 (clear setup then escalation), "payoff": 1-10 (ends on a punchline, reaction or reveal), "retentionTips": [up to 2 short edit tips], "title": short title, "hook": on-screen hook max 8 words, "concerns": [policy/copyright concerns like slurs, real threats, personal info, radio music, other streamers' content], "skip": boolean, "why": string}]}`, { temperature: 0.4, images: frames });
     }
     const out = [];
     for (const m of ms) {
       const a = (ai?.moments || []).find((x) => +x.i === m.i) || {};
       const scores = { hype: a.hype ?? Math.round((m.energy / maxE) * 10), standalone: a.standalone ?? 5, trending: a.trending ?? 5, loudness: Math.round((m.energy / maxE) * 10), ...(m.chat ? { viewerClips: Math.max(4, Math.round((m.chat / maxChat) * 10)) } : {}) };
+      // retention scorecard on the part that becomes the clip (the window is padded ~6s before / 8s after)
+      const from = Math.max(0, m.peak - len * 0.6 - m.start), retention = FX.scout ? FX.scout.retention(a, m.words.length ? FX.scout.pacing(m.words, from, Math.min(m.len, from + len)) : null, m.energy / maxE) : null;
+      if (retention) scores.retention = Math.round(retention.score / 10);
       const idea = {
         id: 'mom_' + now().toString(36) + m.i, type: 'moment', created: now(), status: a.skip ? 'rejected' : 'new', rejectReason: a.skip ? a.why : '',
         vodKey: entry.key, vodName: file.name, start: m.start, len: m.len, peak: m.peak, energy: m.energy, transcript: m.transcript, words: m.words, wavFile: m.wavFile,
         topic: a.title || `${file.name.replace(/\.\w+$/, '')} @ ${fmt(m.start)}`, description: a.why || (m.chat && !m.energy ? `Viewers clipped this on Twitch (${m.chat} clip views)` : `Hype moment at ${fmt(m.start)} (loudness ${m.energy}× the stream average)`),
-        hook: a.hook || 'WAIT FOR IT…', hookStyle: 'moment', concerns: a.concerns || [], scores,
-        rank: Math.round((scores.hype * 0.4 + scores.standalone * 0.3 + scores.trending * 0.15 + scores.loudness * 0.15 + (scores.viewerClips || 0) * 0.4) * 10) / 10,
-        method: (ai ? 'audio hype + transcript + AI ranking' : 'audio hype only (no OpenAI key)') + (m.chat ? ' + Twitch viewer clips' : ''), signals: signals.map((s) => s.source).concat(m.chat ? [`Twitch: viewers clipped this (${m.chat} clip views)`] : []),
+        hook: a.hook || 'WAIT FOR IT…', hookStyle: 'moment', concerns: a.concerns || [], scores, see: typeof a.see === 'string' ? a.see.slice(0, 240) : '', retention,
+        rank: Math.round((scores.hype * 0.35 + scores.standalone * 0.25 + scores.trending * 0.1 + scores.loudness * 0.1 + (scores.retention ?? 5) * 0.2 + (scores.viewerClips || 0) * 0.4) * 10) / 10,
+        method: (ai ? `audio hype + transcript${frames.length ? ' + footage frames' : ''} + AI ranking + retention scorecard` : 'audio hype only (no OpenAI key)') + (m.chat ? ' + Twitch viewer clips' : ''), signals: signals.map((s) => s.source).concat(m.chat ? [`Twitch: viewers clipped this (${m.chat} clip views)`] : []),
       };
       await FX.db.ideas.put(idea); out.push(idea);
     }
@@ -230,7 +240,7 @@
       method = 'AI clip plan';
       const fix = r.revisionNote ? `\nTHIS IS A REVISION. Fix: ${(r.reports[r.revisionNote.from]?.items || []).filter((i) => i.sev !== 'low').map((i) => `${i.where}: ${i.issue} → ${i.fix}`).join(' | ')}` : '';
       const out = await FX.ai(r, 'script', `You edit ${c.game || 'stream'} clips for TikTok/Shorts/Reels. ${c.style}. Tone: ${c.tone}. Never put words in the streamer's mouth.`,
-        `Moment transcript with timestamps (seconds from clip start, clip is ${m.len.toFixed(1)}s):\n${(m.words || []).map((w) => `${w.start.toFixed(1)} ${w.word}`).join(' ').slice(0, 5000)}\n${r.research?.context ? `Context note: ${r.research.context}\n` : ''}${fix}\n` +
+        `Moment transcript with timestamps (seconds from clip start, clip is ${m.len.toFixed(1)}s):\n${(m.words || []).map((w) => `${w.start.toFixed(1)} ${w.word}`).join(' ').slice(0, 5000)}\n${r.research?.context ? `Context note: ${r.research.context}\n` : ''}${m.see ? `On screen at the peak: ${m.see}\n` : ''}${m.retention?.tips?.length ? `Retention notes from the scout (use them when choosing trimStart/trimEnd and the hook): ${m.retention.tips.join(' ')}\n` : ''}${fix}\n` +
         `Pick the tightest window (8–${c.clipLen}s) that starts as late as possible while keeping the setup, ends right after the payoff/reaction, and does not cut mid-sentence. The first 2 seconds must already be interesting. Return JSON {"trimStart": seconds, "trimEnd": seconds, "hook": on-screen hook max 8 words (no false claims), "title": short honest title, "intro": ${c.introCommentary ? 'ONE short spoken sentence (max 14 words) that gives the context a stranger needs, in our own voice, or "" if the clip explains itself' : '""'}}`, { temperature: 0.5 });
       if (out) {
         const a = Math.max(0, Math.min(m.len - 5, +out.trimStart || 0)), b = Math.min(m.len, Math.max(a + 5, +out.trimEnd || m.len));

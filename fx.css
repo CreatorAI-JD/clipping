@@ -187,3 +187,12 @@ body.modal-open{overflow:hidden}
 .hook-card .row { gap: 8px; flex-wrap: wrap; }
 @media (max-width: 700px) { .hook-top { grid-template-columns: 1fr; } .hook-top > canvas { justify-self: center; } }
 .campaign-rules{margin:6px 0 8px}.campaign-rules li{margin:2px 0}
+/* Moment Scout: search + retention scorecard (fx-scout.js) */
+.scout-search .row{flex-wrap:wrap}
+.scout-search input[type=search]{flex:1 1 220px;min-width:0}
+.idea[hidden]{display:none}
+.rt summary{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;cursor:pointer;font-size:.85rem}
+.rt-s{font-weight:800;color:var(--accent)}
+.rt-p{display:inline-flex;gap:4px;padding:2px 8px;border-radius:999px;border:1px solid var(--line)}
+.rt-p span{color:var(--muted,#8a8f98)}
+.rt ul{margin:6px 0 0 18px;padding:0}
