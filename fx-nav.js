@@ -12,6 +12,7 @@
   const PAGES = [
     ['workshop', 'Workshop', 'home robots start line stop status', 'Live view of the robots, start/stop the line'],
     ['live', 'Live Watch', 'twitch stream chat spike hype watch live clip moment', 'Watch live streams, clip when chat spikes'],
+    ['scout', 'Clip Scout', 'trending popular viral clips kick twitch youtube find hunt scavenge internet', 'Find clips blowing up right now'],
     ['clipper', 'Stream Clipper', 'vod upload video cut highlights campaign tjr', 'Drop a VOD, get vertical clips'],
     ['faceless', 'Faceless Generator', 'ai script voice faceless facts', 'AI-written faceless videos'],
     ['autopilot', 'Autopilot', 'schedule folder auto approve post', 'Clip a folder on a schedule'],
@@ -41,6 +42,7 @@
     ['Emergency STOP', 'halt panic stop everything', () => clickEl('workshop', '[data-act="stop"]')],
     ['Start watching live streams', 'live twitch watch', () => { openTab('live'); setTimeout(() => (FX.live?.watching ? toast('Already watching.') : $('[data-live="start"]')?.click()), 100); }],
     ['Add a Twitch channel to Live Watch', 'live channel streamer', () => focusEl('live', '#lvChannels')],
+    ['Hunt for clips blowing up', 'trending viral popular scout find', () => { openTab('scout'); setTimeout(() => FX.scout?.hunt(), 100); }],
     ['Drop a VOD into the Stream Clipper', 'upload video file', () => focusEl('clipper', '#vodDrop')],
     ['Pick a clipping campaign (TJR…)', 'campaign tjr content rewards', () => focusEl('clipper', '#campaignBox select, #campaignBox')],
     ['Make a faceless video', 'generate ai', () => focusEl('faceless', '#genBtn, #faceless button.primary')],

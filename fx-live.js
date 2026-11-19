@@ -28,11 +28,23 @@
   const setCfg = (p) => ls.set('fx_live', { ...cfg(), ...p });
   const L = FX.live = {
     IRC: 'wss://irc-ws.chat.twitch.tv:443', TW: 'https://api.twitch.tv/helix',
+    KICK: 'https://kick.com/api/v2', KICK_WS: 'wss://ws-us2.pusher.com/app/32cbd69e4b950bf97679?protocol=7&client=js&version=8.4.0&flash=false',
     chans: new Map(), moments: ls.get('fx_liveMoments', []), watching: false, timer: null, clock: null,
   };
   const saveMoments = () => { L.moments = L.moments.slice(0, 60); ls.set('fx_liveMoments', L.moments); };
-  const cleanLogin = (x) => String(x || '').toLowerCase().replace(/^.*twitch\.tv\//, '').replace(/[^a-z0-9_]/g, '');
-  const logins = () => [...new Set(FX.lines(cfg().channels).map(cleanLogin).filter(Boolean))].slice(0, 6);
+  // "xqc" or twitch.tv/xqc → Twitch; "kick:xqc" or kick.com/xqc → Kick (stored as "kick:xqc")
+  const cleanLogin = (x) => {
+    const t = String(x || '').trim().toLowerCase();
+    const k = t.match(/^(?:kick:|(?:https?:\/\/)?(?:www\.)?kick\.com\/)([a-z0-9_-]+)/);
+    if (k) return 'kick:' + k[1];
+    return t.replace(/^.*twitch\.tv\//, '').replace(/[^a-z0-9_]/g, '');
+  };
+  const isKick = (key) => String(key).startsWith('kick:');
+  const nameOf = (key) => String(key).replace(/^kick:/, '');
+  const chanUrl = (key) => isKick(key) ? 'https://kick.com/' + nameOf(key) : 'https://www.twitch.tv/' + key;
+  L.cleanLogin = cleanLogin;
+  const MAX_CH = 8;
+  const logins = () => [...new Set(FX.lines(cfg().channels).map(cleanLogin).filter(Boolean))].slice(0, MAX_CH);
   const hhmmss = (s) => { s = Math.max(0, Math.round(s)); return `${Math.floor(s / 3600)}h${Math.floor(s / 60) % 60}m${s % 60}s`; };
   const clockTime = (t) => new Date(t).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', second: '2-digit' });
 
@@ -106,6 +118,7 @@
 
   /* ---------------- chat connection (anonymous, read-only) ---------------- */
   function connect(st) {
+    if (st.kick) return connectKick(st).catch((e) => { st.status = 'error'; st.err = e.message; paintChans(); });
     let ws;
     try { ws = new WebSocket(L.IRC); } catch (e) { st.status = 'error'; st.err = e.message; return; }
     st.ws = ws; st.status = 'connecting';
@@ -134,7 +147,42 @@
       paintChans();
     };
   }
-  const newChan = (login) => ({ login, ws: null, status: 'connecting', buckets: [], recent: [], hist: [], total: 0, since: 0, lastSpike: 0, retries: 0, now: 0, base: null, need: null, state: 'learning', active: null, live: null, id: null });
+  /* Kick chat: public Pusher websocket, read-only, no login */
+  async function kickChannel(st) {
+    const r = await fetch(`${L.KICK}/channels/${encodeURIComponent(st.name)}`, { credentials: 'omit' }).catch(() => null);
+    if (!r) throw new Error("Couldn't reach Kick");
+    if (r.status === 404) throw new Error('Kick channel not found');
+    if (!r.ok) throw new Error('Kick ' + r.status);
+    const j = await r.json();
+    st.chatroom = j.chatroom?.id; if (!st.chatroom) throw new Error('Kick chat not found');
+    const ls2 = j.livestream;
+    st.live = ls2 ? { started: Date.parse(String(ls2.start_time || ls2.created_at || '').replace(' ', 'T') + (/Z|[+-]\d\d:?\d\d$/.test(ls2.start_time || '') ? '' : 'Z')), title: ls2.session_title, game: ls2.categories?.[0]?.name, viewers: ls2.viewer_count } : false;
+  }
+  const kickText = (t) => String(t || '').replace(/\[emote:\d+:([^\]]+)\]/g, '$1');
+  async function connectKick(st) {
+    st.status = 'connecting';
+    if (!st.chatroom) await kickChannel(st);
+    if (!L.watching || L.chans.get(st.login) !== st) return;
+    const ws = new WebSocket(L.KICK_WS);
+    st.ws = ws;
+    ws.onmessage = (e) => {
+      let m; try { m = JSON.parse(e.data); } catch { return; }
+      if (m.event === 'pusher:connection_established') { st.retries = 0; ws.send(JSON.stringify({ event: 'pusher:subscribe', data: { auth: '', channel: `chatrooms.${st.chatroom}.v2` } })); }
+      else if (m.event === 'pusher_internal:subscription_succeeded') { st.status = 'watching'; if (!st.since) st.since = T(); paintChans(); }
+      else if (m.event === 'pusher:ping') ws.send(JSON.stringify({ event: 'pusher:pong', data: {} }));
+      else if (m.event === 'App\\Events\\ChatMessageEvent') { let d; try { d = typeof m.data === 'string' ? JSON.parse(m.data) : m.data; } catch { return; } L.ingest(st.login, d.sender?.username || d.sender?.slug || '?', kickText(d.content)); }
+      else if (/Subscription|GiftedSubscriptions/.test(m.event || '')) ingestEvent(st.login, 'sub');
+      else if (/StreamHost|Raid/i.test(m.event || '')) ingestEvent(st.login, 'raid');
+      else if (m.event === 'pusher:error') { st.status = 'error'; st.err = 'Kick chat: ' + (m.data?.message || 'error'); paintChans(); }
+    };
+    ws.onclose = () => {
+      if (st.ws !== ws) return;
+      st.ws = null;
+      if (L.watching && L.chans.get(st.login) === st) { st.status = 'reconnecting'; setTimeout(() => L.chans.get(st.login) === st && L.watching && connect(st), Math.min(30e3, 2000 * ++st.retries)); }
+      paintChans();
+    };
+  }
+  const newChan = (login) => ({ login, kick: isKick(login), name: nameOf(login), chatroom: null, ws: null, status: 'connecting', buckets: [], recent: [], hist: [], total: 0, since: 0, lastSpike: 0, retries: 0, now: 0, base: null, need: null, state: 'learning', active: null, live: null, id: null });
 
   L.start = () => {
     const list = logins();
@@ -181,10 +229,12 @@
   }
   async function refreshLive() {
     lastLiveCheck = T();
-    if (!twReady() || !L.chans.size) return;
-    const list = [...L.chans.keys()];
+    for (const st of L.chans.values()) if (st.kick && st.chatroom) kickChannel(st).then(paintChans).catch(() => {});
+    const list = [...L.chans.keys()].filter((k) => !isKick(k));
+    if (!twReady() || !list.length) return;
     const j = await tw('/streams?' + list.map((l) => 'user_login=' + encodeURIComponent(l)).join('&'));
     for (const st of L.chans.values()) {
+      if (st.kick) continue;
       const s = (j.data || []).find((x) => x.user_login.toLowerCase() === st.login);
       st.live = s ? { started: Date.parse(s.started_at), title: s.title, game: s.game_name, viewers: s.viewer_count } : false;
       if (s) st.id = s.user_id;
@@ -209,16 +259,16 @@
     render();
     const jobs = [];
     // a test spike never makes a real Twitch clip or timestamp
-    if (c.twClip && twReady() && !m.test) jobs.push(makeTwitchClip(st, m));
-    if (c.mark && twReady() && !m.test) jobs.push(markVod(st, m));
-    if (c.grab && G.login === st.login && G.stream) jobs.push(grabMoment(m));
+    if (c.twClip && twReady() && !m.test && !st.kick) jobs.push(makeTwitchClip(st, m));
+    if (c.mark && twReady() && !m.test && !st.kick) jobs.push(markVod(st, m));
+    if (c.grab && grabbing(st.login)) jobs.push(grabMoment(m));
     await Promise.allSettled(jobs);
     saveMoments(); render();
   }
   L.onMoment = onMoment;
 
   function alertMoment(m) {
-    const c = cfg(), msg = `Hype on ${m.login}: chat is ${m.strength}× normal${m.top[0] ? ' (' + m.top[0] + ')' : ''}`;
+    const c = cfg(), msg = `Hype on ${nameOf(m.login)}: chat is ${m.strength}× normal${m.top[0] ? ' (' + m.top[0] + ')' : ''}`;
     try { toast(msg); } catch {}
     log(msg);
     if (c.sound) beep();
@@ -278,62 +328,101 @@
     return out;
   };
 
-  /* ---------------- rolling recording of this tab (optional) ---------------- */
-  const G = L.grabber = { stream: null, login: null, recs: [], timer: null, startedAt: 0 };
+  /* ---------------- rolling recording of this tab (optional) ----------------
+     One screen share of this tab; each player you record gets its own cropped copy of it, with its
+     own rolling recorder, so several streams can be recorded at the same time. */
+  const G = L.grabber = { share: null, by: new Map() }; // by: login -> { stream, own, recs, timer, startedAt }
   const grabMime = () => ['video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm'].find((m) => window.MediaRecorder && MediaRecorder.isTypeSupported(m)) || '';
-  function spawnRec() {
-    if (!G.stream) return;
+  const grabbing = (login) => G.by.has(login);
+  // a new recorder starts every few seconds and only the newest two are kept per player (plus any being
+  // cut into a clip), so there is always one that began before the moment's pre-roll without running
+  // a pile of video encoders at once when several players are recording
+  const spawnEvery = () => L.spawnEvery ?? Math.max(30e3, ((+cfg().preRoll || 25) + 10) * 1000);
+  function spawnRec(g) {
+    if (!g.stream) return;
     const mimeType = grabMime();
-    const r = { rec: new MediaRecorder(G.stream, { mimeType, videoBitsPerSecond: 6_000_000, audioBitsPerSecond: 160_000 }), chunks: [], start: T(), hold: false, type: (mimeType || 'video/webm').split(';')[0] };
+    const n = Math.max(1, G.by.size); // keep total bitrate sane when several players record at once
+    const vbr = Math.max(1_500_000, Math.round(6_000_000 / n));
+    let rec;
+    try { rec = new MediaRecorder(g.stream, { mimeType, videoBitsPerSecond: vbr, audioBitsPerSecond: 128_000 }); } catch (e) { log('Live Watch recorder: ' + e.message); return; }
+    const r = { rec, chunks: [], start: T(), hold: false, type: (mimeType || 'video/webm').split(';')[0] };
     r.rec.ondataavailable = (e) => e.data.size && r.chunks.push(e.data);
+    r.rec.onerror = (e) => { r.dead = true; log('Live Watch recorder error: ' + (e.error?.message || 'stopped')); };
     r.done = new Promise((res) => (r.rec.onstop = res));
     r.rec.start(1000);
-    G.recs.push(r);
-    const maxAge = (cfg().preRoll + cfg().postRoll + 60) * 1000 + (L.spawnEvery ?? 45e3);
-    for (const o of G.recs) if (!o.hold && o !== r && T() - o.start > maxAge) { try { o.rec.stop(); } catch {} o.dead = true; }
-    G.recs = G.recs.filter((o) => !o.dead);
+    g.recs.push(r);
+    const free = g.recs.filter((o) => !o.hold && !o.dead);
+    for (const o of free.slice(0, Math.max(0, free.length - 2))) { try { o.rec.stop(); } catch {} o.dead = true; }
+    g.recs = g.recs.filter((o) => !o.dead || o.hold);
+  }
+  // ask Chrome once to share this tab; every recorded player reuses it
+  async function ensureShare() {
+    const live = G.share?.getVideoTracks()[0]?.readyState === 'live';
+    if (live) return G.share;
+    if (!navigator.mediaDevices?.getDisplayMedia) { toast('This browser cannot record a tab. Use Chrome or Edge on a computer.'); return null; }
+    let s;
+    try {
+      s = await navigator.mediaDevices.getDisplayMedia({ video: { frameRate: 30 }, audio: { suppressLocalAudioPlayback: false }, preferCurrentTab: true, selfBrowserSurface: 'include', surfaceSwitching: 'exclude', systemAudio: 'include' });
+    } catch { toast('Recording not started (screen sharing was cancelled).'); return null; }
+    if (!s.getAudioTracks().length) toast('Recording without sound: share "This tab" and keep "Also share tab audio" on, then unmute the player.');
+    s.getVideoTracks()[0]?.addEventListener('ended', () => { stopGrab(); render(); });
+    G.share = s;
+    return s;
   }
   L.startGrab = async (login, streamOverride) => {
-    stopGrab();
-    let s = streamOverride;
+    if (grabbing(login)) return true;
+    let s = streamOverride, own = !!streamOverride;
     if (!s) {
-      if (!navigator.mediaDevices?.getDisplayMedia) { toast('This browser cannot record a tab. Use Chrome or Edge on a computer.'); return false; }
-      try {
-        s = await navigator.mediaDevices.getDisplayMedia({ video: { frameRate: 30 }, audio: { suppressLocalAudioPlayback: false }, preferCurrentTab: true, selfBrowserSurface: 'include', surfaceSwitching: 'exclude', systemAudio: 'include' });
-      } catch { toast('Recording not started (screen sharing was cancelled).'); return false; }
-      const [vt] = s.getVideoTracks();
-      // crop the shared tab down to just the player (Chrome's Region Capture)
+      const share = await ensureShare(); if (!share) return false;
+      // a copy of the tab video, cropped down to just this player (Chrome's Region Capture)
+      const vt = share.getVideoTracks()[0].clone();
       try { const el = document.querySelector(`[data-player="${login}"]`); if (el && window.CropTarget && vt.cropTo) await vt.cropTo(await CropTarget.fromElement(el)); } catch {}
-      if (!s.getAudioTracks().length) toast('Recording without sound: share "This tab" and keep "Also share tab audio" on, then unmute the player.');
+      s = new MediaStream([vt, ...share.getAudioTracks()]);
     }
-    G.stream = s; G.login = login; G.startedAt = T();
-    s.getVideoTracks()[0]?.addEventListener('ended', () => { stopGrab(); render(); });
-    spawnRec(); G.timer = setInterval(spawnRec, L.spawnEvery ?? 45e3);
+    const g = { stream: s, own, recs: [], timer: null, startedAt: T() };
+    G.by.set(login, g);
+    if (own) s.getVideoTracks()[0]?.addEventListener('ended', () => { stopGrab(login); render(); });
+    spawnRec(g); g.timer = setInterval(() => spawnRec(g), spawnEvery());
     FX.audit('live watch: recording', login, null, 'you').catch(() => {});
     render();
     return true;
   };
-  function stopGrab() {
-    clearInterval(G.timer); G.timer = null;
-    for (const o of G.recs) { if (!o.hold) try { o.rec.stop(); } catch {} }
-    G.recs = G.recs.filter((o) => o.hold);
-    try { G.stream?.getTracks().forEach((t) => t.stop()); } catch {}
-    G.stream = null; G.login = null;
+  // record every player that's showing, from one screen share
+  L.startGrabAll = async () => {
+    if (!cfg().player) { toast('Turn on "Show players" first.'); return false; }
+    const list = [...L.chans.keys()].filter((l) => !grabbing(l));
+    if (!list.length) return true;
+    if (!(await ensureShare())) return false;
+    for (const l of list) await L.startGrab(l);
+    if (G.by.size > 1) toast(`Recording ${G.by.size} players. Keep them all on screen; sound comes from every unmuted player, so unmute only the one(s) you want in the clips.`);
+    return true;
+  };
+  function stopGrab(login) {
+    for (const [l, g] of [...G.by]) {
+      if (login && l !== login) continue;
+      clearInterval(g.timer);
+      for (const o of g.recs) { if (!o.hold) try { o.rec.stop(); } catch {} }
+      // the shared audio track belongs to the screen share, so only stop our own copies
+      try { (g.own ? g.stream.getTracks() : g.stream.getVideoTracks()).forEach((t) => t.stop()); } catch {}
+      G.by.delete(l);
+    }
+    if (!G.by.size && G.share) { try { G.share.getTracks().forEach((t) => t.stop()); } catch {} G.share = null; }
   }
-  L.stopGrab = () => { stopGrab(); render(); };
+  L.stopGrab = (login) => { stopGrab(login); render(); };
 
   async function grabMoment(m) {
     const c = cfg(), pre = +c.preRoll || 25, post = +c.postRoll || 10;
     const from = m.at - pre * 1000;
+    const g = G.by.get(m.login); if (!g) { m.errs.push('Recording: this player was not being recorded'); return; }
     // the recorder that began earliest enough; else the oldest one we have
-    const live = G.recs.filter((o) => !o.dead).sort((a, b) => a.start - b.start);
+    const live = g.recs.filter((o) => !o.dead && !o.hold && o.chunks.length).sort((a, b) => a.start - b.start);
     const r = live.filter((o) => o.start <= from).pop() || live[0];
     if (!r) { m.errs.push('Recording: nothing recorded yet'); return; }
     r.hold = true; m.grab = { status: 'recording' }; render();
     await new Promise((res) => setTimeout(res, (L.postWait ?? post * 1000)));
     try { r.rec.stop(); } catch {}
     await r.done;
-    G.recs = G.recs.filter((o) => o !== r);
+    g.recs = g.recs.filter((o) => o !== r);
     const raw = new Blob(r.chunks, { type: r.type });
     const start = Math.max(0, (from - r.start) / 1000), len = Math.min(90, (m.at + post * 1000 - Math.max(from, r.start)) / 1000);
     await kvSet('live_' + m.id, raw).catch(() => {});
@@ -349,7 +438,7 @@
   L.clipFromGrab = async (m, raw, start, len) => exclusive(async () => {
     startJob('cut', `Cutting the live moment on ${m.login}…`);
     try {
-      const file = new File([raw], `live_${m.login}_${m.at}.webm`, { type: raw.type || 'video/webm' });
+      const file = new File([raw], `live_${nameOf(m.login)}_${m.at}.webm`, { type: raw.type || 'video/webm' });
       await loadVod(file);
       let chunks = null, meta = null, tr = null;
       if (val('apiKey')) {
@@ -364,7 +453,7 @@
       vod.removeAttribute('src'); vod.load();
       const clip = {
         id: Date.now() + '_live', kind: 'clip', source: 'live',
-        title: meta?.title || `${m.login} live moment ${clockTime(m.at)}`,
+        title: meta?.title || `${nameOf(m.login)} live moment ${clockTime(m.at)}`,
         blob, caption: meta ? `${meta.caption} ${meta.hashtags}` : `Chat went crazy 😳 ${val('hashtags')}`,
         score: meta?.score ?? null, status: 'pending', created: Date.now(), transcript: tr?.text || '',
         live: { login: m.login, at: m.at, strength: m.strength, twitchClip: m.clip?.url || null },
@@ -381,27 +470,69 @@
   const sec = document.getElementById('live');
   const esc2 = (t) => String(t ?? '').replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
   const STATE_TXT = { learning: 'Learning normal pace…', calm: 'Calm', warm: 'Heating up', hype: 'HYPE' };
-  function chanCard(st) {
-    const c = cfg(), rec = G.login === st.login;
+  // a channel card is built once and then patched in place, so the stream players never reload
+  function chanHead(st) {
     const liveTxt = st.live ? `Live · ${st.live.viewers?.toLocaleString?.() ?? ''} viewers${st.live.game ? ' · ' + esc2(st.live.game) : ''}` : st.live === false ? 'Offline' : '';
-    return `<div class="card live-chan" data-chan="${st.login}">
-      <div class="row live-head"><h3>${ico('radio')}<a href="https://www.twitch.tv/${st.login}" target="_blank" rel="noopener">${st.login}</a></h3>
+    return `<h3>${ico('radio')}<a href="${chanUrl(st.login)}" target="_blank" rel="noopener">${esc2(st.name)}</a></h3>${st.kick ? '<span class="chip kick">Kick</span>' : ''}
         <span class="chip ${st.status === 'watching' ? 'on' : st.status === 'error' ? 'bad' : ''}" data-m="status">${esc2(st.status === 'error' ? st.err || 'Error' : st.status)}</span>
-        <span class="muted small">${liveTxt}</span></div>
-      ${c.player ? `<div class="live-player" data-player="${st.login}"><iframe title="${st.login} stream" src="https://player.twitch.tv/?channel=${st.login}&parent=${encodeURIComponent(location.hostname || 'localhost')}&muted=true&autoplay=true" allow="autoplay; fullscreen" allowfullscreen></iframe></div>` : ''}
+        ${grabbing(st.login) ? '<span class="chip rec">● REC</span>' : ''}
+        <span class="muted small">${liveTxt}</span>`;
+  }
+  function chanActs(st) {
+    const c = cfg();
+    return `${grabbing(st.login)
+        ? `<button data-live="stopGrab" data-login="${st.login}">${ico('stop')}Stop recording</button>`
+        : `<button data-live="grab" data-login="${st.login}" ${c.player ? '' : 'disabled title="Turn on Show players"'}>${ico('film')}Record clips from this player</button>`}
+        <button data-live="sim" data-login="${st.login}" title="Fake a burst of chat to see what happens">${ico('bolt')}Test a spike</button>`;
+  }
+  function chanCard(st) {
+    const c = cfg();
+    return `<div class="row live-head">${chanHead(st)}</div>
+      ${c.player ? `<div class="live-player" data-player="${st.login}"><iframe title="${esc2(st.name)} stream" src="${st.kick ? `https://player.kick.com/${encodeURIComponent(st.name)}?muted=true&autoplay=true` : `https://player.twitch.tv/?channel=${st.login}&parent=${encodeURIComponent(location.hostname || 'localhost')}&muted=true&autoplay=true`}" allow="autoplay; fullscreen" allowfullscreen></iframe></div>` : ''}
       <div class="live-meter"><div class="live-bar"><i data-m="bar"></i><b data-m="need"></b></div>
         <div class="row small"><span data-m="state" class="live-state">${STATE_TXT[st.state]}</span><span class="muted" data-m="nums"></span></div>
         <canvas class="live-spark" data-m="spark" width="600" height="56" aria-label="Chat activity, last 3 minutes"></canvas></div>
-      <div class="row">${rec
-        ? `<button data-live="stopGrab">${ico('stop')}Stop recording</button><span class="chip on">Recording this player</span>`
-        : `<button data-live="grab" data-login="${st.login}" ${c.player ? '' : 'disabled title="Turn on Show players"'}>${ico('film')}Record clips from this player</button>`}
-        <button data-live="sim" data-login="${st.login}" title="Fake a burst of chat to see what happens">${ico('bolt')}Test a spike</button></div>
-    </div>`;
+      <div class="row live-acts">${chanActs(st)}</div>`;
+  }
+  function syncChans(host) {
+    const c = cfg(), p = c.player ? '1' : '0';
+    host.classList.toggle('many', L.chans.size > 2);
+    for (const el of [...host.children]) if (!L.chans.has(el.dataset.chan) || el.dataset.p !== p) el.remove();
+    for (const st of L.chans.values()) {
+      let el = host.querySelector(`:scope > [data-chan="${st.login}"]`);
+      if (!el) {
+        el = document.createElement('div'); el.className = 'card live-chan'; el.dataset.chan = st.login; el.dataset.p = p;
+        el.innerHTML = chanCard(st); host.appendChild(el);
+      } else {
+        el.querySelector('.live-head').innerHTML = chanHead(st);
+        el.querySelector('.live-acts').innerHTML = chanActs(st);
+      }
+    }
+  }
+  // what the Live Watch + Assembly Line need connected, with paste boxes right here
+  function connCard() {
+    const ai = !!val('apiKey'), up = !!val('upKey'), soc = typeof canPost === 'function' && canPost(), tw = twReady();
+    const n = [ai, up && soc, tw].filter(Boolean).length;
+    const dot = (ok) => `<span class="chip ${ok ? 'on' : ''}">${ok ? 'Connected' : 'Not connected'}</span>`;
+    return `<details class="card lv-conn-card" ${n === 3 ? '' : 'open'}><summary><h3>${ico('link')}Connections</h3><span class="muted small">${n} of 3 connected${n === 3 ? ' · all set' : ''}</span></summary>
+      <div class="lv-conns">
+        <div class="lv-conn"><div class="lv-conn-top"><b>OpenAI</b>${dot(ai)}</div>
+          <p class="muted small">Captions + titles on live clips, hype scores, and the Assembly Line robots (scripts, voice, checks). Get a key at <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener">platform.openai.com/api-keys</a>.</p>
+          <div class="row"><input type="password" id="lvApiKey" value="${esc2(val('apiKey'))}" placeholder="Paste your OpenAI key (sk-…)" autocomplete="off" spellcheck="false"><button data-live="testAi">Save &amp; test</button></div>
+          <div class="small muted" id="lvAiStatus"></div></div>
+        <div class="lv-conn"><div class="lv-conn-top"><b>Upload-Post + socials</b>${dot(up && soc)}</div>
+          <p class="muted small">Posts approved clips to TikTok, YouTube, Instagram and more. Free key at <a href="https://app.upload-post.com" target="_blank" rel="noopener">app.upload-post.com</a> → API Keys.</p>
+          <div class="row"><input type="password" id="lvUpKey" value="${esc2(val('upKey'))}" placeholder="Paste your Upload-Post key" autocomplete="off" spellcheck="false"><button data-live="saveUp">Save &amp; check</button></div>
+          <div class="row"><button data-live="socials">${ico('link')}${soc ? 'Manage socials' : 'Connect socials'}</button><span class="small muted">${up ? (soc ? 'Posting is ready.' : 'Key saved. Now connect your socials.') : ''}</span></div></div>
+        <div class="lv-conn"><div class="lv-conn-top"><b>Twitch</b>${dot(tw)}</div>
+          <p class="muted small">Instant Twitch clips + VOD timestamps when chat pops off. Chat reading works without it.</p>
+          <div class="row"><button data-live="twOpen">${tw ? 'Twitch settings' : 'Set up Twitch'}</button></div></div>
+      </div></details>`;
   }
   function momentRow(m) {
     const g = m.grab, rec = m.vod?.url;
     return `<div class="live-moment ${m.status}" data-id="${m.id}">
-      <div class="lm-main"><div class="lm-top"><b>${m.login}</b> <span class="chip hype">×${m.strength}</span> <span class="muted small">${clockTime(m.at)} · ${m.users} chatters</span>${m.test ? '<span class="chip">test</span>' : ''}</div>
+      <div class="lm-main"><div class="lm-top"><b>${esc2(nameOf(m.login))}</b>${isKick(m.login) ? ' <span class="chip kick">Kick</span>' : ''} <span class="chip hype">×${m.strength}</span> <span class="muted small">${clockTime(m.at)} · ${m.users} chatters</span>${m.test ? '<span class="chip">test</span>' : ''}</div>
         <div class="small muted">${m.top.map(esc2).join(' · ') || ''}</div>
         <details class="small"><summary>What chat said</summary><div class="log">${m.sample.map(esc2).join('\n')}</div></details>
         ${m.errs.length ? `<div class="small bad-text">${m.errs.map(esc2).join('<br>')}</div>` : ''}</div>
@@ -418,20 +549,26 @@
     const c = cfg(), tw = twReady(), auto = FX.autoCfg?.() || {};
     const newCount = L.moments.filter((x) => x.status === 'new').length;
     const badge = document.querySelector('nav button[data-tab="live"] .pill'); if (badge) { badge.hidden = !newCount; badge.textContent = newCount; }
-    const focused = document.activeElement?.closest?.('#live') ? document.activeElement.id : null;
-    sec.innerHTML = `
+    if (!sec.querySelector('#lvTop')) sec.innerHTML = '<div id="lvTop"></div><div class="live-chans" id="lvChans"></div><div id="lvMoments"></div>';
+    const top = sec.querySelector('#lvTop');
+    const fe = document.activeElement, focused = top.contains(fe) ? fe.id : null, sel = focused && fe.selectionStart != null ? [fe.selectionStart, fe.selectionEnd] : null, typed = focused && fe.type !== 'checkbox' ? fe.value : null;
+    const openD = [...top.querySelectorAll('details[data-k]')].reduce((o, d) => ((o[d.dataset.k] = d.open), o), {});
+    const recN = G.by.size, many = L.chans.size > 1;
+    top.innerHTML = `
       <h2>Live Watch</h2>
       <p class="muted">Watches streams while they're live and reads chat. When chat suddenly blows up (lots of different people, hype words, "clip it"), that's a moment: it grabs it right away, before the stream ends or anyone else clips it. Nothing posts from here; clips land in your Review Queue.</p>
+      ${connCard()}
       <div class="card">
-        <div class="row"><h3>${ico('radio')}Channels to watch</h3><span class="chip ${L.watching ? 'on' : ''}">${L.watching ? 'Watching ' + L.chans.size : 'Off'}</span></div>
+        <div class="row"><h3>${ico('radio')}Channels to watch</h3><span class="chip ${L.watching ? 'on' : ''}">${L.watching ? 'Watching ' + L.chans.size : 'Off'}</span>${recN ? `<span class="chip rec">● Recording ${recN}</span>` : ''}</div>
         <div class="grid2">
-          <label>Twitch channel(s), comma separated (up to 6)<input id="lvChannels" value="${esc2(c.channels)}" placeholder="e.g. kaicenat, xqc" autocomplete="off"></label>
+          <label>Channels, comma separated (up to ${MAX_CH}). Twitch: name. Kick: kick:name or a kick.com link<input id="lvChannels" value="${esc2(c.channels)}" placeholder="e.g. kaicenat, xqc, kick:n3on" autocomplete="off"></label>
           <label>How easily it triggers
             <select id="lvSens"><option value="low" ${c.sens === 'low' ? 'selected' : ''}>Only huge moments</option><option value="med" ${c.sens === 'med' ? 'selected' : ''}>Balanced</option><option value="high" ${c.sens === 'high' ? 'selected' : ''}>Catch more moments</option></select></label>
         </div>
         <div class="row">${L.watching ? `<button class="primary" data-live="stop">${ico('stop')}Stop watching</button>` : `<button class="primary" data-live="start">${ico('play')}Start watching</button>`}
-          <span class="muted small">Keep this tab open. Chat is read anonymously; no Twitch login needed for alerts.</span></div>
-        <details><summary class="small">What to do when a moment hits</summary>
+          ${L.watching && many && c.player ? (recN >= L.chans.size ? `<button data-live="stopGrab">${ico('stop')}Stop all recordings</button>` : `<button data-live="grabAll">${ico('film')}Record all ${L.chans.size} players</button>`) : ''}
+          <span class="muted small">Keep this tab open${recN > 1 ? ' and every recorded player on screen' : ''}. Chat is read anonymously; no Twitch or Kick login needed for alerts.</span></div>
+        <details data-k="opts"><summary class="small">What to do when a moment hits</summary>
           <div class="grid2" style="margin-top:10px">
             <label class="check"><input type="checkbox" id="lvTwClip" ${c.twClip ? 'checked' : ''}> Make a Twitch clip instantly ${tw ? '' : '<span class="muted">(connect Twitch below)</span>'}</label>
             <label class="check"><input type="checkbox" id="lvMark" ${c.mark ? 'checked' : ''}> Save the VOD timestamp for the Moment Scout ${tw ? '' : '<span class="muted">(connect Twitch below)</span>'}</label>
@@ -446,16 +583,18 @@
             <label>Minimum chat score per 10 sec<input type="number" id="lvMin" min="3" max="500" value="${c.minMsgs}"></label>
             <label>Different chatters needed<input type="number" id="lvUsers" min="1" max="50" value="${c.users}"></label>
           </div></details>
-        <details ${tw ? '' : 'open'}><summary class="small">Twitch connection ${tw ? '(connected)' : '(optional, for instant clips + VOD timestamps)'}</summary>
+        <details data-k="tw" id="lvTwBox" ${tw ? '' : 'open'}><summary class="small">Twitch connection ${tw ? '(connected)' : '(optional, for instant clips + VOD timestamps)'}</summary>
           <div class="row" style="margin-top:10px"><label style="flex:1">Twitch app Client ID<input id="lvTwClient" value="${esc2(auto.twClient || '')}" placeholder="from dev.twitch.tv/console"></label>
             <button data-live="twConnect">${tw ? 'Reconnect Twitch' : 'Connect Twitch'}</button></div>
-          <p class="muted small">Make an app at dev.twitch.tv/console with OAuth redirect URL <code>${esc2(location.origin + location.pathname)}</code>. AutoClipper asks for permission to create clips. If you connected before this update, press Reconnect once so clips are allowed. Only clip channels whose clips you're allowed to post (your own, a clipping campaign, or written permission).</p>
+          <p class="muted small">Make an app at <a href="https://dev.twitch.tv/console/apps/create" target="_blank" rel="noopener">dev.twitch.tv/console</a> (Category: Application Integration, Client Type: Public) with OAuth redirect URL <code>${esc2(location.origin + location.pathname)}</code>, copy its Client ID here, then press Connect. AutoClipper asks for permission to create clips. If you connected before this update, press Reconnect once so clips are allowed. Only clip channels whose clips you're allowed to post (your own, a clipping campaign, or written permission).</p>
         </details>
-      </div>
-      <div class="live-chans">${[...L.chans.values()].map(chanCard).join('') || ''}</div>
+      </div>`;
+    for (const d of top.querySelectorAll('details[data-k]')) if (d.dataset.k in openD) d.open = openD[d.dataset.k];
+    if (focused) { const el = document.getElementById(focused); if (el && typed != null) el.value = typed; el?.focus(); if (sel) try { el.setSelectionRange(...sel); } catch {} }
+    syncChans(sec.querySelector('#lvChans'));
+    sec.querySelector('#lvMoments').innerHTML = `
       <div class="row"><h3>${ico('flag')}Moments caught</h3><span class="muted small">${L.moments.length ? L.moments.length + ' saved' : ''}</span>${L.moments.length ? '<button data-live="clearAll">Clear list</button>' : ''}</div>
       <div class="live-moments">${L.moments.map(momentRow).join('') || emptyBot('No moments yet. Start watching a channel; when chat spikes, the moment shows up here.')}</div>`;
-    if (focused) document.getElementById(focused)?.focus();
     paintMeters();
   }
   L.render = render;
@@ -489,7 +628,15 @@
     cooldown: Math.min(900, Math.max(20, +document.getElementById('lvCool')?.value || 90)), minMsgs: Math.min(500, Math.max(3, +document.getElementById('lvMin')?.value || 8)),
     users: Math.min(50, Math.max(1, +document.getElementById('lvUsers')?.value || 3)),
   });
+  // the paste boxes here write into the real Settings / Accounts fields, which save themselves
+  function setField(id, v) {
+    const el = document.getElementById(id); if (!el || v == null) return;
+    el.value = String(v).trim();
+    el.dispatchEvent(new Event('change', { bubbles: true }));
+  }
   sec?.addEventListener('change', (e) => {
+    if (e.target.id === 'lvApiKey') { setField('apiKey', e.target.value); render(); return; }
+    if (e.target.id === 'lvUpKey') { setField('upKey', e.target.value); render(); return; }
     if (!e.target.id?.startsWith('lv')) return;
     if (e.target.id === 'lvTwClient') { const a = ls.get('fx_auto', {}) || {}; ls.set('fx_auto', { ...a, twClient: e.target.value.trim() }); return; }
     readForm();
@@ -508,7 +655,23 @@
     if (act === 'start') { readForm(); L.start(); }
     else if (act === 'stop') { L.stop(); FX.audit('live watch: stopped', '', null, 'you').catch(() => {}); }
     else if (act === 'grab') { await L.startGrab(b.dataset.login); }
-    else if (act === 'stopGrab') L.stopGrab();
+    else if (act === 'grabAll') { await L.startGrabAll(); }
+    else if (act === 'stopGrab') L.stopGrab(b.dataset.login);
+    else if (act === 'testAi') {
+      const st = (t) => { const el = document.getElementById('lvAiStatus'); if (el) el.textContent = t; };
+      setField('apiKey', document.getElementById('lvApiKey')?.value);
+      if (!val('apiKey')) return st('Paste a key first.');
+      st('Testing…');
+      try { await chat('Reply with just: OK'); render(); st('OpenAI key works.'); } catch (e) { st('' + e.message); }
+    }
+    else if (act === 'saveUp') {
+      setField('upKey', document.getElementById('lvUpKey')?.value);
+      if (!val('upKey')) return toast('Paste your Upload-Post key first.');
+      try { await refreshAccounts(); } catch {} render();
+      toast(typeof canPost === 'function' && canPost() ? 'Upload-Post connected. Posting is ready.' : 'Key saved. Next: Connect socials.');
+    }
+    else if (act === 'socials') openTab('accounts');
+    else if (act === 'twOpen') { const d = document.getElementById('lvTwBox'); if (d) { d.open = true; d.scrollIntoView({ behavior: 'smooth', block: 'center' }); document.getElementById('lvTwClient')?.focus(); } }
     else if (act === 'sim') { L.simulate(b.dataset.login); }
     else if (act === 'queue') openTab('queue');
     else if (act === 'twConnect') { const v = document.getElementById('lvTwClient')?.value.trim(); if (v) { const a = ls.get('fx_auto', {}) || {}; ls.set('fx_auto', { ...a, twClient: v }); } FX.auto?.twConnect?.(); }

@@ -13,16 +13,31 @@ Everything runs in your browser; keys are stored only on your computer.
 
 ## Live Watch (catch moments while the stream is live)
 
-Live Watch tab → type the Twitch channel(s) → **Start watching**. Keep the tab open.
+Live Watch tab → type Twitch channel names and/or Kick channels (`kick:name` or a kick.com link) → **Start watching**. Keep the tab open.
 
 - It reads each channel's public chat anonymously (no login) and learns that chat's normal pace over the first few minutes.
 - When the last 10 seconds jump well above normal, with enough *different* people reacting (hype emotes, "clip it", copy-paste waves, raids), that's a moment. One person spamming can't trigger it (each chatter counts for at most 3 points).
 - On a moment it can: make a **Twitch clip** instantly, save the **VOD timestamp** (when you drop that VOD later, the Moment Scout ranks those spots first), and beep + send a desktop notification. These two need Twitch connected (Live Watch → Twitch connection; it now asks for the `clips:edit` permission, so press Reconnect once if you connected before).
 - **Record clips from this player**: share this tab when Chrome asks (keep "Also share tab audio" on and unmute the player). AutoClipper keeps a rolling recording of the player, and each moment becomes a captioned 1080×1920 clip in your Review Queue (25 s before the spike + 10 s after by default; change it under "What to do when a moment hits"). The raw recording is kept so you can download it.
+- **Several streams at once**: type up to 8 channels. Each gets its own player, meter and moments. With 2+ channels, **Record all players** records every player from a single screen share (keep them on screen; sound comes from every unmuted player, so unmute only the one(s) you want in the clips). Players no longer reload when the page updates.
+- **Connections** card at the top: paste your OpenAI key (captions/titles on live clips + the Assembly Line robots) and Upload-Post key right there, connect socials, and set up Twitch. It shows what's still missing.
 - **Test a spike** fakes a burst of chat so you can see the whole flow without waiting.
 - Sensitivity: "Only huge moments", "Balanced", "Catch more moments", plus minimum score, chatters needed and the wait between moments.
 
 Nothing is posted from Live Watch: every clip still goes through the publish gate and your approval. Only clip channels you are allowed to post (your own, a clipping campaign, or written permission).
+
+## Clip Scout (find clips blowing up right now)
+
+Clip Scout tab → type games/categories (and optionally streamers) → **Hunt now**.
+
+- **Kick**: public top clips per category/channel, no setup.
+- **Twitch**: top clips per game or channel (uses the Twitch connection from Live Watch).
+- **YouTube Shorts**: most-viewed recent Shorts for your search words (optional YouTube Data API key under Sources).
+- Every clip is ranked by **views per hour**, so fresh clips that are taking off beat old big ones. "Streamers on fire" sums that per streamer.
+- On a clip: **Watch live** adds the streamer to Live Watch, **VOD** opens the full stream at that moment, **Mark spot** tells the Moment Scout to check that spot first when you drop the VOD into the Stream Clipper, **Save** keeps it in your list.
+- **Keep hunting every N min** re-checks on a timer and alerts you (toast, desktop notification, nav badge) when a new clip passes your views/hour line.
+
+Clip Scout never downloads or reposts anyone's clip. Only post clips of channels you're allowed to clip.
 
 ## Getting around
 
