@@ -1,5 +1,5 @@
 # Fly.io: one always-on machine with a persistent volume. See CLOUD.md for the setup commands.
-app = "autoclipper-REPLACE-ME"
+app = "autoclipper-creatorai-jd"
 primary_region = "ewr"
 
 [build]
