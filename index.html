@@ -16,6 +16,7 @@
 <link rel="stylesheet" href="fx.css">
 <link rel="stylesheet" href="a11y.css">
 <link rel="stylesheet" href="nav.css">
+<link rel="stylesheet" href="ac.css">
 <script src="a11y.js" defer></script>
 </head>
 <body>
@@ -86,21 +87,26 @@
     </div>
   </div>
   <nav id="mainNav" aria-label="Sections">
-    <span class="nav-group" aria-hidden="true">Home</span>
+    <span class="nav-group" aria-hidden="true">Command center</span>
     <button data-tab="workshop" class="active"><svg class="i" aria-hidden="true"><use href="#i-bot"/></svg>Workshop</button>
-    <span class="nav-group" aria-hidden="true">Make clips</span>
+    <button data-tab="ops"><svg class="i" aria-hidden="true"><use href="#i-bolt"/></svg>Operations <span class="pill" hidden>0</span></button>
+    <button data-tab="cloud"><svg class="i" aria-hidden="true"><use href="#i-radio"/></svg>Cloud studio</button>
+    <button data-tab="plan"><svg class="i" aria-hidden="true"><use href="#i-calendar"/></svg>Content plan</button>
+    <span class="nav-group" aria-hidden="true">Production</span>
     <button data-tab="live"><svg class="i" aria-hidden="true"><use href="#i-radio"/></svg>Live Watch <span class="pill" hidden>0</span></button>
     <button data-tab="scout"><svg class="i" aria-hidden="true"><use href="#i-trending"/></svg>Clip Scout <span class="pill" hidden>0</span></button>
     <button data-tab="clipper"><svg class="i" aria-hidden="true"><use href="#i-scissors"/></svg>Stream Clipper</button>
     <button data-tab="faceless"><svg class="i" aria-hidden="true"><use href="#i-film"/></svg>Faceless Generator</button>
-    <span class="nav-group" aria-hidden="true">Automate</span>
-    <button data-tab="autopilot"><svg class="i" aria-hidden="true"><use href="#i-bolt"/></svg>Autopilot</button>
+    <span class="nav-group" aria-hidden="true">AI agents</span>
     <button data-tab="line"><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>Assembly Line</button>
-    <span class="nav-group" aria-hidden="true">Publish</span>
+    <button data-tab="autopilot"><svg class="i" aria-hidden="true"><use href="#i-bolt"/></svg>Autopilot</button>
+    <span class="nav-group" aria-hidden="true">Review</span>
     <button data-tab="queue"><svg class="i" aria-hidden="true"><use href="#i-inbox"/></svg>Review Queue <span id="qcount" class="pill">0</span></button>
-    <button data-tab="stats"><svg class="i" aria-hidden="true"><use href="#i-chart"/></svg>Stats</button>
+    <span class="nav-group" aria-hidden="true">Publishing</span>
     <button data-tab="accounts"><svg class="i" aria-hidden="true"><use href="#i-link"/></svg>Accounts</button>
-    <span class="nav-group" aria-hidden="true">Setup</span>
+    <span class="nav-group" aria-hidden="true">Analytics</span>
+    <button data-tab="stats"><svg class="i" aria-hidden="true"><use href="#i-chart"/></svg>Stats</button>
+    <span class="nav-group" aria-hidden="true">Settings</span>
     <button data-tab="settings"><svg class="i" aria-hidden="true"><use href="#i-sliders"/></svg>Settings</button>
   </nav>
 </header>
@@ -110,7 +116,7 @@
   <section id="workshop" class="tab active">
     <div class="fx-top">
       <div><span class="eyebrow"><i class="dot"></i> Live workshop</span><h2 class="hero-title">Stream VODs in, <em>short clips out.</em></h2>
-        <p class="muted">For streamers and clip channels: AutoClipper finds the best moments in your VODs, cuts captioned 9:16 clips, checks them, and posts them to TikTok, YouTube Shorts and Instagram Reels once you approve. Each of the 20 robots below does one step. Tap one to see its work.</p></div>
+        <p class="muted">For streamers and clip channels: AutoClipper finds the best moments in your VODs, cuts captioned 9:16 clips, checks them, and posts them to TikTok, YouTube Shorts and Instagram Reels once you approve. 20 specialised AI agents analyse, cut, caption, inspect and revise every video; every status below comes from the real production line.</p></div>
       <div class="row fx-ctrl"><button id="fxRun" data-act="run" class="primary">Start line</button><button id="fxStop" data-act="stop" class="stopbtn">STOP</button></div>
     </div>
     <div class="fx-now card" id="fxNow"></div>
@@ -352,6 +358,9 @@
 
   <!-- STREAM CLIPPER -->
   <!-- LIVE WATCH: rendered by fx-live.js -->
+  <section id="ops" class="tab"></section>
+  <section id="plan" class="tab"></section>
+  <section id="cloud" class="tab"></section>
   <section id="live" class="tab"></section>
   <section id="scout" class="tab"></section>
 
@@ -546,14 +555,23 @@
 <video id="vodVideo" playsinline></video>
 <script src="app.js"></script>
 <script src="fx-core.js"></script>
+<script src="fx-agents.js"></script>
 <script src="fx-depts.js"></script>
+<script src="fx-captions.js"></script>
 <script src="fx-quality.js"></script>
 <script src="fx-clips.js"></script>
 <script src="fx-hooks.js"></script>
 <script src="fx-ui.js"></script>
+<script src="fx-command.js"></script>
+<script src="fx-review.js"></script>
 <script src="fx-auto.js"></script>
 <script src="fx-gate.js"></script>
 <script src="fx-campaign.js"></script>
+<script src="fx-inspect.js"></script>
+<script src="fx-ops.js"></script>
+<script src="fx-director.js"></script>
+<script src="fx-insights.js"></script>
+<script src="fx-cloud.js"></script>
 <script src="fx-live.js"></script>
 <script src="fx-scout.js"></script>
 <script src="fx-nav.js"></script>

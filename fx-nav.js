@@ -11,16 +11,19 @@
   const N = FX.nav = {};
   const PAGES = [
     ['workshop', 'Workshop', 'home robots start line stop status', 'Live view of the robots, start/stop the line'],
+    ['ops', 'Autonomous Operations', 'operations autonomous autopilot mode budget daily report notifications health status', 'Modes, budget, health, notifications, daily report'],
+    ['plan', 'Content plan', 'plan calendar research director topics schedule week worker', 'The 7-day content plan and research'],
     ['live', 'Live Watch', 'twitch stream chat spike hype watch live clip moment', 'Watch live streams, clip when chat spikes'],
     ['scout', 'Clip Scout', 'trending popular viral clips kick twitch youtube find hunt scavenge internet', 'Find clips blowing up right now'],
     ['clipper', 'Stream Clipper', 'vod upload video cut highlights campaign tjr', 'Drop a VOD, get vertical clips'],
     ['faceless', 'Faceless Generator', 'ai script voice faceless facts', 'AI-written faceless videos'],
-    ['autopilot', 'Autopilot', 'schedule folder auto approve post', 'Clip a folder on a schedule'],
     ['line', 'Assembly Line', 'production records departments', 'Every video and its reports'],
+    ['autopilot', 'Autopilot', 'schedule folder auto approve post', 'Clip a folder on a schedule'],
     ['queue', 'Review Queue', 'approve reject pending inbox', 'Approve videos before they post'],
-    ['stats', 'Stats', 'views likes analytics followers', 'How your posts are doing'],
     ['accounts', 'Accounts', 'connect tiktok youtube instagram upload-post socials', 'Connect the platforms you post to'],
+    ['stats', 'Stats', 'views likes analytics followers', 'How your posts are doing'],
     ['settings', 'Settings', 'openai key model voice hashtags caption color', 'API key, voice, hashtags'],
+    ['cloud', 'Cloud studio', 'cloud server worker stream monitor creators review facecam captions 24/7', 'Your cloud clipping studio: creators, live watching, review'],
   ];
   const SUBS = [
     ['videos', 'Videos'], ['ideas', 'Ideas & VODs'], ['channel', 'Channel setup'], ['policies', 'Platform policies'], ['hooks', 'Hooks (ASMR split-screen)'],

@@ -161,7 +161,8 @@
     if (!recs.length && !blocked.length) return '';
     return `<div class="card"><h3>From the Assembly Line <span class="muted small">${recs.length} waiting on you</span></h3>
       ${blocked.length ? `<div class="hint-card">${ico('inbox')}${blocked.length} video slot(s) are waiting for a stream VOD. <button data-sub="ideas">Add a VOD</button></div>` : ''}
-      ${recs.length ? recs.map((r) => `<button class="need-card" data-open="${r.id}"><span class="nc-top"><b>${esc(r.id)}</b>${stBadge(r.status)}</span><span class="nc-t">${esc(title(r))}</span><span class="muted small">${esc(r.status === 'awaiting_approval' ? `Final QC: ${r.final?.decision || '–'} · monetization risk ${r.monetization?.level || '–'}` : r.humanReason || r.blocked || r.error || '')}</span><span class="nc-go">${r.status === 'awaiting_approval' ? 'Review & approve →' : 'Decide →'}</span></button>`).join('') : ''}</div>`;
+      ${recs.length > 1 && FX.needCard ? '<div class="row"><button data-rv="compare">' + ico('eye') + 'Compare ticked videos side by side</button></div>' : ''}
+      ${recs.length && FX.needCard ? recs.map((r) => FX.needCard(r, { stBadge, title })).join('') : recs.length ? recs.map((r) => `<button class="need-card" data-open="${r.id}"><span class="nc-top"><b>${esc(r.id)}</b>${stBadge(r.status)}</span><span class="nc-t">${esc(title(r))}</span><span class="muted small">${esc(r.status === 'awaiting_approval' ? `Final QC: ${r.final?.decision || '–'} · monetization risk ${r.monetization?.level || '–'}` : r.humanReason || r.blocked || r.error || '')}</span><span class="nc-go">${r.status === 'awaiting_approval' ? 'Review & approve →' : 'Decide →'}</span></button>`).join('') : ''}</div>`;
   }
   async function paneVideos() {
     const recs = (await FX.db.prod.all()).sort((a, b) => b.created - a.created);
@@ -205,6 +206,11 @@
         <div class="grid3">${F('permissionProof', 'Permission proof (link to message/contract)', c.permissionProof)}${F('permissionDate', 'Permission date', c.permissionDate, 'date')}<span></span></div>
         ${C('gamePolicyAck', 'I have read the game publisher\'s video / monetization policy for this game', c.gamePolicyAck)}
         <p class="muted small">Without your own streams or written permission, the Copyright robot stops every clip for your decision, and the Monetization robot rates it HIGH risk.</p>
+        <h4>Clip discovery</h4>
+        <div class="grid3">${F('clipMin', 'Min clip length (sec)', c.clipMin, 'number', 'min="5" max="60"')}
+        <label>Content style<select id="ch_discoveryStyle">${Object.entries(FX.CLIP_STYLES || {}).map(([k, v]) => `<option value="${k}" ${c.discoveryStyle === k ? 'selected' : ''}>${k[0].toUpperCase() + k.slice(1)}: ${esc(v)}</option>`).join('')}</select></label>
+        ${F('deepMaxMin', 'Deep analysis: max VOD length (min)', c.deepMaxMin, 'number', 'min="5" max="600"')}</div>
+        ${C('deepAnalysis', `Deep analysis: transcribe the whole VOD so the Clip Scout can find stories and conversations, not just loud moments (Whisper ≈ $${(FX.prices().whisper_per_min * 60).toFixed(2)} per hour of VOD; counts against your daily limits)`, c.deepAnalysis)}
         <div class="grid3">${F('clipLen', 'Max clip length (sec)', c.clipLen, 'number', 'min="8" max="90"')}${F('momentsPerVod', 'Moments to find per VOD', c.momentsPerVod, 'number', 'min="1" max="20"')}
         <label>Layout<select id="ch_layout"><option value="blur" ${c.layout === 'blur' ? 'selected' : ''}>Center + blurred background</option><option value="crop" ${c.layout === 'crop' ? 'selected' : ''}>Center crop</option><option value="split" ${c.layout === 'split' ? 'selected' : ''}>Facecam top / gameplay bottom</option><option value="hook" ${c.layout === 'hook' ? 'selected' : ''}>Split-screen hook (clip top, satisfying filler bottom)</option></select></label>
         ${F('clipTag', 'Name tag on clip', c.clipTag, 'text', 'placeholder="@streamer"')}</div>
@@ -215,10 +221,23 @@
         ${C('introCommentary', 'Add a short AI commentary intro when it helps (plays over the lead-in footage, adds context and originality)', c.introCommentary)}
         ${C('jumpCuts', 'Jump-cut dead air (quiet pauses with no game action)', c.jumpCuts)}${C('punchZoom', 'Punch-in zoom + shake on the hype peak', c.punchZoom)}</div>` : ''}
       <div class="card"><h3>Rules</h3>${T('allowed', 'Content the AI is allowed to make', c.allowed)}${T('avoid', 'Topics and material to avoid (comma or new line)', c.avoid)}${T('originality', 'Originality policy', c.originality)}${F('monetizationGoal', 'Monetization goals / programs', c.monetizationGoal)}</div>
+      <div class="card"><h3>Captions</h3>
+        <div class="grid3"><label>Caption preset<select id="ch_captionPreset">${Object.entries(FX.CAPTION_PRESETS || {}).map(([k, v]) => `<option value="${k}" ${c.captionPreset === k ? 'selected' : ''}>${esc(v.name)}</option>`).join('')}<option value="custom" ${c.captionPreset === 'custom' ? 'selected' : ''}>Custom (the fields below)</option></select></label>
+          ${F('captionRotate', 'Rotate between presets (comma list, e.g. bold,karaoke,clean)', c.captionRotate, 'text', 'placeholder="leave empty to always use the preset"')}
+          ${F('captionOffset', 'Caption timing offset (sec, + = later)', c.captionOffset, 'number', 'step="0.05" min="-1" max="1"')}</div>
+        <div class="cap-edit"><canvas id="capPreview" width="216" height="384" aria-label="Caption style preview"></canvas>
+        <div><p class="muted small">Custom style (used when the preset is Custom):</p><div class="grid3">
+          <label>Font<select id="ch_captionFont">${Object.entries(FX.CAPTION_FONTS || {}).map(([k, v]) => `<option value="${k}" ${c.captionFont === k ? 'selected' : ''}>${esc(v)}</option>`).join('')}</select></label>
+          ${F('captionSize', 'Size (px)', c.captionSize, 'number', 'min="40" max="140"')}${F('captionColor', 'Text color', c.captionColor, 'color')}
+          ${F('captionOutline', 'Outline color', c.captionOutline, 'color')}${F('captionOutlineW', 'Outline width (0–0.3)', c.captionOutlineW, 'number', 'step="0.01" min="0" max="0.3"')}${F('highlightColor', 'Highlight color', c.highlightColor, 'color')}
+          <label>Highlight<select id="ch_captionHlMode">${[['keywords', 'Key words'], ['active', 'Word being said (karaoke)'], ['none', 'None']].map(([v, l]) => `<option value="${v}" ${c.captionHlMode === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label>
+          ${F('captionWords', 'Words per caption (1–6)', c.captionWords, 'number', 'min="1" max="6"')}
+          <label>Animation<select id="ch_captionAnim">${[['pop', 'Pop'], ['bounce', 'Bounce'], ['fade', 'Fade'], ['slide', 'Slide up'], ['none', 'None']].map(([v, l]) => `<option value="${v}" ${c.captionAnim === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label>
+          ${F('captionPos', 'Position (0.5–0.76 of screen height)', c.captionPos, 'number', 'step="0.01" min="0.4" max="0.85"')}</div>
+          <div class="row">${C('captionUpper', 'UPPERCASE', c.captionUpper !== false)}${C('captionBox', 'Background box', c.captionBox)}</div></div></div></div>
       <div class="card"><h3>Look & sound</h3><div class="grid3">
         <label>Voice<select id="ch_voice">${['onyx', 'alloy', 'echo', 'fable', 'nova', 'shimmer'].map((v) => `<option ${c.voice === v ? 'selected' : ''}>${v}</option>`).join('')}</select></label>
-        ${F('speed', 'Voice speed (0.8–1.3)', c.speed, 'number', 'step="0.05" min="0.5" max="2"')}${F('captionColor', 'Caption color', c.captionColor, 'color')}${F('highlightColor', 'Highlight color', c.highlightColor, 'color')}
-        ${F('captionPos', 'Caption height (0.5–0.76 of screen)', c.captionPos, 'number', 'step="0.01" min="0.4" max="0.85"')}${F('captionSize', 'Caption size (px)', c.captionSize, 'number', 'min="40" max="140"')}
+        ${F('speed', 'Voice speed (0.8–1.3)', c.speed, 'number', 'step="0.05" min="0.5" max="2"')}
         ${F('musicVolume', 'Music volume (faceless, 0–0.5)', c.musicVolume, 'number', 'step="0.01" min="0" max="0.5"')}</div>
         ${C('music', 'Background music on faceless videos (original, generated in the app)', c.music)}${T('pronunciations', 'Pronunciations (one per line: word = how to say it)', c.pronunciations, 2)}</div>
       <div class="card"><h3>Research & assets (faceless)</h3>${F('subreddits', 'Subreddits to watch for trends', c.subreddits)}
@@ -229,14 +248,22 @@
       <div class="row"><button class="primary" data-act="saveChannel">Save channel config</button><span class="muted small">Version ${FX.channelVersion() || 'not saved yet'}${hist[0] ? ' · saved ' + when(hist[0].at) : ''}</span></div>
       ${chk.items.length ? `<h4>Config check</h4>${items(chk.items)}` : ''}`;
   }
+  function capFromForm() {
+    const c = { ...FX.channel() }, num = new Set(['captionSize', 'captionOutlineW', 'captionWords', 'captionPos', 'captionOffset']);
+    $$('[id^=ch_caption], #ch_highlightColor').forEach((el) => { const k = el.id.slice(3); c[k] = el.type === 'checkbox' ? el.checked : num.has(k) ? +el.value : el.value; });
+    return c;
+  }
+  function paintCapPreview() { const cv = $('#capPreview'); if (cv && FX.previewCaption) FX.previewCaption(cv, FX.captionStyle({ ...capFromForm(), captionRotate: '' })); }
   function wireChannel() {
+    paintCapPreview();
+    $$('[id^=ch_caption], #ch_highlightColor').forEach((el) => el.addEventListener('input', paintCapPreview));
     $$('input[name=chType]').forEach((r) => (r.onchange = async () => {
       const c = { ...FX.channel(), ...(r.value === 'faceless' ? FX.FACELESS_PRESET : { ...FX.DEFAULT_CHANNEL, platforms: FX.channel().platforms }) };
       ls.set('fx_channel', c); renderLine(); toast('Loaded defaults for this channel type. Review and save.');
     }));
   }
   async function saveChannel() {
-    const c = FX.channel(); const num = new Set(['lengthSec', 'speed', 'captionPos', 'captionSize', 'musicVolume', 'videosPerDay', 'maxPerDay', 'clipLen', 'momentsPerVod', 'camSize', 'camInset']);
+    const c = FX.channel(); const num = new Set(['lengthSec', 'speed', 'captionPos', 'captionSize', 'musicVolume', 'videosPerDay', 'maxPerDay', 'clipLen', 'clipMin', 'deepMaxMin', 'momentsPerVod', 'camSize', 'camInset', 'captionOutlineW', 'captionWords', 'captionOffset']);
     $$('[id^=ch_]').forEach((el) => { const k = el.id.slice(3); c[k] = el.type === 'checkbox' ? el.checked : num.has(k) ? +el.value : el.value.trim(); });
     c.type = $('input[name=chType]:checked')?.value || c.type;
     c.platforms = $$('[data-plat]').filter((x) => x.checked).map((x) => x.dataset.plat);
@@ -298,7 +325,7 @@
     const track1 = FX.STAGES.map((k, i) => { const rep = r.reports[k], d = FX.dept(k); const cls = r.overrides?.[k] ? 'v-pass' : rep ? VCLASS[rep.verdict] : i < stageIdx ? 'v-skip' : ''; return `<span class="tk ${cls} ${k === r.stage ? 'cur' : ''}" title="${esc(d.name)}${rep ? ': ' + rep.verdict : ''}">${d.icon}<small>${d.n}</small></span>`; }).join('');
     const awaiting = r.status === 'awaiting_approval', human = r.status === 'needs_human', pp = r.publishPrep?.platforms || {};
     const backOpts = FX.STAGES.slice(0, FX.STAGES.indexOf('approval')).map((k) => `<option value="${k}">${FX.dept(k).n}. ${esc(FX.dept(k).name)}</option>`).join('');
-    const warnings = Object.entries(r.reports).flatMap(([k, rep]) => (rep.items || []).filter((i) => i.sev !== 'low').map((i) => ({ ...i, where: FX.dept(k).name + ' · ' + i.where })));
+    const warnings = Object.entries(r.reports).flatMap(([k, rep]) => (rep.items || []).filter((i) => i.sev !== 'low').map((i) => ({ ...i, where: (FX.dept(k)?.name || (k === 'you' ? 'Your request' : k)) + ' · ' + i.where })));
     const repHTML = FX.STAGES.filter((k) => r.reports[k]).map((k) => { const rep = r.reports[k]; return `<details class="rep" ${['finalqc', 'copyright', 'monetization'].includes(k) && awaiting ? 'open' : ''}><summary>${FX.dept(k).icon} <b>${esc(FX.dept(k).name)}</b> ${badge(rep.verdict)}${rep.overridden ? ' <span class="vb v-pass">overridden</span>' : ''} <span class="muted small">${esc(rep.summary)}</span></summary>
       ${rep.method ? `<p class="muted small">Method: ${esc(rep.method)}${rep.attempt > 1 ? ` · attempt ${rep.attempt}` : ''}</p>` : ''}${items(rep.items)}${rep.disclaimer ? `<p class="disc">ⓘ ${esc(rep.disclaimer)}</p>` : ''}
       ${k === 'visualqc' && rep.data?.frames ? `<div class="frames">${Object.values(rep.data.frames).map((f) => `<img src="${f}" alt="frame">`).join('')}</div>` : ''}
@@ -328,6 +355,7 @@
             <select id="fxBackTo">${backOpts}</select><button data-act="sendback">↩ Send back</button><button class="no" data-act="reject">${ico('x')}Reject</button></div></div>` : ''}
           ${r.publish ? `<div class="card"><h3>Publishing</h3><div class="facts">${fact('When', when(r.publish.scheduledFor))}${fact('Platforms', esc(r.publish.platforms.map(platName).join(', ')))}${fact('Views', m?.views != null ? fmtNum(m.views) : '–')}${fact('Likes', m?.likes != null ? fmtNum(m.likes) : '–')}</div>${Object.entries(r.urls || {}).map(([p, u]) => `<a href="${esc(u)}" target="_blank" rel="noopener">${platName(p)} ↗</a>`).join(' · ')}${r.metricsHistory?.length > 1 ? spark(r.metricsHistory) : ''}${m?.yt ? `<p class="small">YouTube: avg view ${m.yt.avgViewDuration ?? '–'}s (${m.yt.avgViewPct ?? '–'}%) · +${m.yt.subsGained ?? 0} subs${m.yt.error ? ' · ' + esc(m.yt.error) : ''}</p>` : ''}<p class="muted small">Copyright claims and monetization status aren't available through the public APIs; check YouTube Studio / TikTok Studio.</p></div>` : ''}
         </div></div>
+      ${FX.recordExtras ? FX.recordExtras(r) : ''}
       <h3>Department reports</h3>${repHTML || '<p class="muted">No reports yet.</p>'}
       ${r.idea ? `<details class="rep"><summary><b>Idea</b> <span class="muted small">${esc(r.idea.topic)}</span></summary><pre>${esc(JSON.stringify({ ...r.idea, words: undefined }, null, 1).slice(0, 3000))}</pre></details>` : ''}
       ${r.research?.sources?.length ? `<details class="rep"><summary><b>Research & sources</b> <span class="muted small">${r.research.claims.length} claims</span></summary>${r.research.sources.map((s) => `<p class="small">[${s.id}] ${s.url ? `<a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.title)}</a>` : esc(s.title)} ${s.lastEdited ? '· edited ' + esc(s.lastEdited.slice(0, 10)) : ''}</p>`).join('')}${r.research.claims.map((c) => `<div class="it"><span class="sev sev-${c.status === 'confirmed' ? 'ok' : 'medium'}">${esc(c.status)}</span><span class="it-w">${esc(c.id)}</span><span class="it-i">${esc(c.text)}${c.quote ? `<em>“${esc(c.quote.slice(0, 200))}”</em>` : ''}</span></div>`).join('')}</details>` : ''}
@@ -337,6 +365,7 @@
     </div>`;
   }
   const spark = (h) => { const v = h.map((x) => x.views || 0), mx = Math.max(1, ...v); return `<svg class="spark" viewBox="0 0 200 40" preserveAspectRatio="none"><polyline fill="none" stroke="#ff8a65" stroke-width="2" points="${v.map((y, i) => `${(i / (v.length - 1)) * 200},${38 - (y / mx) * 36}`).join(' ')}"/></svg>`; };
+  FX.openRecordById = (id) => openRecord(id); FX.currentRecordId = () => S.open;
   function closeRecord() { S.open = null; $('#fxRecord').hidden = true; document.body.classList.remove('modal-open'); }
 
   /* ---------------- events ---------------- */

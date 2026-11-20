@@ -61,8 +61,8 @@ window.FX = (function () {
     platforms: ['youtube', 'tiktok', 'instagram'], tone: 'Hyped, funny, never mean to the streamer or chat', personality: 'A fan clipping the best moments, adding context so anyone gets the joke',
     style: 'Start right before the moment, cut dead air, big readable captions, one punchy hook line on screen', lengthSec: 35,
     streamer: '', streamerRelation: '', permissionProof: '', permissionDate: '', gamePolicyAck: false, game: 'Grand Theft Auto V / GTA RP',
-    clipLen: 35, momentsPerVod: 6, layout: 'blur', clipTag: '', introCommentary: true, camCorner: 'bl', camSize: 25, camInset: 1, punchZoom: true, jumpCuts: true,
-    voice: 'onyx', speed: 1.05, pronunciations: '', captionColor: '#ffffff', highlightColor: '#ffd400', captionPos: 0.64, captionSize: 84,
+    clipLen: 35, clipMin: 12, momentsPerVod: 6, discoveryStyle: 'balanced', deepAnalysis: false, deepMaxMin: 90, layout: 'blur', clipTag: '', introCommentary: true, camCorner: 'bl', camSize: 25, camInset: 1, punchZoom: true, jumpCuts: true,
+    voice: 'onyx', speed: 1.05, pronunciations: '', captionColor: '#ffffff', highlightColor: '#ffd400', captionPos: 0.64, captionSize: 84, captionPreset: 'bold', captionRotate: '', captionFont: 'impact', captionOutline: '#000000', captionOutlineW: 0.16, captionHlMode: 'keywords', captionWords: 3, captionAnim: 'pop', captionUpper: true, captionBox: false, captionOffset: 0,
     music: true, musicVolume: 0.18, transitions: 'mixed',
     allowed: 'Funny, clutch, chaotic or wholesome gameplay and RP moments; reactions; GTA news reactions from the stream',
     avoid: 'Slurs or hate speech, real-life threats, doxxing or personal info, sexual content, harassment of other streamers or chat, real-world tragedies, gambling promos, moments with copyrighted music playing',
@@ -345,7 +345,35 @@ window.FX = (function () {
   FX.STAGES = ['trends', 'factcheck', 'script', 'scriptqc', 'voice', 'assets', 'captions', 'edit', 'audioqc', 'visualqc', 'copyright', 'guidelines', 'monetization', 'finalqc', 'prep', 'approval', 'publish', 'monitor'];
   FX.nextStage = (k) => FX.STAGES[FX.STAGES.indexOf(k) + 1] || null;
   FX.RUN = {}; // department implementations, filled by fx-depts.js
-  FX.MAX_REVISIONS = 2;
+  FX.MAX_REVISIONS = 3; // targeted revision attempts per stage before the Production Manager escalates to a person
+
+  /* ---------------- stage ledger: one entry per stage per video ----------------
+     r.ledger[stage] = { status, agent, firstStart, lastStart, lastEnd, ms, score, verdict, output, errors[], runs[] }
+     Every run of a stage is recorded (start, end, outcome, quality score, the manager's decision), so a video's
+     full production history can be read stage by stage. Events: 'stage:start', 'stage:end', 'manager'. */
+  FX.stageScore = (rep) => {
+    if (!rep) return null;
+    if (typeof rep.score === 'number') return Math.max(0, Math.min(100, Math.round(rep.score)));
+    let s = 100;
+    for (const i of rep.items || []) s -= i.sev === 'high' || i.sev === 'review' ? 30 : i.sev === 'medium' ? 10 : 3;
+    if (rep.verdict === 'FAIL' || rep.verdict === 'REJECTED') s = Math.min(s, 45);
+    if (rep.verdict === 'HUMAN_REVIEW') s = Math.min(s, 60);
+    return Math.max(0, Math.min(100, s));
+  };
+  const ledgerOf = (r, key) => ((r.ledger ||= {})[key] ||= { status: 'pending', agent: null, firstStart: null, lastStart: null, lastEnd: null, ms: 0, score: null, verdict: null, output: '', errors: [], runs: [] });
+  FX.ledgerOf = ledgerOf;
+  function ledgerEnd(r, key, run, patch) {
+    const L = ledgerOf(r, key);
+    Object.assign(run, patch, { end: now(), ms: now() - run.start });
+    L.lastEnd = run.end; L.ms += run.ms; L.status = run.status;
+    if (run.verdict) L.verdict = run.verdict;
+    if (run.score != null) L.score = run.score;
+    if (run.summary) L.output = run.summary;
+    if (run.error) L.errors = [...L.errors, { at: run.end, message: run.error }].slice(-10);
+    L.runs = [...L.runs, run].slice(-10);
+    FX.emit('stage:end', { r, key, run });
+  }
+  FX.managerSays = (r, text, kind = 'decision') => { FX.hist(r, 'manager', kind, text); FX.emit('manager', { r, text, kind }); };
 
   /* ================= PRODUCTION RECORDS ================= */
   // status: queued (ready for its stage) · working · needs_human · awaiting_approval · blocked · error · scheduled · live · rejected · stopped
@@ -392,6 +420,9 @@ window.FX = (function () {
     const say = (t) => { M.working = { id: r.id, key, text: t, at: now() }; FX.emit('working', M.working); };
     r.attempts[key] = (r.attempts[key] || 0) + 1;
     const t0 = now();
+    const L = ledgerOf(r, key), run = { attempt: r.attempts[key], start: t0, agent: FX.agentFor ? FX.agentFor(key, r) : key, revision: !!r.revisionNote, reason: r.revisionNote?.reason || '' };
+    L.agent = run.agent; L.status = 'running'; L.firstStart ||= t0; L.lastStart = t0;
+    FX.emit('stage:start', { r, key, run });
     let rep;
     try {
       rep = await impl(r, say, { manual });
@@ -399,42 +430,64 @@ window.FX = (function () {
     } catch (e) {
       M.working = null; FX.emit('working', null);
       r.attempts[key]--;
-      if (e.limit) { r.status = 'blocked'; r.blocked = e.message; FX.hist(r, key, 'paused', e.message); await FX.saveRecord(r); await FX.alert(`${r.id}: ${e.message}`, r.id); return r; }
+      if (e.limit) { r.status = 'blocked'; r.blocked = e.message; FX.hist(r, key, 'paused', e.message); ledgerEnd(r, key, run, { status: 'paused', error: e.message, decision: 'Paused: production limit reached' }); FX.managerSays(r, `Paused ${d.name}: ${e.message}`, 'paused'); await FX.saveRecord(r); await FX.alert(`${r.id}: ${e.message}`, r.id); return r; }
       r.tempFails = (r.tempFails || 0) + 1;
       FX.hist(r, key, 'error', e.message);
       (r.errors ||= []).push({ at: now(), dept: key, message: e.message });
-      if (e.temporary && r.tempFails < 4) { r.status = 'queued'; r.retryAt = now() + 60e3 * r.tempFails; log(`↻ ${r.id} ${d.name}: ${e.message} (will retry)`); }
-      else { r.status = 'error'; r.error = e.message; await FX.alert(`${r.id} stopped at ${d.name}: ${e.message}`, r.id); }
+      if (e.temporary && r.tempFails < 4) {
+        r.status = 'queued'; r.retryAt = now() + 60e3 * r.tempFails; log(`↻ ${r.id} ${d.name}: ${e.message} (will retry)`);
+        ledgerEnd(r, key, run, { status: 'retry', error: e.message, decision: `Temporary error; retry ${r.tempFails}/3 in ${r.tempFails} min` });
+        FX.managerSays(r, `${d.name} hit a temporary error (${e.message}). Safe to retry: attempt ${r.tempFails}/3 in ${r.tempFails} min.`, 'retry');
+      } else {
+        r.status = 'error'; r.error = e.message;
+        ledgerEnd(r, key, run, { status: 'failed', error: e.message, decision: e.temporary ? 'Retried 3 times; needs a person' : 'Not safe to retry automatically; needs a person' });
+        FX.managerSays(r, `${d.name} failed: ${e.message}. ${e.temporary ? 'Retried 3 times.' : 'Not a temporary error, so it is not retried automatically.'} Needs a person.`, 'escalated');
+        await FX.alert(`${r.id} stopped at ${d.name}: ${e.message}`, r.id);
+      }
       await FX.saveRecord(r);
       return r;
     }
     M.working = null; FX.emit('working', null);
     rep.ms = now() - t0;
     if (rep.verdict === 'WAIT') { // department is waiting on something outside the line (human approval, schedule)
-      r.status = rep.status || 'needs_human'; FX.hist(r, key, 'waiting', rep.summary); await FX.saveRecord(r); return r;
+      r.status = rep.status || 'needs_human'; FX.hist(r, key, 'waiting', rep.summary);
+      ledgerEnd(r, key, run, { status: 'waiting', summary: rep.summary, decision: 'Waiting on something outside the line' });
+      await FX.saveRecord(r); return r;
     }
     if (rep.verdict === 'BLOCKED') {
       r.attempts[key]--; r.status = 'blocked'; r.blocked = rep.summary; FX.setReport(r, key, rep);
-      FX.hist(r, key, 'blocked', rep.summary); await FX.saveRecord(r); return r;
+      FX.hist(r, key, 'blocked', rep.summary);
+      ledgerEnd(r, key, run, { status: 'blocked', verdict: 'BLOCKED', summary: rep.summary, decision: 'Blocked: re-checked every 5 minutes' });
+      await FX.saveRecord(r); return r;
     }
     FX.setReport(r, key, rep); r.blocked = null; r.error = null;
     FX.hist(r, key, rep.verdict, rep.summary);
+    const score = FX.stageScore(rep); rep.qualityScore = score;
+    const fin = (status, decision) => ledgerEnd(r, key, run, { status, verdict: rep.verdict, score, summary: rep.summary, issues: (rep.items || []).length, decision });
     if (rep.verdict === 'PASS' || rep.verdict === 'WARNING') {
       r.revisionNote = null;
       const nx = rep.next !== undefined ? rep.next : FX.nextStage(key);
       if (nx) { r.stage = nx; r.status = rep.status || 'queued'; } else r.status = rep.status || 'live';
+      fin(rep.verdict === 'PASS' ? 'completed' : 'completed_warn', nx ? `Ready for ${FX.dept(nx).name}` : 'Production finished');
     } else if (rep.verdict === 'FAIL') {
       const to = rep.sendBackTo || key;
       const tries = r.attempts[to] || 0;
       if (tries > FX.MAX_REVISIONS) {
         r.status = 'needs_human'; r.humanReason = `${FX.dept(to).name} failed ${tries} times. ${rep.summary}`;
+        fin('failed', `Escalated: ${FX.dept(to).name} still failing after ${FX.MAX_REVISIONS} targeted revisions`);
+        FX.managerSays(r, `${FX.dept(to).name} still fails after ${FX.MAX_REVISIONS} revisions. Escalated to you.`, 'escalated');
         await FX.alert(`${r.id} needs you: ${r.humanReason}`, r.id);
-      } else FX.sendBack(r, to, key, rep.summary);
+      } else {
+        FX.sendBack(r, to, key, rep.summary);
+        fin('sent_back', `Revision ${tries}/${FX.MAX_REVISIONS}: sent to ${FX.dept(to).name}`);
+        FX.emit('revision', { r, from: key, to, reason: rep.summary, n: tries, items: (rep.items || []).filter((i) => i.sev !== 'low') });
+      }
     } else if (rep.verdict === 'HUMAN_REVIEW') {
       r.status = 'needs_human'; r.humanReason = rep.summary;
+      fin('needs_human', 'Needs a human decision (rights, policy or other risk)');
       await FX.alert(`${r.id} needs a human decision at ${d.name}: ${rep.summary}`, r.id);
     } else if (rep.verdict === 'REJECTED') {
-      r.status = 'rejected'; await FX.audit('video rejected by ' + d.name, rep.summary, r.id);
+      r.status = 'rejected'; fin('rejected', 'Rejected'); await FX.audit('video rejected by ' + d.name, rep.summary, r.id);
     }
     await FX.saveRecord(r);
     return r;

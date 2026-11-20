@@ -81,7 +81,7 @@
       const out = await FX.ai(r, 'trends', `You are the trend research department of a short-form video studio. You find content OPPORTUNITIES and invent ORIGINAL video concepts. You never copy or lightly rework an existing creator's video. ${channelBrief(c)}`,
         `Current trend signals (real data pulled today):\n${sig || '(no signals available today)'}\n\nAlready covered or planned (do NOT repeat or near-repeat): ${known.slice(-80).join('; ') || 'none'}\n${learningsBrief()}\n\n` +
         `Generate ${n} original video concepts that fit the channel niche. A signal is only a starting point; skip signals that do not fit the niche or touch avoided topics. Prefer evergreen topics with a timely angle. Return JSON {"ideas":[{` +
-        `"topic": string, "description": string, "audience": string, "hook": string (spoken first line), "hookStyle": "question"|"bold claim"|"surprising stat"|"mini story", "format": "facts"|"story"|"explainer"|"myth vs fact"|"countdown", ` +
+        `"topic": string, "description": string, "audience": string, "hook": string (spoken first line), "hookStyle": "question"|"bold claim"|"surprising stat"|"mini story", "format": "educational"|"facts"|"story"|"history"|"technology"|"sports"|"explainer"|"list"|"ranking"|"myth vs fact"|"countdown", ` +
         `"research": [3-5 short supporting points to verify], "signals": [which signal(s) inspired it], "lengthSec": number, "originality": {"score": 1-10, "notes": string (what is our own angle)}, ` +
         `"concerns": [possible copyright or policy concerns, empty if none], "scores": {"relevance": 1-10, "interest": 1-10, "originality": 1-10, "difficulty": 1-10 (production difficulty)}}]}`);
       for (const [k, i] of (out?.ideas || []).entries()) {
@@ -106,7 +106,7 @@
       pool = gen.made;
     }
     if (!pool.length) return { verdict: 'HUMAN_REVIEW', summary: 'Could not produce a new, non-duplicate idea. Add ideas yourself in the Ideas tab or widen the niche.', items: [] };
-    pool.sort((a, b) => b.rank - a.rank);
+    pool.sort((a, b) => (a.priority ?? 1e9) - (b.priority ?? 1e9) || b.rank - a.rank); // the Content Director's plan order first
     const idea = pool[0];
     idea.status = 'used'; idea.usedBy = r.id; await FX.db.ideas.put(idea);
     r.idea = idea;
@@ -562,10 +562,11 @@
       r.script.scenes.forEach((s, i) => { const o = nar.offsets[i]; const w = s.vo.split(/\s+/).filter(Boolean); const per = (o.voiceEnd - o.voiceStart) / Math.max(1, w.length); w.forEach((x, k) => words.push({ word: x, start: o.voiceStart + k * per, end: o.voiceStart + (k + 1) * per })); });
       items.push(item('medium', 'All', 'Caption timing is estimated, not transcribed (practice).', 'Real videos are transcribed from the voiceover.'));
     }
-    let cues = wordsToChunks(words).map((k) => ({ start: Math.round(k.start * 100) / 100, end: Math.round(k.until * 100) / 100, text: k.text.replace(/[,;:]$/, '') }));
+    const capSt = FX.captionStyle ? FX.captionStyle(c, r) : null, nW = capSt?.words || 3;
+    let cues = (FX.captionChunks ? FX.captionChunks(words, { maxWords: nW, maxChars: nW <= 1 ? 14 : 16 + Math.max(0, nW - 3) * 7 }) : wordsToChunks(words)).map((k) => ({ start: Math.round(k.start * 100) / 100, end: Math.round(k.until * 100) / 100, text: k.text.replace(/[,;:]$/, ''), ts: k.ts }));
     // timing: merge cues that flash by too fast
     const merged = [];
-    for (const q of cues) { const prev = merged[merged.length - 1]; if (prev && (prev.end - prev.start < 0.3) && q.start - prev.end < 0.15 && prev.text.split(' ').length < 4) { prev.text += ' ' + q.text; prev.end = q.end; } else merged.push({ ...q }); }
+    for (const q of cues) { const prev = merged[merged.length - 1]; if (prev && (prev.end - prev.start < 0.3) && q.start - prev.end < 0.15 && prev.text.split(' ').length < Math.max(2, nW + 1)) { prev.text += ' ' + q.text; prev.end = q.end; prev.ts = [...(prev.ts || []), ...(q.ts || [])]; } else merged.push({ ...q }); }
     cues = merged;
     const emph = new Set([...r.script.scenes.flatMap((s) => FX.keywords(s.onScreen)), ...FX.keywords(r.idea?.topic)]);
     cues.forEach((q) => { q.hl = q.text.split(' ').map((w) => /\d/.test(w) || emph.has(FX.norm(w))); const cps = q.text.length / Math.max(0.05, q.end - q.start); if (q.end - q.start < 0.25 || cps > 22) items.push(item('medium', FX.ts(q.start), `Caption "${q.text}" on screen ${(q.end - q.start).toFixed(2)}s (${Math.round(cps)} chars/sec): too fast to read`, 'Slow the voice slightly or shorten the line.')); });
@@ -574,7 +575,7 @@
     if (c.captionSize > 110) items.push(item('low', 'Style', `Caption size ${c.captionSize}px may wrap a lot`, 'Use 80–100px.'));
     const srt = cues.map((q, i) => `${i + 1}\n${srtT(q.start)} --> ${srtT(q.end)}\n${q.text}\n`).join('\n');
     const vtt = 'WEBVTT\n\n' + cues.map((q) => `${srtT(q.start).replace(',', '.')} --> ${srtT(q.end).replace(',', '.')}\n${q.text}\n`).join('\n');
-    r.captions = { cues, method, style: { color: c.captionColor, highlight: c.highlightColor, pos: c.captionPos, size: c.captionSize }, srtFile: await FX.saveFile(new Blob([srt], { type: 'text/plain' }), r.id + '.srt', { recId: r.id, role: 'captions' }), vttFile: await FX.saveFile(new Blob([vtt], { type: 'text/vtt' }), r.id + '.vtt', { recId: r.id, role: 'captions' }), at: now() };
+    r.captions = { cues, method, style: capSt || { color: c.captionColor, highlight: c.highlightColor, pos: c.captionPos, size: c.captionSize }, srtFile: await FX.saveFile(new Blob([srt], { type: 'text/plain' }), r.id + '.srt', { recId: r.id, role: 'captions' }), vttFile: await FX.saveFile(new Blob([vtt], { type: 'text/vtt' }), r.id + '.vtt', { recId: r.id, role: 'captions' }), at: now() };
     r.timeline = nar.offsets.map(({ n, start, end, voiceStart, voiceEnd }) => ({ n, start, end, voiceStart, voiceEnd })); r.duration = nar.duration;
     const v = verdictFrom(items);
     return { verdict: v, sendBackTo: 'voice', summary: v === 'FAIL' ? 'Narration is missing words; sending back to Voiceover.' : `${cues.length} captions timed to the voiceover.`, items, method };
@@ -645,7 +646,8 @@
   FX.mixAudio = mixAudio;
 
   // ---- drawing ----
-  function drawCue(cue, st, t) {
+  function drawCue(cue, st, t) { if (FX.paintCue) return FX.paintCue(ctx, cue, st, t, W, H); return drawCueOld(cue, st, t); }
+  function drawCueOld(cue, st, t) {
     const size = st.size || 84, pop = 1 + 0.1 * (1 - Math.min(1, (t - cue.start) / 0.12));
     ctx.save(); ctx.font = `900 ${size}px Impact, "Arial Black", system-ui, sans-serif`; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round'; ctx.lineWidth = size * 0.16; ctx.strokeStyle = '#000';
     const words = cue.text.toUpperCase().split(' '), lines = [[]]; let lw = 0; const max = W * 0.84, sp = ctx.measureText(' ').width;
@@ -682,7 +684,7 @@
     const g = ctx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, 'rgba(0,0,0,.45)'); g.addColorStop(0.3, 'rgba(0,0,0,0)'); g.addColorStop(0.55, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,.55)');
     ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
     drawOnScreen(sc.onScreen, lt);
-    const cue = p.captions.find((q) => t >= q.start && t < q.end); if (cue) drawCue(cue, p.captionStyle, t);
+    const cue = FX.cueAt ? FX.cueAt(p.captions, t, p.captionStyle) : p.captions.find((q) => t >= q.start && t < q.end); if (cue) drawCue(cue, p.captionStyle, t);
     if (i > 0 && lt < 0.25) { const a = 1 - lt / 0.25; if (sc.transition === 'fade') { ctx.fillStyle = `rgba(0,0,0,${a * 0.85})`; ctx.fillRect(0, 0, W, H); } else if (sc.transition === 'flash') { ctx.fillStyle = `rgba(255,255,255,${a * 0.7})`; ctx.fillRect(0, 0, W, H); } }
     if (t > p.duration - 0.4) { ctx.fillStyle = `rgba(0,0,0,${Math.min(0.9, (t - (p.duration - 0.4)) / 0.4)})`; ctx.fillRect(0, 0, W, H); }
   }

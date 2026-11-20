@@ -11,6 +11,16 @@ AI stream clipper + faceless short-video generator that auto-posts to TikTok, In
 
 Everything runs in your browser; keys are stored only on your computer.
 
+## AutoClipper 2.0 at a glance
+
+- **Workshop** is the command center: 20 AI agents with real status, and a live activity feed.
+- **Operations**: Assisted / Autopilot / Autonomous Business modes, daily budget, health monitor, notifications, daily report.
+- **Content plan**: the Content Director's 7-day plan from background research (see [WORKER.md](WORKER.md)).
+- Every finished video is inspected by **10 independent checkers** on the rendered file; problems become tickets and go back to the right agent (max 3 rounds).
+- Full list of changes: [CHANGELOG.md](CHANGELOG.md).
+
+**Where things run:** production, rendering and checks run in the open browser tab. Research and planning also run in the background worker on GitHub Actions, with the browser closed.
+
 ## Live Watch (catch moments while the stream is live)
 
 Live Watch tab → type Twitch channel names and/or Kick channels (`kick:name` or a kick.com link) → **Start watching**. Keep the tab open.

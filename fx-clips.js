@@ -99,6 +99,48 @@
     }
     return out;
   }
+  /* Clip discovery settings + ranking (AutoClipper 2.0) */
+  FX.CLIP_DIMS = ['opening', 'interest', 'story', 'context', 'entertainment', 'conversation', 'emotion', 'pacing', 'ending', 'clarity'];
+  const STYLES = {
+    balanced: { text: 'the strongest standalone moments of any kind', w: {} },
+    funny: { text: 'funny moments and banter', w: { entertainment: 1.6, emotion: 1.2, conversation: 1.2 } },
+    story: { text: 'complete little stories with a setup and payoff', w: { story: 1.8, context: 1.4, ending: 1.3 } },
+    clutch: { text: 'clutch plays, chases and skill moments', w: { entertainment: 1.4, pacing: 1.4, opening: 1.3 } },
+    reaction: { text: 'big genuine reactions', w: { emotion: 1.8, opening: 1.3 } },
+    conversation: { text: 'interesting conversations, hot takes and unexpected statements', w: { conversation: 1.8, interest: 1.4, context: 1.2 } },
+  };
+  FX.CLIP_STYLES = Object.fromEntries(Object.entries(STYLES).map(([k, v]) => [k, v.text]));
+  FX.discovery = (c = FX.channel()) => {
+    const style = STYLES[c.discoveryStyle] ? c.discoveryStyle : 'balanced';
+    return { style, styleText: STYLES[style].text, minLen: Math.max(5, Math.min(+c.clipLen || 35, +c.clipMin || 10)), deep: !!c.deepAnalysis, deepMaxMin: Math.max(5, +c.deepMaxMin || 90) };
+  };
+  // weighted mean of the known dimensions (unknown ones are left out, not guessed); style + learned weights tilt it
+  FX.rankMoment = (s, D = FX.discovery()) => {
+    const base = { opening: 1.3, interest: 1.2, story: 1.1, context: 1.2, entertainment: 1.1, conversation: 0.8, emotion: 0.9, pacing: 0.9, ending: 1.0, clarity: 0.8 };
+    const st = STYLES[D.style]?.w || {}, learned = FX.learned?.()?.dimWeights || {};
+    let sum = 0, wsum = 0;
+    for (const k of FX.CLIP_DIMS) if (s[k] != null) { const w = base[k] * (st[k] || 1) * (learned[k] || 1); sum += s[k] * w; wsum += w; }
+    let rank = wsum ? sum / wsum : (s.loudness ?? 0);
+    if (s.trending != null) rank = rank * 0.9 + s.trending * 0.1;
+    if (s.viewerClips) rank = Math.min(10, rank + s.viewerClips * 0.15);
+    return Math.round(rank * 10) / 10;
+  };
+  // whole-VOD transcription in 10-minute pieces (Whisper's 25 MB limit), counted against your daily limits
+  async function deepTranscript(r, buffer, say) {
+    const piece = 600, words = [];
+    const n = Math.ceil(buffer.duration / piece);
+    for (let k = 0; k < n; k++) {
+      const a = k * piece, L = Math.min(piece, buffer.duration - a);
+      say(`Video Intelligence: deep analysis, transcribing part ${k + 1}/${n} (${Math.round(((k) / n) * 100)}%)…`);
+      FX.use('whisper');
+      const wav = await segmentWav(buffer, a, L);
+      const tr = await FX.retry(async () => { try { return await transcribe(wav, 'deep.wav'); } catch (e) { throw /429|5\d\d|network|fetch/i.test(e.message) ? new FX.TempError(e.message) : e; } }, 'deep transcription');
+      FX.cost(r, 'trends', 'openai:whisper-1', Math.round(L), (L / 60) * FX.prices().whisper_per_min);
+      (tr?.words || []).forEach((w) => words.push({ word: String(w.word).trim(), start: a + w.start, end: a + w.end }));
+    }
+    return { words };
+  }
+
   async function scoutVod(r, entry, say) {
     const file = await getVod(entry.key); if (!file) return [];
     const c = FX.channel(), len = +c.clipLen || 35;
@@ -106,57 +148,100 @@
     let buffer;
     try { buffer = await getAudioCtx().decodeAudioData(await file.arrayBuffer()); }
     catch { entry.status = 'unreadable'; saveInbox(FX.vodInbox().map((e) => (e.key === entry.key ? entry : e))); throw new Error(`Could not read ${file.name}'s audio. Use MP4 under ~2 GB (split long VODs).`); }
-    say('Finding hype moments…');
-    const hl = findHighlights(buffer, +c.momentsPerVod || 6, Math.min(len, buffer.duration));
-    // moments viewers clipped on Twitch (fx-auto.js) are added and boosted
+    const D = FX.discovery(c), want = Math.max(1, +c.momentsPerVod || 6);
+    // 1) whole-video pass: audio energy over the entire VOD (always), full transcript (Deep analysis, within budget)
+    say(`Video Intelligence: analysing all ${fmt(buffer.duration)} of audio…`);
+    const hl = findHighlights(buffer, Math.min(20, want + 3), Math.min(len, buffer.duration)).map((h) => ({ ...h, src: 'audio' }));
+    let full = null;
+    if (D.deep && FX.hasAI()) {
+      const mins = buffer.duration / 60;
+      if (mins > D.deepMaxMin) say(`Deep analysis skipped: VOD is ${Math.round(mins)} min, your limit is ${D.deepMaxMin} min.`);
+      else full = await deepTranscript(r, buffer, say).catch((e) => { log('Deep analysis: ' + e.message); return null; });
+    }
+    if (full?.words?.length) {
+      say('Clip Scout: reading the full transcript for stories, conversations and reactions…');
+      const lines = []; let cur = null;
+      for (const w of full.words) { if (!cur || w.start - cur.t > 12) { cur = { t: w.start, txt: [] }; lines.push(cur); } cur.txt.push(w.word); }
+      const doc = lines.map((l) => `[${Math.round(l.t)}] ${l.txt.join(' ')}`).join('\n').slice(0, 90000);
+      const pick = await FX.ai(r, 'trends', `You are the clip scout for a ${c.game || 'stream'} clip channel. Read the WHOLE stream transcript and find moments that work as standalone short videos: funny exchanges, unexpected statements, complete little stories, strong reactions, clutch plays narrated on stream. Prefer moments with a clear setup and payoff over loud moments.${D.style !== 'balanced' ? ` Content style wanted: ${D.styleText}.` : ''}`,
+        `Transcript (seconds in brackets):\n${doc}\n\nReturn JSON {"moments":[{"start": seconds, "end": seconds, "why": string}]} with up to ${want + 3} moments, each ${D.minLen}–${len} seconds, not overlapping.`, { temperature: 0.3 });
+      for (const m of pick?.moments || []) {
+        const a = Math.max(0, +m.start || 0), b = Math.min(buffer.duration, Math.max(a + D.minLen, +m.end || a + len));
+        if (!(b > a)) continue;
+        const near = hl.find((h) => Math.abs(h.peak - (a + b) / 2) < len * 0.6);
+        if (near) { Object.assign(near, { story: m.why, src: 'audio+transcript', start: a, end: b, peak: Math.max(a, Math.min(b, near.peak)) }); } // the transcript knows where the story starts and ends else hl.push({ start: a, peak: (a + b) / 2, score: 0, src: 'transcript', story: m.why, end: b });
+      }
+    }
+    // moments viewers clipped on Twitch / marked by Live Watch / Clip Scout are added and boosted
     const markers = FX.vodMarkers ? FX.vodMarkers(entry, file, buffer.duration) : [];
     for (const mk of markers) {
       const near = hl.find((h) => Math.abs(h.start - mk.start) < len * 0.6);
       if (near) near.chat = Math.max(near.chat || 0, mk.views);
-      else if (mk.start < buffer.duration - 3) hl.push({ start: mk.start, peak: mk.start + 5, score: 0, chat: mk.views });
+      else if (mk.start < buffer.duration - 3) hl.push({ start: mk.start, peak: mk.start + 5, score: 0, chat: mk.views, src: 'marker' });
     }
     const known = (await FX.db.ideas.all()).filter((i) => i.type === 'moment' && i.vodKey === entry.key);
     const ms = [];
+    const wordsFrom = (a, b) => (full?.words || []).filter((w) => w.start >= a && w.end <= b).map((w) => ({ word: w.word, start: w.start - a, end: w.end - a }));
     for (const [i, h] of hl.entries()) {
       if (known.some((k) => Math.abs((k.peak ?? k.start) - h.peak) < len * 0.6)) continue; // never clip the same moment twice
-      // transcribe a padded window around the peak so the clip plan can start on the setup and end on a finished sentence
-      const s0 = Math.max(0, h.peak - len * 0.6 - 6), L = Math.min(len + 14, buffer.duration - s0);
+      if (ms.some((m) => Math.abs(m.peak - h.peak) < len * 0.5)) continue;
+      // a padded window around the peak so the clip plan can start on the setup and end on a finished sentence
+      const s0 = Math.max(0, (h.end ? h.start : h.peak - len * 0.6) - 6), L = Math.min((h.end ? h.end - h.start : len) + 14, buffer.duration - s0);
       const wav = await segmentWav(buffer, s0, L);
       const wavFile = await FX.saveFile(wav, `${file.name}_${Math.round(s0)}.wav`, { role: 'moment-audio' });
       let tr = null;
-      if (FX.hasAI()) {
-        say(`Transcribing moment ${i + 1}/${hl.length}…`);
+      if (full?.words?.length) tr = { words: wordsFrom(s0, s0 + L) }, tr.text = tr.words.map((w) => w.word).join(' ');
+      else if (FX.hasAI()) {
+        say(`Video Intelligence: transcribing candidate ${ms.length + 1}…`);
         FX.use('whisper');
         tr = await FX.retry(async () => { try { return await transcribe(wav, 'moment.wav'); } catch (e) { throw /429|5\d\d|network|fetch/i.test(e.message) ? new FX.TempError(e.message) : e; } }, 'transcription');
         FX.cost(r, 'trends', 'openai:whisper-1', Math.round(L), (L / 60) * FX.prices().whisper_per_min);
       }
-      ms.push({ i, start: s0, peak: h.peak, len: L, chat: h.chat || 0, energy: Math.round(h.score * 100) / 100, transcript: tr?.text?.trim() || '', words: (tr?.words || []).map((w) => ({ word: w.word.trim(), start: w.start, end: w.end })), wavFile });
+      const env = FX.envelope(await FX.decode(wav), 0.1), voiced = env.filter((x) => x > -40).length / Math.max(1, env.length);
+      ms.push({ i, start: s0, peak: h.peak, len: L, chat: h.chat || 0, energy: Math.round(h.score * 100) / 100, src: h.src, story: h.story || '', voiced, transcript: tr?.text?.trim() || '', words: (tr?.words || []).map((w) => ({ word: String(w.word).trim(), start: w.start, end: w.end })), wavFile });
     }
     const maxE = Math.max(1, ...ms.map((m) => m.energy));
     const maxChat = Math.max(1, ...ms.map((m) => m.chat));
     let ai = null, signals = [];
     if (FX.hasAI() && ms.some((m) => m.transcript)) {
-      say('Ranking moments…');
+      say(`Clip Scout: scoring ${ms.length} candidates on 10 dimensions…`);
       signals = await gtaSignals(c);
-      ai = await FX.ai(r, 'trends', `You are the clip scout for a ${c.game} streamer clip channel. You pick moments that are funny, clutch, chaotic or wholesome AND make sense to a stranger scrolling TikTok. Channel avoids: ${c.avoid}.`,
-        `Trending in ${c.game || 'this niche'} communities right now:\n${signals.filter((s) => s.items.length).map((s) => `${s.source}: ${s.items.slice(0, 8).join(' | ')}`).join('\n') || '(unavailable)'}\n\nCandidate moments from the VOD "${file.name}" (loudness = audio hype vs the rest of the stream):\n` +
-        ms.map((m) => `#${m.i} at ${fmt(m.start)} (loudness ${m.energy}): "${m.transcript.slice(0, 700)}"`).join('\n') +
-        `\n\nReturn JSON {"moments":[{"i": number, "hype": 1-10, "standalone": 1-10 (understandable without context), "trending": 1-10 (fits what ${c.game || 'this niche'} fans talk about now), "title": short title, "hook": on-screen hook max 8 words, "concerns": [policy/copyright concerns like slurs, real threats, personal info, radio music, other streamers' content], "skip": boolean, "why": string}]}`, { temperature: 0.4 });
+      const learned = FX.learned?.();
+      ai = await FX.ai(r, 'trends', `You are the clip scout for a ${c.game} streamer clip channel. You compare every candidate and score it honestly. A good clip works on its own for a stranger scrolling TikTok: strong first seconds, a clear setup and payoff, and an ending that lands. Loud is not the same as good. Channel avoids: ${c.avoid}.${D.style !== 'balanced' ? ` The channel wants: ${D.styleText}.` : ''}${learned?.hint ? ` What has worked on this channel so far (correlation, not proof): ${learned.hint}` : ''}`,
+        `Trending in ${c.game || 'this niche'} communities right now:\n${signals.filter((s) => s.items.length).map((s) => `${s.source}: ${s.items.slice(0, 8).join(' | ')}`).join('\n') || '(unavailable)'}\n\nCandidates from "${file.name}" (loudness = audio burst vs the rest of the stream; speech = share of the window with voice):\n` +
+        ms.map((m) => `#${m.i} at ${fmt(m.start)} (loudness ${m.energy}, speech ${Math.round(m.voiced * 100)}%${m.story ? `, transcript pass: ${m.story}` : ''}): "${m.transcript.slice(0, 700)}"`).join('\n') +
+        `\n\nScore each 1-10 on: opening (first 1-3 s grab attention), interest (would the audience care), story (setup → payoff), context (understandable without the rest of the stream), entertainment, conversation (quality of what is said/exchanged), emotion (genuine reaction), pacing (little dead air), ending (lands on the payoff, not mid-sentence), clarity (audio/speech clear enough). Also trending 1-10 (fits what ${c.game || 'this niche'} fans talk about now).\nReturn JSON {"moments":[{"i": number, "opening":n,"interest":n,"story":n,"context":n,"entertainment":n,"conversation":n,"emotion":n,"pacing":n,"ending":n,"clarity":n,"trending":n, "style": one of funny|story|clutch|reaction|conversation|wholesome|other, "title": short honest title, "hook": on-screen hook max 8 words, "concerns": [policy/copyright concerns like slurs, real threats, personal info, radio music, other streamers' content], "skip": boolean, "why": one sentence on why it would or would not work}]}`, { temperature: 0.3 });
     }
     const out = [];
     for (const m of ms) {
       const a = (ai?.moments || []).find((x) => +x.i === m.i) || {};
-      const scores = { hype: a.hype ?? Math.round((m.energy / maxE) * 10), standalone: a.standalone ?? 5, trending: a.trending ?? 5, loudness: Math.round((m.energy / maxE) * 10), ...(m.chat ? { viewerClips: Math.max(4, Math.round((m.chat / maxChat) * 10)) } : {}) };
+      const loud = Math.round((m.energy / maxE) * 10);
+      const dims = {};
+      for (const k of FX.CLIP_DIMS) dims[k] = a[k] != null ? Math.max(1, Math.min(10, +a[k])) : null;
+      // without AI only the measurable dimensions get values; the rest stay unknown rather than invented
+      if (!ai) { dims.entertainment = loud; dims.pacing = Math.round(m.voiced * 10); dims.clarity = Math.round(m.voiced * 10); }
+      const scores = { ...Object.fromEntries(Object.entries(dims).filter(([, v]) => v != null)), trending: a.trending ?? null, loudness: loud, standalone: dims.context ?? null, hype: dims.entertainment ?? loud, ...(m.chat ? { viewerClips: Math.max(4, Math.round((m.chat / maxChat) * 10)) } : {}) };
+      Object.keys(scores).forEach((k) => scores[k] == null && delete scores[k]);
       const idea = {
         id: 'mom_' + now().toString(36) + m.i, type: 'moment', created: now(), status: a.skip ? 'rejected' : 'new', rejectReason: a.skip ? a.why : '',
         vodKey: entry.key, vodName: file.name, start: m.start, len: m.len, peak: m.peak, energy: m.energy, transcript: m.transcript, words: m.words, wavFile: m.wavFile,
-        topic: a.title || `${file.name.replace(/\.\w+$/, '')} @ ${fmt(m.start)}`, description: a.why || (m.chat && !m.energy ? `Viewers clipped this on Twitch (${m.chat} clip views)` : `Hype moment at ${fmt(m.start)} (loudness ${m.energy}× the stream average)`),
-        hook: a.hook || 'WAIT FOR IT…', hookStyle: 'moment', concerns: a.concerns || [], scores,
-        rank: Math.round((scores.hype * 0.4 + scores.standalone * 0.3 + scores.trending * 0.15 + scores.loudness * 0.15 + (scores.viewerClips || 0) * 0.4) * 10) / 10,
-        method: (ai ? 'audio hype + transcript + AI ranking' : 'audio hype only (no OpenAI key)') + (m.chat ? ' + Twitch viewer clips' : ''), signals: signals.map((s) => s.source).concat(m.chat ? [`Twitch: viewers clipped this (${m.chat} clip views)`] : []),
+        topic: a.title || `${file.name.replace(/\.\w+$/, '')} @ ${fmt(m.start)}`, description: a.why || m.story || (m.chat && !m.energy ? `Viewers clipped this on Twitch (${m.chat} clip views)` : `Hype moment at ${fmt(m.start)} (loudness ${m.energy}× the stream average)`),
+        hook: a.hook || 'WAIT FOR IT…', hookStyle: 'moment', style: a.style || '', concerns: a.concerns || [], scores, found: m.src,
+        rank: FX.rankMoment(scores, D),
+        method: (full ? 'full-VOD transcript + ' : '') + (ai ? 'audio + transcript + 10-dimension AI scoring' : 'audio energy only (no OpenAI key)') + (m.chat ? ' + Twitch viewer clips' : ''), signals: signals.map((s) => s.source).concat(m.chat ? [`Twitch: viewers clipped this (${m.chat} clip views)`] : []),
       };
-      await FX.db.ideas.put(idea); out.push(idea);
+      out.push(idea);
     }
+    // near-duplicates (same thing said twice, or overlapping windows): keep the better one
+    out.sort((x, y) => y.rank - x.rank);
+    for (let i = 0; i < out.length; i++) for (let j = i + 1; j < out.length; j++) {
+      const A2 = out[i], B2 = out[j]; if (A2.status !== 'new' || B2.status !== 'new') continue;
+      const overlap = Math.min(A2.start + A2.len, B2.start + B2.len) - Math.max(A2.start, B2.start);
+      const sim = FX.jaccard(FX.keywords(A2.transcript), FX.keywords(B2.transcript));
+      if (overlap > Math.min(A2.len, B2.len) * 0.4 || (A2.transcript && sim > 0.5)) { B2.status = 'rejected'; B2.rejectReason = `Near-duplicate of "${A2.topic}" (${overlap > 0 ? 'overlapping' : Math.round(sim * 100) + '% same words'})`; }
+    }
+    out.filter((x) => x.status === 'new').forEach((x, k) => { x.rankPos = k + 1; x.of = out.filter((y) => y.status === 'new').length; });
+    for (const idea of out) await FX.db.ideas.put(idea);
     saveInbox(FX.vodInbox().map((e) => (e.key === entry.key ? { ...e, status: 'scanned', moments: out.length, scannedAt: now() } : e)));
     FX.emit('ideas');
     return out;
@@ -177,7 +262,7 @@
       pool = scanned.filter((x) => x.status === 'new');
     }
     if (!pool.length) return { verdict: 'HUMAN_REVIEW', summary: 'No usable moments found in that VOD (all skipped or duplicates). Drop another VOD or pick a moment yourself in Ideas.', items: [] };
-    pool.sort((a, b) => b.rank - a.rank);
+    pool.sort((a, b) => (a.priority ?? 1e9) - (b.priority ?? 1e9) || b.rank - a.rank);
     const idea = pool[0]; idea.status = 'used'; idea.usedBy = r.id; await FX.db.ideas.put(idea);
     r.idea = idea;
     const items = (idea.concerns || []).map((x) => item('medium', 'Moment', x, 'Later departments will check this.'));
@@ -336,12 +421,13 @@
     }
     let cues = [];
     if (words.length) {
-      cues = FX.captionChunks(words);
+      const cs0 = FX.captionStyle(c, r), nW = cs0.words || 3;
+      cues = FX.captionChunks(words, { maxWords: nW, maxChars: nW <= 1 ? 14 : 16 + Math.max(0, nW - 3) * 7 });
       const emph = new Set(FX.keywords(cl.hook + ' ' + cl.title));
       cues.forEach((q) => { q.hl = q.text.split(' ').map((w) => /\d/.test(w) || emph.has(FX.norm(w)) || PROFANITY.test(w) || /^(no|yo|bro|what|wait|oh|omg|bruh)\W*$/i.test(w)); PROFANITY.lastIndex = 0; const cps = q.text.length / Math.max(0.05, q.end - q.start); if (cps > 26) items.push(item('low', FX.ts(q.start), `"${q.text}" is on screen ${(q.end - q.start).toFixed(2)}s`, 'Fast speech; readable but quick.')); });
     } else items.push(item('medium', 'Captions', 'No captions: the stream audio was not transcribed (needs an OpenAI key).', 'Captions roughly double watch time on shorts; add a key.'));
     const z = FX.layoutZones(cl.layout);
-    const style = { color: c.captionColor, highlight: c.highlightColor, pos: ['blur', 'split', 'hook'].includes(cl.layout) ? z.caption : c.captionPos, size: c.captionSize };
+    const style = FX.captionStyle(c, r, ['blur', 'split', 'hook'].includes(cl.layout) ? z.caption : c.captionPos);
     if (style.pos < 0.3 || style.pos > 0.78) items.push(item('medium', 'Style', 'Caption position outside the platform-safe zone', 'Change it in Channel.'));
     const srt = cues.map((q, i) => `${i + 1}\n${FX.srtT(q.start)} --> ${FX.srtT(q.end)}\n${q.text}\n`).join('\n');
     r.captions = { cues, style, method: words.length ? 'stream transcription (Whisper word timings), mapped through jump cuts' : 'none', srtFile: await FX.saveFile(new Blob([srt], { type: 'text/plain' }), r.id + '.srt', { recId: r.id, role: 'captions' }), at: now() };
@@ -395,7 +481,7 @@
       const hookUntil = Math.max(introEnd, 0) + 2.8;
       if (t < hookUntil) banner(cl.hook, Math.min(1, (hookUntil - t) / 0.3), H * z.hook, t < 0.18 ? 0.85 + 0.15 * (t / 0.18) + 0.06 * Math.sin((t / 0.18) * Math.PI) : 1);
       if (cl.tag) drawCaption(cl.tag, cl.layout === 'split' ? H * 0.06 : H * 0.95, 48, '#fff');
-      const cue = p.captions.find((q) => t >= q.start && t < q.end); if (cue) FX.drawCue(cue, p.captionStyle, t);
+      const cue = FX.cueAt(p.captions, t, p.captionStyle); if (cue) FX.drawCue(cue, p.captionStyle, t);
       if (cl.brandTag && FX.hooks) FX.hooks.drawTag(ctx, cl.brandTag, cl.layout, { pos: cl.tagPos });
     };
     draw();

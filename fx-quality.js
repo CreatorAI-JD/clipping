@@ -78,13 +78,13 @@
     for (const w of words) {
       const text = String(w.word || '').trim(); if (!text) continue;
       const brk = !cur || cur.n >= maxWords || (cur.text + ' ' + text).length > maxChars || w.start - cur.end > 0.3 || /[.!?,;:]$/.test(cur.text);
-      if (brk) { cur = { text, start: w.start, end: w.end, n: 1 }; out.push(cur); } else { cur.text += ' ' + text; cur.end = w.end; cur.n++; }
+      if (brk) { cur = { text, start: w.start, end: w.end, n: 1, ts: [w.start] }; out.push(cur); } else { cur.text += ' ' + text; cur.end = w.end; cur.n++; cur.ts.push(w.start); }
     }
     out.forEach((c, i) => { const nx = out[i + 1]; c.until = nx ? Math.min(nx.start, c.end + 0.35) : c.end + 0.5; });
     // merge flashes that would be on screen too briefly to read
     for (let i = 0; i < out.length - 1; i++) {
       const c = out[i], nx = out[i + 1];
-      if (c.until - c.start < minDur && nx.start - c.end < 0.3 && (c.text + ' ' + nx.text).length <= maxChars + 8) { nx.text = c.text + ' ' + nx.text; nx.start = c.start; nx.n += c.n; out.splice(i, 1); i--; }
+      if (c.until - c.start < minDur && nx.start - c.end < 0.3 && (c.text + ' ' + nx.text).length <= maxChars + 8) { nx.text = c.text + ' ' + nx.text; nx.start = c.start; nx.n += c.n; nx.ts = [...(c.ts || []), ...(nx.ts || [])]; out.splice(i, 1); i--; }
     }
     out.forEach((c, i) => { const nx = out[i + 1]; c.until = Math.max(c.until, Math.min(c.start + minDur, nx ? nx.start : Infinity)); });
     return out.map((c) => ({ start: Math.round(c.start * 100) / 100, end: Math.round(c.until * 100) / 100, text: c.text.replace(/[,;:]$/, '') }));
