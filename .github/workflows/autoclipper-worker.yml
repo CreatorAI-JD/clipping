@@ -1,0 +1,54 @@
+# AutoClipper background worker: research + 7-day content plan, every 6 hours, without a browser.
+# Results are committed to the "autoclipper-data" branch; the app reads them from there.
+# Setup: see WORKER.md (add OPENAI_API_KEY etc. as repository secrets; settings as repository variables).
+name: AutoClipper worker
+on:
+  schedule:
+    - cron: '17 */6 * * *'
+  workflow_dispatch: {}
+permissions:
+  contents: write
+concurrency:
+  group: autoclipper-worker
+  cancel-in-progress: false
+jobs:
+  research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Get the previous data (plan history, spend)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir data-branch && cd data-branch && git init -q
+          git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          if git fetch -q origin autoclipper-data; then git checkout -q -b autoclipper-data FETCH_HEAD; else git checkout -q --orphan autoclipper-data; fi
+          mkdir -p data
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Research + Content Director
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+          TWITCH_CLIENT_ID: ${{ secrets.TWITCH_CLIENT_ID }}
+          TWITCH_CLIENT_SECRET: ${{ secrets.TWITCH_CLIENT_SECRET }}
+          AC_NICHE: ${{ vars.AC_NICHE }}
+          AC_KEYWORDS: ${{ vars.AC_KEYWORDS }}
+          AC_SUBREDDITS: ${{ vars.AC_SUBREDDITS }}
+          AC_GAMES: ${{ vars.AC_GAMES }}
+          AC_CHANNEL_TYPE: ${{ vars.AC_CHANNEL_TYPE }}
+          AC_PER_DAY: ${{ vars.AC_PER_DAY }}
+          AC_MAX_USD_PER_DAY: ${{ vars.AC_MAX_USD_PER_DAY }}
+          AC_OUT: data-branch/data
+        run: node worker/research.mjs
+      - name: Save results
+        if: always()
+        run: |
+          cd data-branch
+          git config user.name "autoclipper-worker"
+          git config user.email "autoclipper-worker@users.noreply.github.com"
+          git add data
+          git commit -qm "worker: research $(date -u +%Y-%m-%dT%H:%MZ)" || echo "nothing new"
+          git push origin HEAD:autoclipper-data

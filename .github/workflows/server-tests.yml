@@ -1,0 +1,23 @@
+# Runs the cloud server's test suite on every push to server/
+name: Server tests
+on:
+  push:
+    paths: ['server/**']
+  pull_request:
+    paths: ['server/**']
+  workflow_dispatch: {}
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: server
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: sudo apt-get update && sudo apt-get install -y ffmpeg fonts-dejavu-core
+      - run: pip install -r requirements.txt
+      - run: pytest -q -x
