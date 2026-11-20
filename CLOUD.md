@@ -48,7 +48,7 @@ Needs: a Fly.io account with a payment method (your step), and `flyctl` on your 
 
 ```bash
 cd server
-fly launch --no-deploy --copy-config          # pick a name; replace autoclipper-REPLACE-ME in fly.toml
+fly launch --no-deploy --copy-config          # app name is autoclipper-creatorai-jd (fly.toml)
 fly volumes create autoclipper_data --size 20 # 20 GB for sources, live buffers and renders
 fly secrets set AC_ADMIN_TOKEN=$(openssl rand -hex 24) OPENAI_API_KEY=sk-... \
   TWITCH_CLIENT_ID=... TWITCH_CLIENT_SECRET=... YOUTUBE_API_KEY=... UPLOAD_POST_API_KEY=...
@@ -56,6 +56,13 @@ fly deploy
 fly secrets list                               # the token is not shown again: keep your copy
 ```
 Then open AutoClipper → **Cloud studio**, enter `https://<your-app>.fly.dev` and the admin token.
+
+### No-install option: deploy from GitHub Actions
+1. Fly.io → Account → Access Tokens → create a deploy token.
+2. GitHub repo → Settings → Secrets and variables → Actions → add `FLY_API_TOKEN`, `AC_ADMIN_TOKEN` (a long password you choose)
+   and your keys (`OPENAI_API_KEY`, `TWITCH_CLIENT_ID`, `TWITCH_CLIENT_SECRET`, optional `YOUTUBE_API_KEY`, `UPLOAD_POST_API_KEY`, `AC_NOTIFY_WEBHOOK`).
+3. Actions → **Deploy cloud server** → Run workflow. It creates the app and its 20 GB disk the first time, then deploys.
+   The server is at `https://autoclipper-creatorai-jd.fly.dev`.
 
 ### Any other host (VPS, home server, Railway, Render with a disk)
 `cp .env.example .env`, fill it in, then `docker compose up -d`. The machine must stay on and have a persistent disk.
