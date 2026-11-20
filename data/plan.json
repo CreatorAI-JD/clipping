@@ -1,5 +1,5 @@
 {
- "at": "2026-11-20T15:23:12.332Z",
+ "at": "2026-11-20T23:58:13.713Z",
  "days": [
   {
    "date": "2026-11-20",
@@ -13,7 +13,7 @@
      "confidence": 0.5,
      "score": 45,
      "why": "1 clip(s) with 31,419 views in the last day",
-     "status": "new"
+     "status": "kept"
     },
     {
      "key": "creator-kick-chillingcrew",
@@ -24,7 +24,7 @@
      "confidence": 0.5,
      "score": 45,
      "why": "3 clip(s) with 22,272 views in the last day",
-     "status": "new"
+     "status": "kept"
     },
     {
      "key": "creator-kick-misshenley",
@@ -35,7 +35,7 @@
      "confidence": 0.5,
      "score": 45,
      "why": "2 clip(s) with 17,644 views in the last day",
-     "status": "new"
+     "status": "kept"
     }
    ]
   },
@@ -43,14 +43,14 @@
    "date": "2026-11-21",
    "slots": [
     {
-     "key": "creator-kick-xmerghani",
-     "topic": "xmerghani (kick, Just Chatting)",
+     "key": "creator-kick-xqc",
+     "topic": "xQc (kick, Just Chatting)",
      "kind": "clip",
      "format": "clip",
      "hook": "",
      "confidence": 0.5,
      "score": 45,
-     "why": "2 clip(s) with 16,554 views in the last day",
+     "why": "2 clip(s) with 12,797 views in the last day",
      "status": "new"
     }
    ]
@@ -67,14 +67,14 @@
    "date": "2026-11-24",
    "slots": [
     {
-     "key": "creator-kick-djmariio",
-     "topic": "DjMaRiiO (kick, Grand Theft Auto VI (GTA))",
+     "key": "creator-kick-gustavocsgo",
+     "topic": "GustavoCSGO (kick, Grand Theft Auto VI (GTA))",
      "kind": "clip",
      "format": "clip",
      "hook": "",
      "confidence": 0.5,
      "score": 45,
-     "why": "1 clip(s) with 9,197 views in the last day",
+     "why": "1 clip(s) with 7,985 views in the last day",
      "status": "new"
     }
    ]
@@ -91,7 +91,7 @@
      "confidence": 0.5,
      "score": 45,
      "why": "1 clip(s) with 7,417 views in the last day",
-     "status": "new"
+     "status": "kept"
     }
    ]
   },
@@ -100,6 +100,15 @@
    "slots": []
   }
  ],
- "replaced": [],
- "kept": 0
+ "replaced": [
+  {
+   "topic": "xmerghani (kick, Just Chatting)",
+   "reason": "evidence went stale or a stronger opportunity replaced it"
+  },
+  {
+   "topic": "DjMaRiiO (kick, Grand Theft Auto VI (GTA))",
+   "reason": "evidence went stale or a stronger opportunity replaced it"
+  }
+ ],
+ "kept": 4
 }
