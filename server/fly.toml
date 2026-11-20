@@ -1,0 +1,26 @@
+# Fly.io: one always-on machine with a persistent volume. See CLOUD.md for the setup commands.
+app = "autoclipper-REPLACE-ME"
+primary_region = "ewr"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  AC_DATA_DIR = "/data"
+  PORT = "8080"
+  AC_ALLOWED_ORIGINS = "https://creatorai-jd.github.io"
+
+[[mounts]]
+  source = "autoclipper_data"
+  destination = "/data"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "off"   # must stay on: it watches streams 24/7
+  auto_start_machines = true
+  min_machines_running = 1
+
+[[vm]]
+  size = "shared-cpu-2x"
+  memory = "2gb"

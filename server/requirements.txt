@@ -1,0 +1,10 @@
+# AutoClipper cloud server (pinned major versions; review before upgrading)
+flask>=3.0,<4
+gunicorn>=22,<24
+requests>=2.31,<3
+numpy>=1.26,<3
+scikit-image>=0.22,<0.26
+opencv-python-headless>=4.9,<5
+pillow>=10,<12
+streamlink>=6,<8
+pytest>=8,<9

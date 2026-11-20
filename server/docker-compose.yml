@@ -1,0 +1,10 @@
+# Local or VPS run: docker compose up -d   (fill in .env first, see CLOUD.md)
+services:
+  autoclipper:
+    build: .
+    restart: always
+    ports: ["8080:8080"]
+    env_file: .env
+    volumes: ["autoclipper-data:/data"]
+volumes:
+  autoclipper-data: {}
