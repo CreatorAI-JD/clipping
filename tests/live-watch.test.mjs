@@ -177,8 +177,8 @@ await page.fill('#apiKey', 'sk-test'); await page.dispatchEvent('#apiKey', 'chan
 await page.locator('body').click({ position: { x: 600, y: 5 } });
 await page.keyboard.press('Escape');
 await page.evaluate(() => document.activeElement.blur());
-await page.keyboard.press('2');
-check('number key 2 opens Live Watch', await page.evaluate(() => document.querySelector('#live').classList.contains('active')));
+await page.keyboard.press('4');
+check('number key 4 opens Live Watch (2 Operations, 3 Content plan)', await page.evaluate(() => document.querySelector('#live').classList.contains('active')));
 await page.goBack(); await page.waitForTimeout(300);
 check('Back button returns to the previous page', await page.evaluate(() => document.querySelector('#settings').classList.contains('active')), await page.evaluate(() => location.hash));
 await page.keyboard.press('1'); await page.waitForTimeout(400);

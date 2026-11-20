@@ -1,0 +1,47 @@
+// Caption styles: presets, custom style, words per caption, karaoke highlight, timing offset, rotation, Channel preview.
+// Run from the repo root:  node tests/captions.test.mjs
+import { createRequire } from 'node:module';
+import http from 'node:http';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+const { chromium } = createRequire(import.meta.url)('playwright');
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css' };
+const server = http.createServer((req, res) => { const f = path.join(ROOT, decodeURIComponent(req.url.split('?')[0]).replace(/\/$/, '/index.html')); if (!f.startsWith(ROOT) || !fs.existsSync(f)) { res.writeHead(404); return res.end(); } res.writeHead(200, { 'Content-Type': TYPES[path.extname(f)] || 'application/octet-stream' }); fs.createReadStream(f).pipe(res); });
+await new Promise((r) => server.listen(0, r));
+let failed = 0; const check = (n, c, x = '') => { console.log(`${c ? 'PASS' : 'FAIL'}  ${n}${x ? '  — ' + x : ''}`); if (!c) failed++; };
+const browser = await chromium.launch(); const page = await browser.newPage({ viewport: { width: 1300, height: 900 } });
+const errors = []; page.on('pageerror', (e) => errors.push(e.message));
+await page.route(/^https?:\/\/(?!localhost)/, (r) => r.abort());
+await page.goto(`http://localhost:${server.address().port}/`);
+await page.waitForFunction(() => window.FX && FX.paintCue);
+const r = await page.evaluate(() => {
+  const count = (st, cue, t, rgb) => { const cv = Object.assign(document.createElement('canvas'), { width: 1080, height: 1920 }), g = cv.getContext('2d'); g.fillStyle = '#000'; g.fillRect(0, 0, 1080, 1920); FX.paintCue(g, cue, st, t); const d = g.getImageData(0, 0, 1080, 1920).data; let n = 0; for (let i = 0; i < d.length; i += 4) if (Math.abs(d[i] - rgb[0]) < 30 && Math.abs(d[i + 1] - rgb[1]) < 30 && Math.abs(d[i + 2] - rgb[2]) < 30) n++; return n; };
+  const cue = { text: 'he did not see', start: 0, end: 2, ts: [0, 0.5, 1.0, 1.5], hl: [false, false, true, false] };
+  const kar = FX.captionStyle({ captionPreset: 'karaoke' });
+  const green = [0x39, 0xff, 0x88];
+  const early = count(kar, cue, 0.1, green), late = count(kar, cue, 1.6, green);
+  const bold = FX.captionStyle({ captionPreset: 'bold' });
+  const yellowKw = count(bold, cue, 0.5, [0xff, 0xd4, 0]);
+  const none = FX.captionStyle({ captionPreset: 'minimal' });
+  const custom = FX.captionStyle({ captionPreset: 'custom', captionColor: '#ff0000', captionWords: 2, captionFont: 'serif', captionBox: true });
+  const red = count(custom, { text: 'red words', start: 0, end: 1 }, 0.5, [255, 0, 0]);
+  const off = FX.cueAt([{ start: 1, end: 2, text: 'x' }], 1.1, { offset: 0.3 }), off2 = FX.cueAt([{ start: 1, end: 2, text: 'x' }], 1.35, { offset: 0.3 });
+  const rot = new Set(['VID-1', 'VID-2', 'VID-3', 'VID-4', 'VID-5', 'VID-6'].map((id) => FX.captionStyle({ captionPreset: 'bold', captionRotate: 'bold,karaoke,clean' }, { id }).preset));
+  const chunks1 = FX.captionChunks([{ word: 'a', start: 0, end: 0.2 }, { word: 'b', start: 0.25, end: 0.4 }, { word: 'c', start: 0.45, end: 0.6 }], { maxWords: 1, minDur: 0 }).length;
+  return { early, late, yellowKw, noneHl: none.hlMode, red, custom, off: !!off, off2: !!off2, rot: [...rot], chunks1 };
+});
+check('karaoke highlights the word being said (moves with time)', r.early > 500 && r.late > 500, JSON.stringify([r.early, r.late]));
+check('Bold Pop highlights key words in its highlight color', r.yellowKw > 500);
+check('custom style uses the chosen color, font, box and words per caption', r.red > 500 && r.custom.font === 'serif' && r.custom.box && r.custom.words === 2);
+check('timing offset shifts when a caption shows', !r.off && r.off2);
+check('rotation gives different videos different presets', r.rot.length >= 2, r.rot.join(','));
+check('words-per-caption setting splits captions', r.chunks1 === 3);
+await page.click('nav button[data-tab="line"]'); await page.evaluate(() => { document.querySelector('#line [data-sub="channel"]')?.click(); });
+await page.waitForSelector('#capPreview', { timeout: 5000 }).catch(() => {});
+const pv = await page.evaluate(() => { const cv = document.querySelector('#capPreview'); if (!cv) return null; const d = cv.getContext('2d').getImageData(0, 0, cv.width, cv.height).data; let lit = 0; for (let i = 0; i < d.length; i += 4) if (d[i] > 200 && d[i + 1] > 200 && d[i + 2] > 200) lit++; return lit; });
+check('Channel tab shows a live caption preview', pv > 100, String(pv));
+await page.selectOption('#ch_captionPreset', 'bounce'); await page.dispatchEvent('#ch_captionPreset', 'input');
+check('no page errors', !errors.length, errors.join(' | '));
+await browser.close(); server.close(); process.exit(failed ? 1 : 0);

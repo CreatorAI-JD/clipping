@@ -34,6 +34,16 @@ page.on('pageerror', (e) => errors.push(e.message));
 page.on('dialog', (d) => d.accept());
 await page.route('https://api.openai.com/**', async (route) => {
   const url = route.request().url(), key = url.split('/v1/')[1]; S.calls[key] = (S.calls[key] || 0) + 1;
+  if (key === 'audio/transcriptions' && (route.request().postDataBuffer() || Buffer.alloc(0)).toString('latin1').includes('export-check')) {
+    // the inspection listens to the finished video: the "true" speech times are the captions shifted by S.syncShift (fixed per video)
+    const truth = await page.evaluate(async (shift) => {
+      const r = (await FX.db.prod.all()).find((x) => x.stage === 'finalqc' && x.status === 'working'); if (!r) return [];
+      window.__truth ||= {}; if (!window.__truth[r.id]) { const w = []; for (const q of r.captions.cues) { const ws = q.text.split(/\s+/), d = (q.end - q.start) / ws.length; ws.forEach((x, i) => w.push({ word: x, start: q.start + shift + i * d, end: q.start + shift + (i + 1) * d })); } window.__truth[r.id] = w; }
+      return window.__truth[r.id];
+    }, S.syncShift || 0);
+    S.exportChecks = (S.exportChecks || 0) + 1;
+    return route.fulfill({ contentType: 'application/json', body: JSON.stringify({ text: truth.map((w) => w.word).join(' '), words: truth }) });
+  }
   if (key === 'audio/transcriptions') {
     const words = S.said.split(' ').map((w, i) => ({ word: w, start: 2 + i * 0.45, end: 2.4 + i * 0.45 }));
     return route.fulfill({ contentType: 'application/json', body: JSON.stringify({ text: S.said, words, segments: [{ start: 2, end: 2 + words.length * 0.45, text: S.said }] }) });
@@ -91,11 +101,28 @@ console.log('reports:', JSON.stringify(ra.reports));
 check('clean clip reached Human Approval', ra.stage === 'approval' && ra.status === 'awaiting_approval', `${ra.stage}/${ra.status}`);
 check('every inspection department ran', ['audioqc', 'visualqc', 'copyright', 'guidelines', 'monetization', 'finalqc'].every((k) => ra.reports[k]), Object.keys(ra.reports).join(','));
 check('safety scan ran in Guidelines QC', ra.scan === true);
+// AutoClipper 2.0: stage ledger, agents and activity feed come from the real run
+const led = await page.evaluate(async (id) => { const r = await FX.db.prod.get(id); const st = await FX.agentStatus(); return { stages: Object.fromEntries(Object.entries(r.ledger || {}).map(([k, L]) => [k, { status: L.status, agent: L.agent, start: !!L.firstStart, end: !!L.lastEnd, score: L.score, runs: L.runs.length }])), agents: Object.keys(st).length, feed: FX.feed().length, feedAgents: [...new Set(FX.feed().map((e) => e.agent))] }; }, a.id);
+check('every stage has a ledger entry with agent, start, end and score', ['trends', 'factcheck', 'script', 'captions', 'edit', 'audioqc', 'visualqc', 'finalqc', 'prep'].every((k) => led.stages[k]?.agent && led.stages[k].start && led.stages[k].end && typeof led.stages[k].score === 'number'), JSON.stringify(led.stages));
+check('20 agents report a status', led.agents === 20);
+const ins = await page.evaluate(async (id) => { const r = await FX.db.prod.get(id); return { n: r.inspection?.board?.length, st: r.inspection?.board?.map((b) => b.n + ':' + b.status), heard: !!r.inspection?.heard, viral: r.viral?.score, tickets: r.inspection?.tickets?.map((t) => t.n + ' ' + t.severity + ' ' + t.problem) }; }, a.id);
+check('10 independent checkers inspected the rendered video', ins.n === 10 && ins.heard && S.exportChecks >= 1, JSON.stringify(ins.st));
+check('captions match and are in sync with the final audio', ['1:pass', '2:pass'].every((x) => ins.st.includes(x)) || ins.st.some((x) => /^[12]:warn/.test(x)), JSON.stringify(ins.tickets));
+check('viral potential estimate recorded', typeof ins.viral === 'number');
+check('activity feed logged real assignments and results', led.feed > 20 && ['manager', 'intel', 'captions', 'visual', 'qa'].every((a) => led.feedAgents.includes(a)), JSON.stringify(led.feedAgents));
 const n0 = S.uploads.length;
 const pub = await page.evaluate(async (id) => { await FX.approve(id, { note: 'e2e' }); const r = await FX.db.prod.get(id); return { stage: r.stage, status: r.status, gate: r.gate, publish: r.publish }; }, a.id);
 check('approved clip passed the publish gate', pub.gate?.ok === true, JSON.stringify(pub.gate?.why));
 check('approved clip was uploaded once', S.uploads.length === n0 + 1, `uploads=${S.uploads.length - n0}`);
 check('upload used private test mode platforms only', JSON.stringify(pub.publish?.platforms) === '["youtube","tiktok"]', JSON.stringify(pub.publish?.platforms));
+
+// Run 3 (2.0): captions are 1.2 s out of sync in the render -> Caption Specialist re-times them -> re-render -> passes
+S.syncShift = 1.2; S.said = 'wait wait he jumped the bridge with the bike and landed on a boat no way';
+const c3 = await runToApproval('out-of-sync');
+const r3 = await page.evaluate(async (id) => { const r = await FX.db.prod.get(id); return { stage: r.stage, status: r.status, revs: r.revisions.map((x) => x.from + '>' + x.to), rounds: r.inspection?.round, res: (r.inspection?.resolved || []).map((t) => t.checker), method: r.captions?.method, led: r.ledger?.finalqc?.runs?.map((x) => x.status) }; }, c3.id);
+check('out-of-sync captions were caught by the inspection and sent to the Caption Specialist', r3.revs.includes('finalqc>captions'), JSON.stringify(r3));
+check('captions were re-timed to the final audio, re-rendered, and passed on the next round', r3.stage === 'approval' && r3.rounds >= 2 && /re-timed/.test(r3.method) && r3.res.includes('Caption synchronization'), JSON.stringify(r3));
+S.syncShift = 0;
 
 // Run 2: streamer says a slur → line stops for a person at Guidelines QC; nothing uploads
 S.said = 'SLURWORD get out of my car';
