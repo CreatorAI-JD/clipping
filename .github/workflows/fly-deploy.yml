@@ -1,0 +1,54 @@
+# Deploys the AutoClipper cloud server to Fly.io. No local install needed.
+# One-time: add repo secrets (Settings -> Secrets and variables -> Actions):
+#   FLY_API_TOKEN (required), AC_ADMIN_TOKEN (required: a long random password you choose),
+#   OPENAI_API_KEY, TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET, YOUTUBE_API_KEY, UPLOAD_POST_API_KEY, AC_NOTIFY_WEBHOOK (optional)
+# Then: Actions -> "Deploy cloud server" -> Run workflow. It also redeploys when server/ changes on main.
+name: Deploy cloud server
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ["server/**", ".github/workflows/fly-deploy.yml"]
+concurrency: fly-deploy
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+      APP: autoclipper-creatorai-jd
+      REGION: ewr
+    steps:
+      - uses: actions/checkout@v4
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - name: Check secrets
+        run: |
+          [ -n "$FLY_API_TOKEN" ] || { echo "::error::Add the FLY_API_TOKEN repo secret first"; exit 1; }
+          [ -n "${{ secrets.AC_ADMIN_TOKEN }}" ] || { echo "::error::Add the AC_ADMIN_TOKEN repo secret first"; exit 1; }
+      - name: Create the app and its disk (first run only)
+        working-directory: server
+        run: |
+          flyctl status -a "$APP" >/dev/null 2>&1 || flyctl apps create "$APP"
+          flyctl volumes list -a "$APP" | grep -q autoclipper_data || flyctl volumes create autoclipper_data --size 20 --region "$REGION" -a "$APP" --yes
+      - name: Set server secrets (only the ones you added)
+        working-directory: server
+        env:
+          AC_ADMIN_TOKEN: ${{ secrets.AC_ADMIN_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          TWITCH_CLIENT_ID: ${{ secrets.TWITCH_CLIENT_ID }}
+          TWITCH_CLIENT_SECRET: ${{ secrets.TWITCH_CLIENT_SECRET }}
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+          UPLOAD_POST_API_KEY: ${{ secrets.UPLOAD_POST_API_KEY }}
+          AC_NOTIFY_WEBHOOK: ${{ secrets.AC_NOTIFY_WEBHOOK }}
+        run: |
+          args=()
+          for k in AC_ADMIN_TOKEN OPENAI_API_KEY TWITCH_CLIENT_ID TWITCH_CLIENT_SECRET YOUTUBE_API_KEY UPLOAD_POST_API_KEY AC_NOTIFY_WEBHOOK; do
+            [ -n "${!k}" ] && args+=("$k=${!k}")
+          done
+          flyctl secrets set --stage -a "$APP" "${args[@]}"
+      - name: Deploy
+        working-directory: server
+        run: flyctl deploy --remote-only -a "$APP" --ha=false
+      - name: Health check
+        run: |
+          for i in $(seq 1 30); do curl -fsS "https://$APP.fly.dev/api/health" && exit 0; sleep 10; done
+          echo "::error::Server did not answer /api/health"; flyctl logs -a "$APP" --no-tail | tail -50; exit 1
