@@ -1,0 +1,105 @@
+{
+ "at": "2026-11-20T15:23:12.332Z",
+ "days": [
+  {
+   "date": "2026-11-20",
+   "slots": [
+    {
+     "key": "creator-kick-adinross",
+     "topic": "AdinRoss (kick, Grand Theft Auto VI (GTA))",
+     "kind": "clip",
+     "format": "clip",
+     "hook": "",
+     "confidence": 0.5,
+     "score": 45,
+     "why": "1 clip(s) with 31,419 views in the last day",
+     "status": "new"
+    },
+    {
+     "key": "creator-kick-chillingcrew",
+     "topic": "ChillingCrew (kick, Special Events)",
+     "kind": "clip",
+     "format": "clip",
+     "hook": "",
+     "confidence": 0.5,
+     "score": 45,
+     "why": "3 clip(s) with 22,272 views in the last day",
+     "status": "new"
+    },
+    {
+     "key": "creator-kick-misshenley",
+     "topic": "misshenley (kick, Slots & Casino)",
+     "kind": "clip",
+     "format": "clip",
+     "hook": "",
+     "confidence": 0.5,
+     "score": 45,
+     "why": "2 clip(s) with 17,644 views in the last day",
+     "status": "new"
+    }
+   ]
+  },
+  {
+   "date": "2026-11-21",
+   "slots": [
+    {
+     "key": "creator-kick-xmerghani",
+     "topic": "xmerghani (kick, Just Chatting)",
+     "kind": "clip",
+     "format": "clip",
+     "hook": "",
+     "confidence": 0.5,
+     "score": 45,
+     "why": "2 clip(s) with 16,554 views in the last day",
+     "status": "new"
+    }
+   ]
+  },
+  {
+   "date": "2026-11-22",
+   "slots": []
+  },
+  {
+   "date": "2026-11-23",
+   "slots": []
+  },
+  {
+   "date": "2026-11-24",
+   "slots": [
+    {
+     "key": "creator-kick-djmariio",
+     "topic": "DjMaRiiO (kick, Grand Theft Auto VI (GTA))",
+     "kind": "clip",
+     "format": "clip",
+     "hook": "",
+     "confidence": 0.5,
+     "score": 45,
+     "why": "1 clip(s) with 9,197 views in the last day",
+     "status": "new"
+    }
+   ]
+  },
+  {
+   "date": "2026-11-25",
+   "slots": [
+    {
+     "key": "creator-kick-destiny",
+     "topic": "Destiny (kick, Just Chatting)",
+     "kind": "clip",
+     "format": "clip",
+     "hook": "",
+     "confidence": 0.5,
+     "score": 45,
+     "why": "1 clip(s) with 7,417 views in the last day",
+     "status": "new"
+    }
+   ]
+  },
+  {
+   "date": "2026-11-26",
+   "slots": []
+  }
+ ],
+ "replaced": [],
+ "kept": 0
+}

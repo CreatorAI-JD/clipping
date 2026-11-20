@@ -1,0 +1,60 @@
+{
+ "at": "2026-11-20T15:23:12.332Z",
+ "ok": true,
+ "next": "2026-11-20T21:23:12.332Z",
+ "sources": [
+  {
+   "name": "googleTrends",
+   "ok": true,
+   "count": 10,
+   "ms": 221
+  },
+  {
+   "name": "googleNews",
+   "ok": true,
+   "count": 0,
+   "ms": 0
+  },
+  {
+   "name": "wikipedia",
+   "ok": true,
+   "count": 40,
+   "ms": 38
+  },
+  {
+   "name": "hackerNews",
+   "ok": true,
+   "count": 20,
+   "ms": 219
+  },
+  {
+   "name": "reddit",
+   "ok": true,
+   "count": 0,
+   "ms": 0
+  },
+  {
+   "name": "youtube",
+   "ok": true,
+   "skipped": "no YOUTUBE_API_KEY",
+   "count": 0
+  },
+  {
+   "name": "twitch",
+   "ok": true,
+   "count": 0,
+   "ms": 307
+  },
+  {
+   "name": "kick",
+   "ok": true,
+   "count": 20,
+   "ms": 1549
+  }
+ ],
+ "errors": [
+  "Analyst: OpenAI 401"
+ ],
+ "usd": 0,
+ "summary": "74 topics investigated, 16 opportunities, 6 planned"
+}
