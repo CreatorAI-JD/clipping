@@ -6,5 +6,5 @@ numpy>=1.26,<3
 scikit-image>=0.22,<0.26
 opencv-python-headless>=4.9,<5
 pillow>=10,<12
-streamlink>=6,<8
+streamlink>=8.4,<9  # 7.x breaks with current urllib3 ("Urllib3UtilUrlPercentReOverride has no attribute sub")
 pytest>=8,<9
