@@ -135,3 +135,6 @@
 .ce-more{display:flex;flex-wrap:wrap;gap:8px;width:100%;font-size:12px}
 .ce-more label{display:flex;flex-direction:column;gap:2px}
 .cl-side details{margin-top:10px}
+.cl-camp{border:1px solid var(--line,#333);border-radius:8px;padding:10px 12px;margin:8px 0 12px}
+.cl-camp h4{margin:0 0 4px}.cl-camp textarea{width:100%;margin:6px 0}
+.cl-camp .row input{flex:1;min-width:180px}

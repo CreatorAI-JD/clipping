@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.1 — Runs on its own (2026-11-20)
+- **Faceless reels on the server**: a daily quota of AI-written, voiced reels over a generated background, through the full production line and QC into Review. Rumours are labelled in the script and listed for the reviewer; facts are not claimed as checked.
+- **Clipping campaigns**: one form grants and watches every streamer in a campaign, with the campaign page stored as proof.
+- Permitted creators are always listed first.
+- **Deploy from GitHub Actions** (`.github/workflows/fly-deploy.yml`): no local install; redeploys when `server/` changes.
+
 ## 3.0 — Cloud clipping studio (2026-11-19)
 
 All production now runs on an always-on server (`server/`, see CLOUD.md); the website is the control panel.

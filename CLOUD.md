@@ -40,7 +40,13 @@ GitHub Pages (control panel)  --HTTPS + admin token-->  AutoClipper server (one 
 9. **Revision Agent**: up to 3 targeted fixes (re-time/rebuild captions, reframe facecam, trim the start, cut dead air,
    re-render), then the **exception queue** for you. Unverified checks are never counted as passes.
 10. **Review Queue** (Cloud studio → Review, and the Review Queue page): you edit, approve or reject.
-11. **Publishing** (optional, off by default): only approved clips, once each, through Upload-Post.
+11. **Faceless reels** (no stream needed): every 15 minutes the worker checks today's quota (default 3/day) and, if one is due,
+    writes a script (confirmed facts stated as facts, rumours labelled as rumours), voices it, renders it over a generated
+    background and sends it down the same line (captions, render, 12 checks, Review). Cloud studio → Settings sets the niche,
+    voice and number per day; Overview → "Make a faceless reel now" makes one on demand.
+12. **Campaigns**: Cloud studio → Creators → "Add a clipping campaign you joined": paste the campaign page and its streamers;
+    they all get permission "granted" with the campaign page as proof and are watched 24/7.
+13. **Publishing** (optional, off by default): only approved clips, once each, through Upload-Post.
 
 ## Setup on Fly.io (recommended: about 15 minutes, roughly $5–15/month)
 

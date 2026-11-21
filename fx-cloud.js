@@ -70,7 +70,8 @@
         ${kv('Jobs', Object.entries(s.jobs).map(([k, v]) => `${v} ${k}`).join(' · ') || 'none')}
         ${kv('Next live check', s.next.check_live ? ago(s.next.check_live).replace(' ago', '') : '–')}
         ${kv('Integrations', Object.entries(s.integrations).filter(([k, v]) => typeof v === 'boolean').map(([k, v]) => `${v ? '✓' : '✕'} ${k}`).join(' · '))}
-        <p class="muted small">This keeps running when this page, your browser or your computer is off.</p></div>
+        <p class="muted small">This keeps running when this page, your browser or your computer is off.</p>
+        <div class="row"><button data-cl="makeFaceless">${ico('film')}Make a faceless reel now</button><button data-cl="job" data-kind="discover">Discover creators now</button></div></div>
         <div class="card"><h3>${ico('coins')}Budget</h3>${kv('Today', `$${b.today.toFixed(2)} of $${b.daily.toFixed(2)}`)}<div class="bar"><i style="width:${Math.min(100, (b.today / (b.daily || 1)) * 100)}%"></i></div>
           ${kv('This month', `$${b.month.toFixed(2)} of $${b.monthly.toFixed(2)}`)}<div class="bar"><i style="width:${Math.min(100, (b.month / (b.monthly || 1)) * 100)}%"></i></div>
           ${b.paused ? '<p class="bad-text small">Budget reached: paid work is paused.</p>' : '<p class="muted small">Paid steps pause by themselves at the cap.</p>'}</div></div>
@@ -93,6 +94,11 @@
   function creators() {
     const rows = S.creators;
     return `<div class="card"><div class="row"><h3>${ico('radio')}Creators</h3><span class="muted small">Discovered automatically; only creators with permission are watched or clipped.</span><button data-cl="job" data-kind="discover" class="small-btn">Discover now</button></div>
+      <div class="cl-camp"><h4>${ico('check')}Add a clipping campaign you joined</h4>
+        <p class="muted small">Paste the campaign page (Content Rewards, Whop, Discord…) and its streamers. They all get permission "granted" with the campaign page as proof and are watched 24/7.</p>
+        <div class="row"><input id="clCampUrl" placeholder="https://contentrewards.com/campaigns/…"><input id="clCampName" placeholder="campaign name (optional)"></div>
+        <textarea id="clCampList" rows="3" placeholder="streamers, one per line or comma separated: name, kick:name, or channel links"></textarea>
+        <div class="row"><button class="primary" data-cl="addCampaign">${ico('check')}Grant + watch</button><span id="clCampMsg" class="small muted"></span></div></div>
       <div class="row"><select id="clNewPlat"><option>twitch</option><option>kick</option><option>youtube</option><option value="custom">custom (stream URL)</option></select><input id="clNewLogin" placeholder="channel name / id"><input id="clNewCat" placeholder="category (gaming, irl, podcast…)"><button data-cl="addCreator">${ico('check')}Add</button></div>
       <div class="cl-table"><div class="cl-tr h"><span>Creator</span><span>Platform</span><span>Category</span><span>Audience</span><span>Live</span><span>Score</span><span>Permission</span><span>Watch</span></div>
       ${rows.map((c) => `<div class="cl-tr" data-cid="${c.id}"><span><a href="${esc(c.url || '#')}" target="_blank" rel="noopener">${esc(c.name || c.login)}</a></span><span>${esc(c.platform)}</span><span>${esc(c.category || '')}</span><span>${c.viewers ? c.viewers.toLocaleString() + ' viewers' : ''}${c.metrics?.clip_views_7d ? `<br><small>${c.metrics.clip_views_7d.toLocaleString()} clip views/7d</small>` : ''}</span>
@@ -135,7 +141,7 @@
   }
   async function paintSettings() {
     const s = await C.api('/api/settings');
-    const p = s.production || {}, l = s.live || {}, pub = s.publishing || {}, b = s.budget || {}, d = s.discovery || {};
+    const p = s.production || {}, l = s.live || {}, pub = s.publishing || {}, b = s.budget || {}, d = s.discovery || {}, f = s.faceless || {};
     $('#clSettings').innerHTML = `<div class="grid3">
       <label>Max clip length (s)<input type="number" id="cs_clip_len" value="${p.clip_len ?? 40}"></label><label>Min clip length (s)<input type="number" id="cs_min_len" value="${p.min_len ?? 12}"></label>
       <label>Clips per source<input type="number" id="cs_clips_per_source" value="${p.clips_per_source ?? 3}"></label><label>Quality threshold (rank 1–10)<input type="number" step="0.1" id="cs_threshold" value="${p.threshold ?? 5.5}"></label>
@@ -143,6 +149,9 @@
       <label>Live: audio burst ×<input type="number" step="0.1" id="cs_burst" value="${l.burst ?? 2.2}"></label><label>Live: chat spike ×<input type="number" step="0.1" id="cs_chat" value="${l.chat ?? 3}"></label><label>Live: seconds between moments<input type="number" id="cs_cooldown" value="${l.cooldown ?? 90}"></label>
       <label>Daily budget ($)<input type="number" step="0.5" id="cs_daily" value="${b.daily ?? S.status.budget.daily}"></label><label>Monthly budget ($)<input type="number" step="1" id="cs_monthly" value="${b.monthly ?? S.status.budget.monthly}"></label>
       <label>Discovery categories (comma)<input id="cs_games" value="${esc((d.games || ['Grand Theft Auto V', 'Just Chatting']).join(', '))}"></label>
+      <label class="check"><input type="checkbox" id="cs_fl_on" ${f.enabled ? 'checked' : ''}> Make faceless reels automatically (AI script + voice, no one else's footage)</label>
+      <label>Faceless reels per day<input type="number" id="cs_fl_per" value="${f.per_day ?? 3}"></label><label>Faceless niche<input id="cs_fl_niche" value="${esc(f.niche || '')}"></label>
+      <label>Voice<select id="cs_fl_voice">${['onyx', 'alloy', 'echo', 'fable', 'nova', 'shimmer'].map((x) => `<option ${f.voice === x ? 'selected' : ''}>${x}</option>`).join('')}</select></label>
       <label class="check"><input type="checkbox" id="cs_pub" ${pub.enabled ? 'checked' : ''}> Publish clips after I approve them (Upload-Post key on the server)</label>
       <label>Platforms (comma)<input id="cs_plats" value="${esc((pub.platforms || ['tiktok', 'youtube', 'instagram']).join(', '))}"></label></div>
       <div class="row"><button class="primary" data-cl="saveSettings">Save</button></div>`;
@@ -155,6 +164,12 @@
       else if (a === 'tab') { S.tab = b.dataset.t; await load({ creators: ['creators'], research: ['research'], skills: ['skills'], sources: ['creators'], review: ['clips'], overview: ['status', 'events'], settings: [] }[S.tab] || []); }
       else if (a === 'open') return openEditor(b.dataset.id);
       else if (a === 'job') { await C.api('/api/jobs', { method: 'POST', body: { kind: b.dataset.kind } }); toast('Queued on the server'); }
+      else if (a === 'addCampaign') {
+        const streamers = $('#clCampList').value.split(/[\n,]+/).map((x) => x.trim()).filter(Boolean);
+        const r = await C.api('/api/campaigns', { method: 'POST', body: { url: $('#clCampUrl').value.trim(), name: $('#clCampName').value.trim(), streamers } });
+        toast(`${r.added.length} streamer(s) granted and watched`); await load(['creators']);
+      }
+      else if (a === 'makeFaceless') { await C.api('/api/jobs', { method: 'POST', body: { kind: 'faceless' } }); toast('Writing a faceless reel on the server: it lands in Review in a few minutes'); }
       else if (a === 'addCreator') { await C.api('/api/creators', { method: 'POST', body: { platform: $('#clNewPlat').value, login: $('#clNewLogin').value.trim(), category: $('#clNewCat').value.trim() || 'gaming' } }); await load(['creators']); }
       else if (a === 'upload') {
         const f = $('#clFile').files[0]; if (!f) return toast('Pick a video');
@@ -166,7 +181,7 @@
       else if (a === 'activate') { await C.api(`/api/skills/${b.dataset.id}/activate`, { method: 'POST' }); await load(['skills']); }
       else if (a === 'saveSettings') {
         const v = (id) => $('#' + id), n = (id) => +v(id).value;
-        await C.api('/api/settings', { method: 'PUT', body: { production: { clip_len: n('cs_clip_len'), min_len: n('cs_min_len'), clips_per_source: n('cs_clips_per_source'), threshold: n('cs_threshold'), deep: v('cs_deep').checked }, live: { burst: n('cs_burst'), chat: n('cs_chat'), cooldown: n('cs_cooldown') }, budget: { daily: n('cs_daily'), monthly: n('cs_monthly') }, discovery: { games: v('cs_games').value.split(',').map((x) => x.trim()).filter(Boolean) }, publishing: { enabled: v('cs_pub').checked, platforms: v('cs_plats').value.split(',').map((x) => x.trim()).filter(Boolean) } } });
+        await C.api('/api/settings', { method: 'PUT', body: { production: { clip_len: n('cs_clip_len'), min_len: n('cs_min_len'), clips_per_source: n('cs_clips_per_source'), threshold: n('cs_threshold'), deep: v('cs_deep').checked }, live: { burst: n('cs_burst'), chat: n('cs_chat'), cooldown: n('cs_cooldown') }, budget: { daily: n('cs_daily'), monthly: n('cs_monthly') }, discovery: { games: v('cs_games').value.split(',').map((x) => x.trim()).filter(Boolean) }, faceless: { enabled: v('cs_fl_on').checked, per_day: n('cs_fl_per'), niche: v('cs_fl_niche').value.trim(), voice: v('cs_fl_voice').value }, publishing: { enabled: v('cs_pub').checked, platforms: v('cs_plats').value.split(',').map((x) => x.trim()).filter(Boolean) } } });
         toast('Saved on the server'); await load(['status']);
       }
     } catch (err) { toast(err.message); S.err = err.message; }
