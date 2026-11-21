@@ -47,6 +47,25 @@ try {
   await page.click('[data-ce="approve"]'); await page.waitForTimeout(800);
   const after = await (await fetch(URL_ + '/api/clips/' + edited.id, { headers: { Authorization: 'Bearer ' + TOKEN } })).json();
   check('Approve marks it approved on the server (publishing off: no upload)', (after.clip || after).status === 'approved', (after.clip || after).status);
+  // campaign: grant + watch several streamers in one go
+  await page.evaluate(() => [...document.querySelectorAll('[data-cl="tab"]')].find((x) => /Creators/.test(x.textContent)).click()); await page.waitForTimeout(800);
+  await page.fill('#clCampUrl', 'https://contentrewards.com/campaigns/test-camp'); await page.fill('#clCampList', 'streamer_a\nkick:streamer_b, https://www.twitch.tv/Streamer_C');
+  await page.click('[data-cl="addCampaign"]'); await page.waitForTimeout(800);
+  const cr = await (await fetch(URL_ + '/api/creators?permitted=1', { headers: { Authorization: 'Bearer ' + TOKEN } })).json();
+  const camp = cr.filter((c) => c.permission_proof === 'https://contentrewards.com/campaigns/test-camp');
+  check('campaign form grants and watches every streamer, proof = campaign page', camp.length === 3 && camp.every((c) => c.monitor === 1) && camp.some((c) => c.platform === 'kick'), JSON.stringify(camp.map((c) => c.platform + ':' + c.login)));
+  await fetch(URL_ + '/api/creators', { method: 'POST', headers: { Authorization: 'Bearer ' + TOKEN, 'Content-Type': 'application/json' }, body: JSON.stringify({ platform: 'twitch', login: 'zz_not_permitted' }) });
+  const order = (await (await fetch(URL_ + '/api/creators', { headers: { Authorization: 'Bearer ' + TOKEN } })).json()).map((c) => ['own', 'granted'].includes(c.permission));
+  check('permitted creators are listed first in Creators', order.indexOf(false) > 0 && !order.slice(order.indexOf(false)).includes(true), order.join(','));
+  // faceless: make one now + settings
+  await page.evaluate(() => [...document.querySelectorAll('[data-cl="tab"]')].find((x) => /Overview/.test(x.textContent)).click()); await page.waitForTimeout(600);
+  await page.click('[data-cl="makeFaceless"]'); await page.waitForTimeout(600);
+  const jl = await (await fetch(URL_ + '/api/jobs', { headers: { Authorization: 'Bearer ' + TOKEN } })).json();
+  check('"Make a faceless reel now" queues a faceless job on the server', (jl.jobs || jl).some((j) => j.kind === 'faceless'));
+  await page.evaluate(() => [...document.querySelectorAll('[data-cl="tab"]')].find((x) => /Settings/.test(x.textContent)).click()); await page.waitForTimeout(1000);
+  await page.fill('#cs_fl_per', '5'); await page.fill('#cs_fl_niche', 'GTA RP funny moments explained'); await page.click('[data-cl="saveSettings"]'); await page.waitForTimeout(600);
+  const st = await (await fetch(URL_ + '/api/settings', { headers: { Authorization: 'Bearer ' + TOKEN } })).json();
+  check('faceless settings save on the server', st.faceless.per_day === 5 && st.faceless.niche === 'GTA RP funny moments explained', JSON.stringify(st.faceless));
   const unauth = await fetch(URL_ + '/api/clips');
   check('server refuses requests without the admin token', unauth.status === 401);
   check('no page errors', errors.length === 0, errors[0]);
