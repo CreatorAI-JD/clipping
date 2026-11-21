@@ -1,15 +1,15 @@
 {
- "at": "2026-11-21T06:59:35.159Z",
+ "at": "2026-11-21T19:10:29.198Z",
  "niche": "GTA 6, Grand Theft Auto, GTA Online, streamers",
  "channelType": "clips",
- "analyst": "AI analyst (gpt-4o-mini) wrote 8 opportunities with citations",
- "investigated": 70,
+ "analyst": "AI analyst (gpt-4o-mini) wrote 11 opportunities with citations",
+ "investigated": 73,
  "opportunities": [
   {
-   "key": "auto-grand-theft",
+   "key": "gta",
    "kind": "faceless",
-   "topic": "Grand Theft Auto VI",
-   "why": "It is currently the most-read topic on Wikipedia, indicating high public interest.",
+   "topic": "GTA VI",
+   "why": "GTA VI is currently trending with the highest views on Wikipedia, indicating strong public interest.",
    "sources": [
     {
      "source": "wikipedia",
@@ -36,7 +36,7 @@
      "metric": "82987 views"
     }
    ],
-   "researched": "2026-11-21T06:59:35.159Z",
+   "researched": "2026-11-21T19:10:29.198Z",
    "evidence": {
     "independentSources": 1,
     "sources": [
@@ -44,7 +44,7 @@
     ],
     "items": 3
    },
-   "audience": "GTA fans, gamers, and general audiences interested in gaming news.",
+   "audience": "GTA fans, gamers, and pop culture enthusiasts",
    "format": "facts",
    "hook": "Discover why Grand Theft Auto VI is capturing the attention of millions!",
    "difficulty": 2,
@@ -55,193 +55,10 @@
    "score": 68
   },
   {
-   "key": "gta-online",
-   "kind": "faceless",
-   "topic": "GTA Online",
-   "why": "The term 'GTA Online' is trending with over 500 searches, showing ongoing engagement with the game.",
-   "sources": [
-    {
-     "source": "googleTrends",
-     "title": "gta online",
-     "url": "https://www.pcmag.com/explainers/gta-6-is-finally-here-so-when-can-you-play-online-with-friends-multiplayer",
-     "publisher": "PCMag",
-     "date": "Fri, 20 Nov 2026 22:40:00 -0800",
-     "metric": "500+"
-    }
-   ],
-   "researched": "2026-11-21T06:59:35.159Z",
-   "evidence": {
-    "independentSources": 1,
-    "sources": [
-     "googleTrends"
-    ],
-    "items": 1
-   },
-   "audience": "GTA Online players and fans.",
-   "format": "explainer",
-   "hook": "What keeps players coming back to GTA Online? Let's explore!",
-   "difficulty": 2,
-   "risks": [],
-   "confidence": 0.36,
-   "niche": true,
-   "method": "cross-source evidence + AI analyst (cited)",
-   "score": 59.6
-  },
-  {
-   "key": "gta",
-   "kind": "faceless",
-   "topic": "GTA 6",
-   "why": "The search term 'cal gta 6' has over 200 searches, indicating curiosity about the game.",
-   "sources": [
-    {
-     "source": "googleTrends",
-     "title": "cal gta 6",
-     "url": "https://www.bbc.com/news/articles/cmqj5dr01e85o",
-     "publisher": "BBC",
-     "date": "Fri, 20 Nov 2026 22:30:00 -0800",
-     "metric": "200+"
-    }
-   ],
-   "researched": "2026-11-21T06:59:35.159Z",
-   "evidence": {
-    "independentSources": 1,
-    "sources": [
-     "googleTrends"
-    ],
-    "items": 1
-   },
-   "audience": "GTA enthusiasts and potential players.",
-   "format": "facts",
-   "hook": "What are fans speculating about GTA 6? Find out now!",
-   "difficulty": 2,
-   "risks": [],
-   "confidence": 0.36,
-   "niche": true,
-   "method": "cross-source evidence + AI analyst (cited)",
-   "score": 59.6
-  },
-  {
-   "key": "criminal-gta-profile",
-   "kind": "faceless",
-   "topic": "Criminal Profile in GTA 6",
-   "why": "The term 'criminal profile gta 6' has over 500 searches, suggesting interest in character development.",
-   "sources": [
-    {
-     "source": "googleTrends",
-     "title": "criminal profile gta 6",
-     "url": "https://tech.yahoo.com/gaming/articles/wife-says-husband-t-gta-163000428.html",
-     "publisher": "Yahoo Tech",
-     "date": "Fri, 20 Nov 2026 22:10:00 -0800",
-     "metric": "500+"
-    }
-   ],
-   "researched": "2026-11-21T06:59:35.159Z",
-   "evidence": {
-    "independentSources": 1,
-    "sources": [
-     "googleTrends"
-    ],
-    "items": 1
-   },
-   "audience": "GTA fans and gamers interested in character lore.",
-   "format": "story",
-   "hook": "Uncover the intriguing criminal profiles set to appear in GTA 6!",
-   "difficulty": 3,
-   "risks": [],
-   "confidence": 0.36,
-   "niche": true,
-   "method": "cross-source evidence + AI analyst (cited)",
-   "score": 57.6
-  },
-  {
-   "key": "gta-streamers",
-   "kind": "faceless",
-   "topic": "GTA Streamers",
-   "why": "The popularity of streamers playing GTA games continues to grow, attracting new audiences.",
-   "sources": [
-    {
-     "source": "googleTrends",
-     "title": "owen wilson",
-     "url": "https://www.fox6now.com/video/fmc-qqit8y02m0llxri4",
-     "publisher": "FOX6 News Milwaukee",
-     "date": "Fri, 20 Nov 2026 22:30:00 -0800",
-     "metric": "500+"
-    },
-    {
-     "source": "wikipedia",
-     "title": "Stephen Wilson Jr.",
-     "url": "https://en.wikipedia.org/wiki/Stephen_Wilson_Jr.",
-     "publisher": "Wikipedia most-read",
-     "date": "2026-11-20",
-     "metric": "64007 views"
-    }
-   ],
-   "researched": "2026-11-21T06:59:35.159Z",
-   "evidence": {
-    "independentSources": 2,
-    "sources": [
-     "googleTrends",
-     "wikipedia"
-    ],
-    "items": 2
-   },
-   "audience": "Gaming community and streaming fans.",
-   "format": "reaction",
-   "hook": "Who are the top streamers playing GTA right now? Let's take a look!",
-   "difficulty": 2,
-   "risks": [],
-   "confidence": 0.69,
-   "niche": false,
-   "method": "cross-source evidence + AI analyst (cited)",
-   "score": 49.4
-  },
-  {
-   "key": "gaming",
-   "kind": "faceless",
-   "topic": "AI in Gaming",
-   "why": "The discussion around AI and its impact on gaming is growing, relevant to future titles like GTA 6.",
-   "sources": [
-    {
-     "source": "wikipedia",
-     "title": "Anthropic",
-     "url": "https://en.wikipedia.org/wiki/Anthropic",
-     "publisher": "Wikipedia most-read",
-     "date": "2026-11-20",
-     "metric": "89567 views"
-    },
-    {
-     "source": "hackerNews",
-     "title": "Nasdaq erases all 2026 gains as AI sell-off dampens Anthropic’s second day",
-     "url": "https://www.theguardian.com/business/2026/nov/20/global-stock-markets-slump-anthropic-ipo-ai-sell-off",
-     "publisher": "Hacker News",
-     "date": "2026-11-20T13:29:59Z",
-     "metric": "248 points"
-    }
-   ],
-   "researched": "2026-11-21T06:59:35.159Z",
-   "evidence": {
-    "independentSources": 2,
-    "sources": [
-     "wikipedia",
-     "hackerNews"
-    ],
-    "items": 2
-   },
-   "audience": "Gamers and tech enthusiasts.",
-   "format": "technology",
-   "hook": "How is AI shaping the future of gaming, including GTA 6?",
-   "difficulty": 3,
-   "risks": [],
-   "confidence": 0.72,
-   "niche": false,
-   "method": "cross-source evidence + AI analyst (cited)",
-   "score": 49.2
-  },
-  {
    "key": "hypothesis-riemann",
    "kind": "faceless",
    "topic": "Riemann Hypothesis",
-   "why": "While not directly related, the trending nature of complex topics can attract a curious audience.",
+   "why": "While not directly related to GTA, the trending discussions around complex topics can attract a curious audience.",
    "sources": [
     {
      "source": "wikipedia",
@@ -257,7 +74,7 @@
      "url": "https://alpo.ge/remark.pdf",
      "publisher": "Hacker News",
      "date": "2026-11-20T14:16:21Z",
-     "metric": "2522 points"
+     "metric": "2826 points"
     },
     {
      "source": "hackerNews",
@@ -265,10 +82,10 @@
      "url": "https://terrytao.wordpress.com/2026/11/20/unforced-euler-singularity-unforced-navier-stokes-singularity-and-the-generalized-riemann-hypothesis/",
      "publisher": "Hacker News",
      "date": "2026-11-20T17:21:36Z",
-     "metric": "403 points"
+     "metric": "514 points"
     }
    ],
-   "researched": "2026-11-21T06:59:35.159Z",
+   "researched": "2026-11-21T19:10:29.198Z",
    "evidence": {
     "independentSources": 2,
     "sources": [
@@ -277,66 +94,63 @@
     ],
     "items": 4
    },
-   "audience": "Gamers with an interest in mathematics and theories.",
-   "format": "explainer",
-   "hook": "What does the Riemann Hypothesis have to do with gaming? Let's dive into the connections!",
-   "difficulty": 4,
+   "audience": "gamers with an interest in mathematics and theory",
+   "format": "story",
+   "hook": "Explore the fascinating intersection of gaming and mathematics!",
+   "difficulty": 3,
    "risks": [],
    "confidence": 0.75,
    "niche": false,
    "method": "cross-source evidence + AI analyst (cited)",
-   "score": 49
+   "score": 51
   },
   {
-   "key": "creator-kick-chillingcrew",
-   "kind": "clip",
-   "topic": "ChillingCrew (kick, Special Events)",
-   "why": "2 clip(s) with 17,589 views in the last day",
+   "key": "gaming",
+   "kind": "faceless",
+   "topic": "AI and Gaming",
+   "why": "The intersection of AI and gaming is a growing field, relevant to future developments in games like GTA.",
    "sources": [
     {
-     "source": "kick",
-     "title": "GTA V X @1WIN EXCLUSIV @KICKSTREAMING produ @1win",
-     "url": "https://kick.com/chillingcrew/clips/clip_01M7WFMTVZFGRYMJTS0ZG58CC5",
-     "publisher": "Kick · ChillingCrew",
-     "date": "2026-11-20T12:43:20.98952Z",
-     "metric": "10200 clip views"
+     "source": "wikipedia",
+     "title": "Anthropic",
+     "url": "https://en.wikipedia.org/wiki/Anthropic",
+     "publisher": "Wikipedia most-read",
+     "date": "2026-11-20",
+     "metric": "89567 views"
     },
     {
-     "source": "kick",
-     "title": "Lanzamiento GTA VII @1WIN CHILLING CREW 420",
-     "url": "https://kick.com/chillingcrew/clips/clip_01M7WCRHFFTVZB26SFJJM6N2GN",
-     "publisher": "Kick · ChillingCrew",
-     "date": "2026-11-20T11:52:15.473886Z",
-     "metric": "7389 clip views"
+     "source": "hackerNews",
+     "title": "Nasdaq erases all 2026 gains as AI sell-off dampens Anthropic’s second day",
+     "url": "https://www.theguardian.com/business/2026/nov/20/global-stock-markets-slump-anthropic-ipo-ai-sell-off",
+     "publisher": "Hacker News",
+     "date": "2026-11-20T13:29:59Z",
+     "metric": "470 points"
     }
    ],
-   "researched": "2026-11-21T06:59:35.159Z",
+   "researched": "2026-11-21T19:10:29.198Z",
    "evidence": {
-    "independentSources": 1,
+    "independentSources": 2,
     "sources": [
-     "kick"
+     "wikipedia",
+     "hackerNews"
     ],
     "items": 2
    },
-   "audience": "Special Events viewers",
-   "format": "clip",
-   "hook": "",
-   "difficulty": 2,
-   "risks": [
-    "clipping rights: only clip this creator with permission (your own channel, a clipping campaign, or written permission)"
-   ],
-   "confidence": 0.5,
-   "niche": true,
-   "creator": "ChillingCrew",
-   "platform": "kick",
-   "method": "platform clip data",
-   "score": 45
+   "audience": "gamers and tech enthusiasts",
+   "format": "explainer",
+   "hook": "Discover how AI is revolutionizing the gaming experience!",
+   "difficulty": 3,
+   "risks": [],
+   "confidence": 0.73,
+   "niche": false,
+   "method": "cross-source evidence + AI analyst (cited)",
+   "score": 49.8
   },
   {
    "key": "creator-kick-xqc",
    "kind": "clip",
    "topic": "xQc (kick, Just Chatting)",
-   "why": "2 clip(s) with 11,920 views in the last day",
+   "why": "2 clip(s) with 19,109 views in the last day",
    "sources": [
     {
      "source": "kick",
@@ -344,7 +158,7 @@
      "url": "https://kick.com/xqc/clips/clip_01M7X2WVSJ7HB2PFGHBCACCKS3",
      "publisher": "Kick · xQc",
      "date": "2026-11-20T18:19:54.717393Z",
-     "metric": "10458 clip views"
+     "metric": "14039 clip views"
     },
     {
      "source": "kick",
@@ -352,10 +166,10 @@
      "url": "https://kick.com/xqc/clips/clip_01M7W4014QWBA3VBN6SMVPBZM3",
      "publisher": "Kick · xQc",
      "date": "2026-11-20T09:18:58.261745Z",
-     "metric": "1462 clip views"
+     "metric": "5070 clip views"
     }
    ],
-   "researched": "2026-11-21T06:59:35.159Z",
+   "researched": "2026-11-21T19:10:29.198Z",
    "evidence": {
     "independentSources": 1,
     "sources": [
@@ -378,10 +192,55 @@
    "score": 45
   },
   {
+   "key": "creator-kick-chillingcrew",
+   "kind": "clip",
+   "topic": "ChillingCrew (kick, Special Events)",
+   "why": "2 clip(s) with 17,821 views in the last day",
+   "sources": [
+    {
+     "source": "kick",
+     "title": "GTA V X @1WIN EXCLUSIV @KICKSTREAMING produ @1win",
+     "url": "https://kick.com/chillingcrew/clips/clip_01M7WFMTVZFGRYMJTS0ZG58CC5",
+     "publisher": "Kick · ChillingCrew",
+     "date": "2026-11-20T12:43:20.98952Z",
+     "metric": "10400 clip views"
+    },
+    {
+     "source": "kick",
+     "title": "Lanzamiento GTA VII @1WIN CHILLING CREW 420",
+     "url": "https://kick.com/chillingcrew/clips/clip_01M7WCRHFFTVZB26SFJJM6N2GN",
+     "publisher": "Kick · ChillingCrew",
+     "date": "2026-11-20T11:52:15.473886Z",
+     "metric": "7421 clip views"
+    }
+   ],
+   "researched": "2026-11-21T19:10:29.198Z",
+   "evidence": {
+    "independentSources": 1,
+    "sources": [
+     "kick"
+    ],
+    "items": 2
+   },
+   "audience": "Special Events viewers",
+   "format": "clip",
+   "hook": "",
+   "difficulty": 2,
+   "risks": [
+    "clipping rights: only clip this creator with permission (your own channel, a clipping campaign, or written permission)"
+   ],
+   "confidence": 0.5,
+   "niche": true,
+   "creator": "ChillingCrew",
+   "platform": "kick",
+   "method": "platform clip data",
+   "score": 45
+  },
+  {
    "key": "creator-kick-gustavocsgo",
    "kind": "clip",
    "topic": "GustavoCSGO (kick, Grand Theft Auto VI (GTA))",
-   "why": "1 clip(s) with 8,606 views in the last day",
+   "why": "1 clip(s) with 9,659 views in the last day",
    "sources": [
     {
      "source": "kick",
@@ -389,10 +248,10 @@
      "url": "https://kick.com/gustavocsgo/clips/clip_01M7WZ18VJJHYGG9M9ZES4XG4H",
      "publisher": "Kick · GustavoCSGO",
      "date": "2026-11-20T17:11:46.515272Z",
-     "metric": "8606 clip views"
+     "metric": "9659 clip views"
     }
    ],
-   "researched": "2026-11-21T06:59:35.159Z",
+   "researched": "2026-11-21T19:10:29.198Z",
    "evidence": {
     "independentSources": 1,
     "sources": [
@@ -418,7 +277,7 @@
    "key": "creator-kick-paulinholokobr",
    "kind": "clip",
    "topic": "PaulinhoLOKObr (kick, Grand Theft Auto VI (GTA))",
-   "why": "1 clip(s) with 7,807 views in the last day",
+   "why": "1 clip(s) with 8,222 views in the last day",
    "sources": [
     {
      "source": "kick",
@@ -426,10 +285,10 @@
      "url": "https://kick.com/paulinholokobr/clips/clip_01M7WYYTNRS4Z48JXTFXT6STA7",
      "publisher": "Kick · PaulinhoLOKObr",
      "date": "2026-11-20T17:09:57.678053Z",
-     "metric": "7807 clip views"
+     "metric": "8222 clip views"
     }
    ],
-   "researched": "2026-11-21T06:59:35.159Z",
+   "researched": "2026-11-21T19:10:29.198Z",
    "evidence": {
     "independentSources": 1,
     "sources": [
@@ -452,158 +311,10 @@
    "score": 45
   },
   {
-   "key": "creator-kick-maacir",
-   "kind": "clip",
-   "topic": "maacir (kick, Grand Theft Auto VI (GTA))",
-   "why": "1 clip(s) with 7,545 views in the last day",
-   "sources": [
-    {
-     "source": "kick",
-     "title": "3 yıldızzz",
-     "url": "https://kick.com/maacir/clips/clip_01M7WYV1MX5XH878THXAZKPDTX",
-     "publisher": "Kick · maacir",
-     "date": "2026-11-20T17:07:51.753626Z",
-     "metric": "7545 clip views"
-    }
-   ],
-   "researched": "2026-11-21T06:59:35.159Z",
-   "evidence": {
-    "independentSources": 1,
-    "sources": [
-     "kick"
-    ],
-    "items": 1
-   },
-   "audience": "Grand Theft Auto VI (GTA) viewers",
-   "format": "clip",
-   "hook": "",
-   "difficulty": 2,
-   "risks": [
-    "clipping rights: only clip this creator with permission (your own channel, a clipping campaign, or written permission)"
-   ],
-   "confidence": 0.5,
-   "niche": true,
-   "creator": "maacir",
-   "platform": "kick",
-   "method": "platform clip data",
-   "score": 45
-  },
-  {
-   "key": "creator-kick-paymoneywubby",
-   "kind": "clip",
-   "topic": "PaymoneyWubby (kick, Grand Theft Auto VI (GTA))",
-   "why": "1 clip(s) with 7,338 views in the last day",
-   "sources": [
-    {
-     "source": "kick",
-     "title": "om",
-     "url": "https://kick.com/paymoneywubby/clips/clip_01M7VRW5RA71X4HP9C6P4KQ7KT",
-     "publisher": "Kick · PaymoneyWubby",
-     "date": "2026-11-20T06:04:17.574974Z",
-     "metric": "7338 clip views"
-    }
-   ],
-   "researched": "2026-11-21T06:59:35.159Z",
-   "evidence": {
-    "independentSources": 1,
-    "sources": [
-     "kick"
-    ],
-    "items": 1
-   },
-   "audience": "Grand Theft Auto VI (GTA) viewers",
-   "format": "clip",
-   "hook": "",
-   "difficulty": 2,
-   "risks": [
-    "clipping rights: only clip this creator with permission (your own channel, a clipping campaign, or written permission)"
-   ],
-   "confidence": 0.5,
-   "niche": true,
-   "creator": "PaymoneyWubby",
-   "platform": "kick",
-   "method": "platform clip data",
-   "score": 45
-  },
-  {
-   "key": "creator-kick-knut",
-   "kind": "clip",
-   "topic": "Knut (kick, Just Sleeping)",
-   "why": "1 clip(s) with 5,337 views in the last day",
-   "sources": [
-    {
-     "source": "kick",
-     "title": "Swatted",
-     "url": "https://kick.com/knut/clips/clip_01M7V9KMXTQN4FZHZZ32EYM10A",
-     "publisher": "Kick · Knut",
-     "date": "2026-11-20T01:49:41.247599Z",
-     "metric": "5337 clip views"
-    }
-   ],
-   "researched": "2026-11-21T06:59:35.159Z",
-   "evidence": {
-    "independentSources": 1,
-    "sources": [
-     "kick"
-    ],
-    "items": 1
-   },
-   "audience": "Just Sleeping viewers",
-   "format": "clip",
-   "hook": "",
-   "difficulty": 2,
-   "risks": [
-    "clipping rights: only clip this creator with permission (your own channel, a clipping campaign, or written permission)"
-   ],
-   "confidence": 0.5,
-   "niche": true,
-   "creator": "Knut",
-   "platform": "kick",
-   "method": "platform clip data",
-   "score": 45
-  },
-  {
-   "key": "creator-kick-sian_phan_mhanslot",
-   "kind": "clip",
-   "topic": "Sian_Phan_MhanSlot (kick, Slots & Casino)",
-   "why": "1 clip(s) with 3,966 views in the last day",
-   "sources": [
-    {
-     "source": "kick",
-     "title": "PGSLOT FUN88 : สาวคอกเทลแตกเป็นแสนเหลือจะเชื่อ ",
-     "url": "https://kick.com/sian-phan-mhanslot/clips/clip_01M7Y8GPNSH61KGW2YY7V5WWFN",
-     "publisher": "Kick · Sian_Phan_MhanSlot",
-     "date": "2026-11-21T05:17:29.169176Z",
-     "metric": "3966 clip views"
-    }
-   ],
-   "researched": "2026-11-21T06:59:35.159Z",
-   "evidence": {
-    "independentSources": 1,
-    "sources": [
-     "kick"
-    ],
-    "items": 1
-   },
-   "audience": "Slots & Casino viewers",
-   "format": "clip",
-   "hook": "",
-   "difficulty": 2,
-   "risks": [
-    "clipping rights: only clip this creator with permission (your own channel, a clipping campaign, or written permission)"
-   ],
-   "confidence": 0.5,
-   "niche": true,
-   "creator": "Sian_Phan_MhanSlot",
-   "platform": "kick",
-   "method": "platform clip data",
-   "score": 45
-  },
-  {
    "key": "creator-kick-asmongold",
    "kind": "clip",
    "topic": "asmongold (kick, Grand Theft Auto VI (GTA))",
-   "why": "1 clip(s) with 3,540 views in the last day",
+   "why": "1 clip(s) with 8,096 views in the last day",
    "sources": [
     {
      "source": "kick",
@@ -611,10 +322,10 @@
      "url": "https://kick.com/asmongold/clips/clip_01M7X0MWQ306FPKYJVF9C1KTZD",
      "publisher": "Kick · asmongold",
      "date": "2026-11-20T17:39:54.367922Z",
-     "metric": "3540 clip views"
+     "metric": "8096 clip views"
     }
    ],
-   "researched": "2026-11-21T06:59:35.159Z",
+   "researched": "2026-11-21T19:10:29.198Z",
    "evidence": {
     "independentSources": 1,
     "sources": [
@@ -637,35 +348,27 @@
    "score": 45
   },
   {
-   "key": "creator-kick-rraenee",
+   "key": "creator-kick-paymoneywubby",
    "kind": "clip",
-   "topic": "RRaenee (kick, Grand Theft Auto VI (GTA))",
-   "why": "2 clip(s) with 3,186 views in the last day",
+   "topic": "PaymoneyWubby (kick, Grand Theft Auto VI (GTA))",
+   "why": "1 clip(s) with 7,778 views in the last day",
    "sources": [
     {
      "source": "kick",
-     "title": "MANYAK MISIN OLM",
-     "url": "https://kick.com/rraenee/clips/clip_01M7V42ZBMAFK0EG2JNK5MHHBS",
-     "publisher": "Kick · RRaenee",
-     "date": "2026-11-20T00:01:00.932111Z",
-     "metric": "1777 clip views"
-    },
-    {
-     "source": "kick",
-     "title": "YAKALAYIN",
-     "url": "https://kick.com/rraenee/clips/clip_01M7V442ZEKGPY1N6T8DRC2P4A",
-     "publisher": "Kick · RRaenee",
-     "date": "2026-11-20T00:01:32.742119Z",
-     "metric": "1409 clip views"
+     "title": "om",
+     "url": "https://kick.com/paymoneywubby/clips/clip_01M7VRW5RA71X4HP9C6P4KQ7KT",
+     "publisher": "Kick · PaymoneyWubby",
+     "date": "2026-11-20T06:04:17.574974Z",
+     "metric": "7778 clip views"
     }
    ],
-   "researched": "2026-11-21T06:59:35.159Z",
+   "researched": "2026-11-21T19:10:29.198Z",
    "evidence": {
     "independentSources": 1,
     "sources": [
      "kick"
     ],
-    "items": 2
+    "items": 1
    },
    "audience": "Grand Theft Auto VI (GTA) viewers",
    "format": "clip",
@@ -676,7 +379,44 @@
    ],
    "confidence": 0.5,
    "niche": true,
-   "creator": "RRaenee",
+   "creator": "PaymoneyWubby",
+   "platform": "kick",
+   "method": "platform clip data",
+   "score": 45
+  },
+  {
+   "key": "creator-kick-maacir",
+   "kind": "clip",
+   "topic": "maacir (kick, Grand Theft Auto VI (GTA))",
+   "why": "1 clip(s) with 7,758 views in the last day",
+   "sources": [
+    {
+     "source": "kick",
+     "title": "3 yıldızzz",
+     "url": "https://kick.com/maacir/clips/clip_01M7WYV1MX5XH878THXAZKPDTX",
+     "publisher": "Kick · maacir",
+     "date": "2026-11-20T17:07:51.753626Z",
+     "metric": "7758 clip views"
+    }
+   ],
+   "researched": "2026-11-21T19:10:29.198Z",
+   "evidence": {
+    "independentSources": 1,
+    "sources": [
+     "kick"
+    ],
+    "items": 1
+   },
+   "audience": "Grand Theft Auto VI (GTA) viewers",
+   "format": "clip",
+   "hook": "",
+   "difficulty": 2,
+   "risks": [
+    "clipping rights: only clip this creator with permission (your own channel, a clipping campaign, or written permission)"
+   ],
+   "confidence": 0.5,
+   "niche": true,
+   "creator": "maacir",
    "platform": "kick",
    "method": "platform clip data",
    "score": 45
@@ -685,7 +425,7 @@
    "key": "creator-kick-buddha",
    "kind": "clip",
    "topic": "Buddha (kick, Grand Theft Auto V (GTA))",
-   "why": "1 clip(s) with 3,170 views in the last day",
+   "why": "1 clip(s) with 6,832 views in the last day",
    "sources": [
     {
      "source": "kick",
@@ -693,10 +433,10 @@
      "url": "https://kick.com/buddha/clips/clip_01M7XX4WHC7BEK2T765QASYK70",
      "publisher": "Kick · Buddha",
      "date": "2026-11-21T02:01:04.392666Z",
-     "metric": "3170 clip views"
+     "metric": "6832 clip views"
     }
    ],
-   "researched": "2026-11-21T06:59:35.159Z",
+   "researched": "2026-11-21T19:10:29.198Z",
    "evidence": {
     "independentSources": 1,
     "sources": [
@@ -719,21 +459,132 @@
    "score": 45
   },
   {
-   "key": "creator-kick-bananirou",
+   "key": "creator-kick-knut",
    "kind": "clip",
-   "topic": "Bananirou (kick, Grand Theft Auto VI (GTA))",
-   "why": "1 clip(s) with 2,570 views in the last day",
+   "topic": "Knut (kick, Just Sleeping)",
+   "why": "1 clip(s) with 6,564 views in the last day",
    "sources": [
     {
      "source": "kick",
-     "title": "d",
-     "url": "https://kick.com/bananirou/clips/clip_01M7V4R5D2JMNRNZQH6KCMJ224",
-     "publisher": "Kick · Bananirou",
-     "date": "2026-11-20T00:13:11.350436Z",
-     "metric": "2570 clip views"
+     "title": "Swatted",
+     "url": "https://kick.com/knut/clips/clip_01M7V9KMXTQN4FZHZZ32EYM10A",
+     "publisher": "Kick · Knut",
+     "date": "2026-11-20T01:49:41.247599Z",
+     "metric": "6564 clip views"
     }
    ],
-   "researched": "2026-11-21T06:59:35.159Z",
+   "researched": "2026-11-21T19:10:29.198Z",
+   "evidence": {
+    "independentSources": 1,
+    "sources": [
+     "kick"
+    ],
+    "items": 1
+   },
+   "audience": "Just Sleeping viewers",
+   "format": "clip",
+   "hook": "",
+   "difficulty": 2,
+   "risks": [
+    "clipping rights: only clip this creator with permission (your own channel, a clipping campaign, or written permission)"
+   ],
+   "confidence": 0.5,
+   "niche": true,
+   "creator": "Knut",
+   "platform": "kick",
+   "method": "platform clip data",
+   "score": 45
+  },
+  {
+   "key": "creator-kick-harry",
+   "kind": "clip",
+   "topic": "Harry (kick, Grand Theft Auto V (GTA))",
+   "why": "1 clip(s) with 4,543 views in the last day",
+   "sources": [
+    {
+     "source": "kick",
+     "title": "Police brutality MF",
+     "url": "https://kick.com/harry/clips/clip_01M7Y1J7WDYY67TW8S7WN3GDXH",
+     "publisher": "Kick · Harry",
+     "date": "2026-11-21T03:16:11.154015Z",
+     "metric": "4543 clip views"
+    }
+   ],
+   "researched": "2026-11-21T19:10:29.198Z",
+   "evidence": {
+    "independentSources": 1,
+    "sources": [
+     "kick"
+    ],
+    "items": 1
+   },
+   "audience": "Grand Theft Auto V (GTA) viewers",
+   "format": "clip",
+   "hook": "",
+   "difficulty": 2,
+   "risks": [
+    "clipping rights: only clip this creator with permission (your own channel, a clipping campaign, or written permission)"
+   ],
+   "confidence": 0.5,
+   "niche": true,
+   "creator": "Harry",
+   "platform": "kick",
+   "method": "platform clip data",
+   "score": 45
+  },
+  {
+   "key": "creator-kick-sian_phan_mhanslot",
+   "kind": "clip",
+   "topic": "Sian_Phan_MhanSlot (kick, Slots & Casino)",
+   "why": "1 clip(s) with 3,998 views in the last day",
+   "sources": [
+    {
+     "source": "kick",
+     "title": "PGSLOT FUN88 : สาวคอกเทลแตกเป็นแสนเหลือจะเชื่อ ",
+     "url": "https://kick.com/sian-phan-mhanslot/clips/clip_01M7Y8GPNSH61KGW2YY7V5WWFN",
+     "publisher": "Kick · Sian_Phan_MhanSlot",
+     "date": "2026-11-21T05:17:29.169176Z",
+     "metric": "3998 clip views"
+    }
+   ],
+   "researched": "2026-11-21T19:10:29.198Z",
+   "evidence": {
+    "independentSources": 1,
+    "sources": [
+     "kick"
+    ],
+    "items": 1
+   },
+   "audience": "Slots & Casino viewers",
+   "format": "clip",
+   "hook": "",
+   "difficulty": 2,
+   "risks": [
+    "clipping rights: only clip this creator with permission (your own channel, a clipping campaign, or written permission)"
+   ],
+   "confidence": 0.5,
+   "niche": true,
+   "creator": "Sian_Phan_MhanSlot",
+   "platform": "kick",
+   "method": "platform clip data",
+   "score": 45
+  },
+  {
+   "key": "creator-kick-djmariio",
+   "kind": "clip",
+   "topic": "DjMaRiiO (kick, Grand Theft Auto VI (GTA))",
+   "why": "1 clip(s) with 3,106 views in the last day",
+   "sources": [
+    {
+     "source": "kick",
+     "title": "mario mario mario 😂😂",
+     "url": "https://kick.com/djmariio/clips/clip_01M7VAE9CG8NHH6ZQJ724VKFA8",
+     "publisher": "Kick · DjMaRiiO",
+     "date": "2026-11-20T01:53:16.933812Z",
+     "metric": "3106 clip views"
+    }
+   ],
+   "researched": "2026-11-21T19:10:29.198Z",
    "evidence": {
     "independentSources": 1,
     "sources": [
@@ -750,16 +601,172 @@
    ],
    "confidence": 0.5,
    "niche": true,
-   "creator": "Bananirou",
+   "creator": "DjMaRiiO",
    "platform": "kick",
    "method": "platform clip data",
    "score": 45
   },
   {
+   "key": "amodei-dario",
+   "kind": "faceless",
+   "topic": "Dario Amodei",
+   "why": "Dario Amodei's relevance in the tech industry can tie into discussions about game development and AI in gaming.",
+   "sources": [
+    {
+     "source": "wikipedia",
+     "title": "Dario Amodei",
+     "url": "https://en.wikipedia.org/wiki/Dario_Amodei",
+     "publisher": "Wikipedia most-read",
+     "date": "2026-11-20",
+     "metric": "121762 views"
+    },
+    {
+     "source": "wikipedia",
+     "title": "Daniela Amodei",
+     "url": "https://en.wikipedia.org/wiki/Daniela_Amodei",
+     "publisher": "Wikipedia most-read",
+     "date": "2026-11-20",
+     "metric": "60132 views"
+    }
+   ],
+   "researched": "2026-11-21T19:10:29.198Z",
+   "evidence": {
+    "independentSources": 1,
+    "sources": [
+     "wikipedia"
+    ],
+    "items": 2
+   },
+   "audience": "gamers and tech enthusiasts",
+   "format": "explainer",
+   "hook": "Learn about the innovators shaping the future of gaming technology!",
+   "difficulty": 3,
+   "risks": [],
+   "confidence": 0.5,
+   "niche": false,
+   "method": "cross-source evidence + AI analyst (cited)",
+   "score": 36
+  },
+  {
+   "key": "games-hunger",
+   "kind": "faceless",
+   "topic": "The Hunger Games",
+   "why": "The popularity of The Hunger Games can be linked to narrative storytelling in games like GTA.",
+   "sources": [
+    {
+     "source": "wikipedia",
+     "title": "The Hunger Games: Sunrise on the Reaping",
+     "url": "https://en.wikipedia.org/wiki/The_Hunger_Games:_Sunrise_on_the_Reaping",
+     "publisher": "Wikipedia most-read",
+     "date": "2026-11-20",
+     "metric": "174063 views"
+    },
+    {
+     "source": "wikipedia",
+     "title": "Sunrise on the Reaping",
+     "url": "https://en.wikipedia.org/wiki/Sunrise_on_the_Reaping",
+     "publisher": "Wikipedia most-read",
+     "date": "2026-11-20",
+     "metric": "60334 views"
+    }
+   ],
+   "researched": "2026-11-21T19:10:29.198Z",
+   "evidence": {
+    "independentSources": 1,
+    "sources": [
+     "wikipedia"
+    ],
+    "items": 2
+   },
+   "audience": "gamers and fans of storytelling in media",
+   "format": "story",
+   "hook": "Delve into the storytelling techniques that make games like GTA compelling!",
+   "difficulty": 3,
+   "risks": [],
+   "confidence": 0.5,
+   "niche": false,
+   "method": "cross-source evidence + AI analyst (cited)",
+   "score": 36
+  },
+  {
+   "key": "adaptations-series",
+   "kind": "faceless",
+   "topic": "TV Series Adaptations",
+   "why": "The adaptation of popular media into games is a hot topic, and GTA has its own narrative style.",
+   "sources": [
+    {
+     "source": "wikipedia",
+     "title": "The Body (TV series)",
+     "url": "https://en.wikipedia.org/wiki/The_Body_(TV_series)",
+     "publisher": "Wikipedia most-read",
+     "date": "2026-11-20",
+     "metric": "106047 views"
+    },
+    {
+     "source": "wikipedia",
+     "title": "XXX (film series)",
+     "url": "https://en.wikipedia.org/wiki/XXX_(film_series)",
+     "publisher": "Wikipedia most-read",
+     "date": "2026-11-20",
+     "metric": "58700 views"
+    }
+   ],
+   "researched": "2026-11-21T19:10:29.198Z",
+   "evidence": {
+    "independentSources": 1,
+    "sources": [
+     "wikipedia"
+    ],
+    "items": 2
+   },
+   "audience": "gamers and TV series fans",
+   "format": "explainer",
+   "hook": "Explore how TV series adaptations shape the gaming landscape!",
+   "difficulty": 3,
+   "risks": [],
+   "confidence": 0.5,
+   "niche": false,
+   "method": "cross-source evidence + AI analyst (cited)",
+   "score": 36
+  },
+  {
+   "key": "games-rockstar",
+   "kind": "faceless",
+   "topic": "Rockstar Games",
+   "why": "Rockstar Games is a key player in the gaming industry and has a significant following, making it relevant to discussions about GTA.",
+   "sources": [
+    {
+     "source": "wikipedia",
+     "title": "Rockstar Games",
+     "url": "https://en.wikipedia.org/wiki/Rockstar_Games",
+     "publisher": "Wikipedia most-read",
+     "date": "2026-11-20",
+     "metric": "91847 views"
+    }
+   ],
+   "researched": "2026-11-21T19:10:29.198Z",
+   "evidence": {
+    "independentSources": 1,
+    "sources": [
+     "wikipedia"
+    ],
+    "items": 1
+   },
+   "audience": "gamers, industry analysts, and fans of Rockstar",
+   "format": "explainer",
+   "hook": "Uncover the legacy of Rockstar Games and its impact on the gaming world!",
+   "difficulty": 2,
+   "risks": [],
+   "confidence": 0.43,
+   "niche": false,
+   "method": "cross-source evidence + AI analyst (cited)",
+   "score": 33.8
+  },
+  {
    "key": "games-selling",
    "kind": "faceless",
    "topic": "Best-Selling Video Games",
-   "why": "The topic of best-selling video games is trending, which may include GTA titles.",
+   "why": "The list of best-selling video games can provide context for GTA's place in the gaming industry.",
    "sources": [
     {
      "source": "wikipedia",
@@ -770,7 +777,7 @@
      "metric": "69466 views"
     }
    ],
-   "researched": "2026-11-21T06:59:35.159Z",
+   "researched": "2026-11-21T19:10:29.198Z",
    "evidence": {
     "independentSources": 1,
     "sources": [
@@ -778,15 +785,116 @@
     ],
     "items": 1
    },
-   "audience": "Gamers and industry analysts.",
+   "audience": "gamers and industry enthusiasts",
    "format": "list",
-   "hook": "What are the best-selling video games of all time? Let's find out!",
+   "hook": "Find out where GTA ranks among the best-selling video games of all time!",
    "difficulty": 2,
    "risks": [],
    "confidence": 0.43,
    "niche": false,
    "method": "cross-source evidence + AI analyst (cited)",
    "score": 33.8
+  },
+  {
+   "key": "part-ramayana",
+   "kind": "faceless",
+   "topic": "Ramayana: Part 1",
+   "why": "Exploring cultural narratives can provide a unique angle on storytelling in games.",
+   "sources": [
+    {
+     "source": "wikipedia",
+     "title": "Ramayana: Part 1",
+     "url": "https://en.wikipedia.org/wiki/Ramayana:_Part_1",
+     "publisher": "Wikipedia most-read",
+     "date": "2026-11-20",
+     "metric": "329248 views"
+    }
+   ],
+   "researched": "2026-11-21T19:10:29.198Z",
+   "evidence": {
+    "independentSources": 1,
+    "sources": [
+     "wikipedia"
+    ],
+    "items": 1
+   },
+   "audience": "gamers interested in narrative depth",
+   "format": "story",
+   "hook": "Discover how ancient narratives influence modern gaming stories!",
+   "difficulty": 3,
+   "risks": [],
+   "confidence": 0.44,
+   "niche": false,
+   "method": "cross-source evidence + AI analyst (cited)",
+   "score": 32.4
+  },
+  {
+   "key": "ken-mcelroy",
+   "kind": "faceless",
+   "topic": "Ken McElroy",
+   "why": "Exploring figures like Ken McElroy can provide insights into character development in games.",
+   "sources": [
+    {
+     "source": "wikipedia",
+     "title": "Ken McElroy",
+     "url": "https://en.wikipedia.org/wiki/Ken_McElroy",
+     "publisher": "Wikipedia most-read",
+     "date": "2026-11-20",
+     "metric": "158096 views"
+    }
+   ],
+   "researched": "2026-11-21T19:10:29.198Z",
+   "evidence": {
+    "independentSources": 1,
+    "sources": [
+     "wikipedia"
+    ],
+    "items": 1
+   },
+   "audience": "gamers and character development enthusiasts",
+   "format": "story",
+   "hook": "Learn how real-life figures inspire character creation in games!",
+   "difficulty": 3,
+   "risks": [],
+   "confidence": 0.44,
+   "niche": false,
+   "method": "cross-source evidence + AI analyst (cited)",
+   "score": 32.4
+  },
+  {
+   "key": "gaming-privacy",
+   "kind": "faceless",
+   "topic": "Privacy in Gaming",
+   "why": "Privacy policies are increasingly relevant in gaming discussions, especially with online platforms.",
+   "sources": [
+    {
+     "source": "wikipedia",
+     "title": "privacy policy",
+     "url": "https://en.wikipedia.org/wiki/privacy_policy",
+     "publisher": "Wikipedia most-read",
+     "date": "2026-11-20",
+     "metric": "78955 views"
+    }
+   ],
+   "researched": "2026-11-21T19:10:29.198Z",
+   "evidence": {
+    "independentSources": 1,
+    "sources": [
+     "wikipedia"
+    ],
+    "items": 1
+   },
+   "audience": "gamers concerned about privacy",
+   "format": "explainer",
+   "hook": "Understand the importance of privacy policies in the gaming industry!",
+   "difficulty": 3,
+   "risks": [
+    "rights"
+   ],
+   "confidence": 0.43,
+   "niche": false,
+   "method": "cross-source evidence + AI analyst (cited)",
+   "score": 21.8
   }
  ]
 }
