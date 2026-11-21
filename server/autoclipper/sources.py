@@ -9,7 +9,7 @@ import time
 
 from . import config, db, detect, jobs, media
 
-ALLOWED = ("own", "granted")
+ALLOWED = ("own", "granted", "attested")  # attested: you confirmed the streamer allows clipping (no written proof on file)
 
 
 def creator_allowed(creator):

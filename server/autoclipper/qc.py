@@ -230,6 +230,8 @@ def run(clip, render_out, workdir, creator=None, min_len=8, max_len=90):
     perm = (creator or {}).get("permission") or (clip.get("research") or {}).get("source_permission")
     if perm not in ("granted", "own", "attested"):
         T("rights", f"No clipping permission on record (permission: {perm or 'none'})", "high", "", "Record permission for this creator, or reject the clip.")
+    elif (creator or {}).get("permission") == "attested" and not (creator or {}).get("permission_proof"):
+        T("rights", "You confirmed this streamer allows clipping, but there is no written proof on file", "medium", "", "Check the streamer's clipping rules before approving, or add a proof link.")
 
     # guidelines
     text = " ".join(c["text"] for c in cues) + " " + (clip.get("title") or "")

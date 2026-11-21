@@ -39,7 +39,7 @@ def score_creator(c):
     active = 2 if c.get("live") else 0
     freq = min(3, len([h for h in hist if h.get("live") and time.time() - h["at"] < 14 * 86400]) / 3)
     shortform = math.log10(1 + m.get("clip_views_7d", 0)) * 1.2
-    access = 3 if c.get("permission") in ("own", "granted") else 0
+    access = 3 if c.get("permission") in ("own", "granted") else 2 if c.get("permission") == "attested" else 0
     return round(aud + active + freq + shortform + access, 2)
 
 
