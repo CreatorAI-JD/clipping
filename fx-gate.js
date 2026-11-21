@@ -30,7 +30,13 @@
   };
   const ORDER = Object.keys(CAT);
 
+  // Browsers often can't reach OpenAI's moderation endpoint directly ("Failed to fetch"), so the scan goes through
+  // your AutoClipper cloud server when one is connected (Cloud studio), and straight to OpenAI otherwise.
   async function modCall(input) {
+    if (window.ACCloud?.url?.()) {
+      try { return (await window.ACCloud.api('/api/moderate', { method: 'POST', body: { input } })).results || []; }
+      catch (e) { if (!val('apiKey')) throw e; }
+    }
     const key = val('apiKey'); if (!key) throw new Error('no OpenAI key');
     const j = await FX.retry(() => FX.fetchJSON('https://api.openai.com/v1/moderations', {
       method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + key },
@@ -41,7 +47,7 @@
   // texts: [{where, text}], images: [{where, url}] → { ran, flags: [{sev, where, cat, label, score}], error }
   FX.moderate = async (texts = [], images = []) => {
     const out = { ran: false, flags: [], error: null, at: now() };
-    if (!val('apiKey')) { out.error = 'No OpenAI key, so the automatic safety scan could not run.'; return out; }
+    if (!val('apiKey') && !window.ACCloud?.url?.()) { out.error = 'No OpenAI key, so the automatic safety scan could not run.'; return out; }
     const take = (res, where) => {
       for (const cat of ORDER) {
         if (!res?.categories?.[cat]) continue;

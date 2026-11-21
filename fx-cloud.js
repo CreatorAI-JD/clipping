@@ -103,17 +103,23 @@
       <div class="cl-table"><div class="cl-tr h"><span>Creator</span><span>Platform</span><span>Category</span><span>Audience</span><span>Live</span><span>Score</span><span>Permission</span><span>Watch</span></div>
       ${rows.map((c) => `<div class="cl-tr" data-cid="${c.id}"><span><a href="${esc(c.url || '#')}" target="_blank" rel="noopener">${esc(c.name || c.login)}</a></span><span>${esc(c.platform)}</span><span>${esc(c.category || '')}</span><span>${c.viewers ? c.viewers.toLocaleString() + ' viewers' : ''}${c.metrics?.clip_views_7d ? `<br><small>${c.metrics.clip_views_7d.toLocaleString()} clip views/7d</small>` : ''}</span>
         <span>${c.live ? '<span class="chip on">LIVE</span>' : c.last_live_at ? '<small>' + ago(c.last_live_at) + '</small>' : ''}</span><span>${(c.score || 0).toFixed(1)}</span>
-        <span><select data-perm="${c.id}">${['none', 'requested', 'granted', 'own', 'attested', 'denied'].map((p) => `<option ${c.permission === p ? 'selected' : ''}>${p}</option>`).join('')}</select><input data-proof="${c.id}" value="${esc(c.permission_proof || '')}" placeholder="proof link"></span>
-        <span><label class="check"><input type="checkbox" data-mon="${c.id}" ${c.monitor ? 'checked' : ''} ${['granted', 'own', 'attested'].includes(c.permission) ? '' : 'disabled title="Needs permission first"'}> watch</label>${c.platform === 'custom' || c.source_url ? `<input data-src="${c.id}" value="${esc(c.source_url || '')}" placeholder="stream URL (HLS/RTMP)">` : ''}</span></div>`).join('') || '<p class="muted small">No creators yet. Press Discover now (needs Twitch/YouTube keys on the server) or add one.</p>'}</div></div>`;
+        <span><select data-perm="${c.id}">${['none', 'requested', 'granted', 'own', 'denied'].map((p) => `<option ${c.permission === p ? 'selected' : ''}>${p}</option>`).join('')}</select><input data-proof="${c.id}" value="${esc(c.permission_proof || '')}" placeholder="proof link"></span>
+        <span><label class="check"><input type="checkbox" data-mon="${c.id}" ${c.monitor ? 'checked' : ''} ${['granted', 'own'].includes(c.permission) ? '' : 'disabled title="Needs permission first"'}> watch</label>${c.platform === 'custom' || c.source_url ? `<input data-src="${c.id}" value="${esc(c.source_url || '')}" placeholder="stream URL (HLS/RTMP)">` : ''}</span></div>`).join('') || '<p class="muted small">No creators yet. Press Discover now (needs Twitch/YouTube keys on the server) or add one.</p>'}</div></div>`;
   }
   function sources() {
-    const ok = S.creators.filter((c) => ['granted', 'own', 'attested'].includes(c.permission));
+    const ok = S.creators.filter((c) => ['granted', 'own'].includes(c.permission));
     return `<div class="card"><h3>${ico('upload')}Send a video to the cloud</h3>
       <p class="muted small">A VOD or recording. The cloud analyses the whole video, finds and ranks moments, produces clips, checks them and puts them in Review.</p>
       <label>Video file<input type="file" id="clFile" accept="video/*"></label>
       <label>Creator<select id="clSrcCreator"><option value="">(none: my own upload)</option>${ok.map((c) => `<option value="${c.id}">${esc(c.name || c.login)}</option>`).join('')}</select></label>
       <label class="check"><input type="checkbox" id="clAttest"> I own this video or have permission to clip and post it</label>
       <div class="row"><button class="primary" data-cl="upload">${ico('upload')}Upload</button><span id="clUpMsg" class="small muted"></span></div></div>
+      <div class="card"><h3>${ico('film')}Gameplay backgrounds for faceless reels</h3>
+        <p class="muted small">Upload your own gameplay recordings (for example driving around Vice City). Faceless reels play on top of a random stretch of them: the webcam is found and blurred, the picture is cropped to vertical gameplay only, and the game sound is removed. Without any, reels use an animated background.</p>
+        <label>Video file(s)<input type="file" id="clBgFile" accept="video/*" multiple></label>
+        <label class="check"><input type="checkbox" id="clBgAttest"> I recorded this myself (or am allowed to use it)</label>
+        <div class="row"><button class="primary" data-cl="bgUpload">${ico('upload')}Upload backgrounds</button><span id="clBgMsg" class="small muted"></span></div>
+        <div id="clBgList">${(S.backgrounds || []).map((x) => `<div class="small">#${x.id} · ${Math.round(x.duration || 0)}s · ${esc(x.meta?.filename || '')} · ${x.status === 'ready' ? (x.meta?.cam ? 'webcam blurred, ' : '') + 'ready' : 'checking…'}${x.meta?.has_person ? ' · <b>a person is visible: check it</b>' : ''} <button class="small-btn" data-cl="bgDel" data-id="${x.id}">Remove</button></div>`).join('') || '<p class="muted small">No backgrounds yet.</p>'}</div></div>
       <div class="card"><h3>Import from a link</h3><p class="muted small">A direct video or HLS link for a creator with permission.</p><input id="clImpUrl" placeholder="https://…/video.mp4 or .m3u8"><select id="clImpCreator">${ok.map((c) => `<option value="${c.id}">${esc(c.name || c.login)}</option>`).join('')}</select><button data-cl="import">Import</button></div>`;
   }
   function research() {
@@ -161,7 +167,7 @@
     const a = b.dataset.cl;
     try {
       if (a === 'connect') { setCfg({ url: $('#clUrl').value.trim(), token: $('#clTok').value.trim() }); await load(['status', 'clips', 'events', 'creators']); }
-      else if (a === 'tab') { S.tab = b.dataset.t; await load({ creators: ['creators'], research: ['research'], skills: ['skills'], sources: ['creators'], review: ['clips'], overview: ['status', 'events'], settings: [] }[S.tab] || []); }
+      else if (a === 'tab') { S.tab = b.dataset.t; if (S.tab === 'sources') S.backgrounds = await C.api('/api/backgrounds').catch(() => []); await load({ creators: ['creators'], research: ['research'], skills: ['skills'], sources: ['creators'], review: ['clips'], overview: ['status', 'events'], settings: [] }[S.tab] || []); }
       else if (a === 'open') return openEditor(b.dataset.id);
       else if (a === 'job') { await C.api('/api/jobs', { method: 'POST', body: { kind: b.dataset.kind } }); toast('Queued on the server'); }
       else if (a === 'addCampaign') {
@@ -169,6 +175,13 @@
         const r = await C.api('/api/campaigns', { method: 'POST', body: { url: $('#clCampUrl').value.trim(), name: $('#clCampName').value.trim(), streamers } });
         toast(`${r.added.length} streamer(s) granted and watched`); await load(['creators']);
       }
+      else if (a === 'bgUpload') {
+        const fs = [...$('#clBgFile').files]; if (!fs.length) return toast('Pick a video');
+        if (!$('#clBgAttest').checked) return toast('Confirm it is your own recording');
+        let n = 0; for (const f of fs) { $('#clBgMsg').textContent = `Uploading ${++n}/${fs.length}…`; const fd = new FormData(); fd.append('file', f); fd.append('attest', '1'); await C.api('/api/backgrounds', { method: 'POST', body: fd }); }
+        $('#clBgMsg').textContent = `${fs.length} uploaded. The server checks each one for a webcam.`; S.backgrounds = await C.api('/api/backgrounds');
+      }
+      else if (a === 'bgDel') { await C.api('/api/backgrounds/' + b.dataset.id, { method: 'DELETE' }); S.backgrounds = await C.api('/api/backgrounds'); }
       else if (a === 'makeFaceless') { await C.api('/api/jobs', { method: 'POST', body: { kind: 'faceless' } }); toast('Writing a faceless reel on the server: it lands in Review in a few minutes'); }
       else if (a === 'addCreator') { await C.api('/api/creators', { method: 'POST', body: { platform: $('#clNewPlat').value, login: $('#clNewLogin').value.trim(), category: $('#clNewCat').value.trim() || 'gaming' } }); await load(['creators']); }
       else if (a === 'upload') {
