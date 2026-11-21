@@ -162,6 +162,8 @@ def produce(clip_id, revision=None):
             lay = revision["layout"]
         elif clip.get("layout") and clip["layout"].get("user_set"):
             lay = clip["layout"]
+        elif (src_row or {}).get("kind") == "faceless":  # generated 1080x1920 background: nothing to frame
+            lay = {"layout": "blur", "facecam": None, "confidence": 1.0, "reason": "Faceless reel: generated vertical background, used full frame"}
         else:
             lay = vision.analyse(clip["files"]["source"])
         clip["layout"] = lay
