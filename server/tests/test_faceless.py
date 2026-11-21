@@ -48,3 +48,34 @@ def test_campaign_bulk_permission(env, api):
         c = db.one("SELECT * FROM creators WHERE platform=? AND login=?", (plat, login))
         assert c["permission"] == "granted" and c["monitor"] == 1 and c["permission_proof"].startswith("https://contentrewards")
     assert jobs.counts() is not None
+
+
+def test_moderation_proxy_for_the_website(api):
+    r = api.post("/api/moderate", json={"input": ["hello there"]})
+    assert r.status_code == 200 and r.get_json()["results"][0]["flagged"] is False
+    assert api.post("/api/moderate", json={"input": []}).status_code == 400
+
+
+def test_gameplay_background_hides_the_webcam(env, api, worker):
+    """Your own gameplay recording becomes the faceless background: webcam side cropped away, nothing of the face left."""
+    import os
+    import fixtures
+    from autoclipper import faceless, media, vision
+    src = fixtures.gameplay_with_facecam(os.path.join(env["fx"], "drive.mp4"), dur=40)
+    src = src[0] if isinstance(src, tuple) else src
+    assert api.post("/api/backgrounds", data={"file": (open(src, "rb"), "drive.mp4")}, content_type="multipart/form-data").status_code == 403
+    r = api.post("/api/backgrounds", data={"file": (open(src, "rb"), "drive.mp4"), "attest": "1"}, content_type="multipart/form-data")
+    assert r.status_code == 200
+    sid = r.get_json()["source_id"]
+    b = wait(lambda: db.one("SELECT * FROM sources WHERE id=? AND status='ready'", (sid,)), timeout=180)
+    assert b and b["meta"]["cam"], "webcam found in the upload"
+    out = os.path.join(env["fx"], "bg_out.mp4")
+    assert faceless.gameplay_background(out, 8) == out
+    info = media.probe(out)
+    assert (info["width"], info["height"]) == (1080, 1920) and not info["has_audio"]
+    seen = [f for fr in media.frames(out, fps=0.5, width=540)[0] for f in vision.faces(fr)]
+    assert not seen, "no face visible in the cropped gameplay"
+    lst = api.get("/api/backgrounds").get_json()
+    assert any(x["id"] == sid and x["status"] == "ready" for x in lst)
+    api.delete(f"/api/backgrounds/{sid}")
+    assert not any(x["id"] == sid for x in api.get("/api/backgrounds").get_json())
