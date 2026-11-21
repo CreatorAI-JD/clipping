@@ -1,6 +1,7 @@
 """Faceless reels made entirely on the server: AI script (confirmed facts stated as facts, rumours labelled as rumours),
 voiceover, animated background, then the normal production line (captions, render, 12 QC checks) and the Review Queue.
 No one else's footage is used, so no creator permission is needed. Nothing is published without approval."""
+import json
 import os
 import subprocess
 import tempfile
@@ -46,8 +47,59 @@ def write(cfg):
     return d
 
 
+def backgrounds():
+    return db.q("SELECT * FROM sources WHERE kind='background' AND status!='deleted' ORDER BY id")
+
+
+def prepare_background(sid):
+    """Look once at an uploaded gameplay clip: where is the webcam (if any), and which vertical strip avoids it."""
+    from . import vision
+    src = db.one("SELECT * FROM sources WHERE id=?", (sid,))
+    info = media.probe(src["path"])
+    lay = vision.analyse(src["path"], 0, min(60, info["duration"]))
+    cam = lay.get("facecam") if lay.get("layout") in ("facecam_top", "facecam_bottom") else None
+    cw = min(1.0, (info["height"] * 9 / 16) / info["width"])  # width of a full-height 9:16 strip, as a fraction
+    if cam:  # put the strip on the side away from the webcam
+        cx = cam["x"] + cam["w"] / 2
+        x = 0.0 if cx > 0.5 else 1 - cw
+    else:
+        x = (1 - cw) / 2
+    faces = [c for c in (lay.get("faces") or []) if c.get("presence", 0) > 0.3 and not cam]
+    meta = {**(src.get("meta") or {}), "cam": cam, "strip_x": round(x, 4), "strip_w": round(cw, 4), "w": info["width"], "h": info["height"],
+            "has_person": bool(faces), "checked": lay.get("reason")}
+    db.update("sources", "id", sid, meta=json.dumps(meta), status="ready")
+    db.event("visual", f"Background #{sid}: {'webcam found and blurred, ' if cam else ''}vertical strip at x={x:.2f}" + (" (a person is visible: check it)" if faces else ""), ref=f"source:{sid}")
+    return meta
+
+
+def gameplay_background(out, dur):
+    """A random stretch of one of your uploaded gameplay clips: webcam blurred, cropped to 1080x1920, no sound."""
+    import random
+    bgs = [b for b in backgrounds() if b.get("status") == "ready" and os.path.exists(b["path"] or "")]
+    if not bgs:
+        return None
+    b = random.choice(bgs)
+    m, d = b["meta"], b["duration"] or 0
+    W, H = m["w"], m["h"]
+    flt = []
+    if m.get("cam"):
+        c = m["cam"]
+        x0, y0 = max(1, int(c["x"] * W) - 8), max(1, int(c["y"] * H) - 8)
+        w0, h0 = min(W - x0 - 2, int(c["w"] * W) + 16), min(H - y0 - 2, int(c["h"] * H) + 16)
+        flt.append(f"delogo=x={x0}:y={y0}:w={w0}:h={h0}")
+    sw = int(m["strip_w"] * W) // 2 * 2
+    flt += [f"crop={sw}:{H}:{int(m['strip_x'] * W)}:0", "scale=1080:1920:force_original_aspect_ratio=increase", "crop=1080:1920", "eq=brightness=-0.06:saturation=1.1", "fps=30"]
+    start = random.uniform(0, max(0, d - dur - 1)) if d > dur + 1 else 0
+    cmd = [media.FFMPEG, "-y", "-v", "error"] + (["-stream_loop", "-1"] if d < dur else []) + ["-ss", f"{start:.2f}", "-i", b["path"], "-t", f"{dur:.2f}", "-an",
+           "-vf", ",".join(flt), "-c:v", "libx264", "-preset", os.environ.get("AC_X264_PRESET", "veryfast"), "-pix_fmt", "yuv420p", out]
+    p = subprocess.run(cmd, capture_output=True, timeout=900)
+    return out if p.returncode == 0 else None
+
+
 def background(out, dur):
-    """Animated gradient background, 1080x1920 (made here, so no licence questions)."""
+    """Your gameplay if you uploaded some (Cloud studio → Add source → Gameplay backgrounds), else an animated gradient."""
+    if gameplay_background(out, dur):
+        return out
     cmd = [media.FFMPEG, "-y", "-v", "error", "-f", "lavfi", "-i",
            f"gradients=s=1080x1920:c0=0x1a0033:c1=0x5b21b6:c2=0xdb2777:c3=0x0ea5e9:n=4:type=linear:speed=0.015:d={dur:.2f}:r=30,"
            f"eq=saturation=1.2:brightness=-0.05,noise=alls=2:allf=t,vignette=PI/4", "-t", f"{dur:.2f}", "-c:v", "libx264", "-preset", os.environ.get("AC_X264_PRESET", "veryfast"), "-pix_fmt", "yuv420p", out]

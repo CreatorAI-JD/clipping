@@ -104,3 +104,11 @@ def speech(text, out_path, voice="onyx", ref=None):
             f.write(r.content)
         budget.record("openai:tts", len(text), est, ref)
         return out_path
+
+
+def moderate_raw(inputs):
+    """OpenAI moderation for a list of inputs (strings or image parts). Returns the results list, or None without a key."""
+    if not enabled() or not inputs:
+        return None
+    j = _post("/moderations", json={"model": "omni-moderation-latest", "input": inputs})
+    return j.get("results") or []

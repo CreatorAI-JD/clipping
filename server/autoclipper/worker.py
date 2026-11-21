@@ -75,6 +75,12 @@ def _ref(p):
     return research.analyse_reference(p["path"], p["label"], p.get("category", "gaming"))
 
 
+@handler("background")
+def _bg(p):
+    from . import faceless
+    return faceless.prepare_background(p["source_id"])
+
+
 @handler("faceless")
 def _faceless(p):
     from . import faceless
