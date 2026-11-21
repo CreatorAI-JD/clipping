@@ -51,9 +51,21 @@ def fake_openai():
             out = {"candidates": cands}
         elif "Request:" in u:
             out = {"start_shift": 1.0, "end_shift": 0, "title": None, "hook_text": None, "layout": None, "preset": "karaoke", "rebuild_captions": False}
+        elif "faceless channel" in b["messages"][0]["content"]:
+            out = {"title": "Wait look at this car", "hook": "Wait look at this", "script": "wait look at this car. oh my god he did not see that coming. chat was insane",
+                   "caption": "Nobody noticed this", "hashtags": ["gta6", "gaming"], "topic": "the car",
+                   "claims": [{"text": "the car is in the game", "status": "confirmed"}, {"text": "it is the fastest", "status": "rumour"}]}
         elif "WHOLE transcript" in b["messages"][0]["content"]:
             out = {"moments": []}
         return jsonify(choices=[{"message": {"content": json.dumps(out)}}], usage={"prompt_tokens": 1000, "completion_tokens": 200, "total_tokens": 1200})
+
+    @app.post("/v1/audio/speech")
+    def speech():
+        STATE["calls"]["tts"] = STATE["calls"].get("tts", 0) + 1
+        d = tempfile.mkdtemp()
+        p = os.path.join(d, "v.wav")
+        fixtures.speech_wav(p, 14, [(0.5, [15, 16, 17, 18, 19]), (4.0, [0, 1, 2, 3, 4, 5, 6, 7, 8]), (9.5, [9, 10, 11])])
+        return open(p, "rb").read(), 200, {"Content-Type": "audio/wav"}
 
     @app.post("/v1/moderations")
     def mod():

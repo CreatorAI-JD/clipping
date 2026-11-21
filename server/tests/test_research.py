@@ -51,7 +51,7 @@ def test_discovery_research_benchmarks(env):
         db.set_setting("discovery", {"games": ["Grand Theft Auto V"]})
         out = research.discover()
         assert out["found"] >= 12
-        cr = db.q("SELECT * FROM creators WHERE platform IN ('twitch','kick')")
+        cr = db.q("SELECT * FROM creators WHERE platform IN ('twitch','kick') AND permission_proof IS NULL AND permission != 'own'")  # skip ones other tests granted
         assert len(cr) >= 15 and all(x["permission"] == "none" and not x["monitor"] for x in cr)  # discovered, never watched
         top = db.one("SELECT * FROM creators WHERE platform='twitch' ORDER BY score DESC")
         assert top["score"] > 0 and top["viewers"]
