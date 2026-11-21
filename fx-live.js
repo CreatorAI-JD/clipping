@@ -567,6 +567,7 @@
         </div>
         <div class="row">${L.watching ? `<button class="primary" data-live="stop">${ico('stop')}Stop watching</button>` : `<button class="primary" data-live="start">${ico('play')}Start watching</button>`}
           ${L.watching && many && c.player ? (recN >= L.chans.size ? `<button data-live="stopGrab">${ico('stop')}Stop all recordings</button>` : `<button data-live="grabAll">${ico('film')}Record all ${L.chans.size} players</button>`) : ''}
+          ${L.chans.size && window.ACCloud?.url() ? `<button data-live="toCloud" title="Your cloud server watches these streams 24/7 and sends hype moments to production; clips wait in Cloud studio → Review">${ico('radio')}Clip these 24/7 in the cloud</button>` : ''}
           <span class="muted small">Keep this tab open${recN > 1 ? ' and every recorded player on screen' : ''}. Chat is read anonymously; no Twitch or Kick login needed for alerts.</span></div>
         <details data-k="opts"><summary class="small">What to do when a moment hits</summary>
           <div class="grid2" style="margin-top:10px">
@@ -656,6 +657,14 @@
     else if (act === 'stop') { L.stop(); FX.audit('live watch: stopped', '', null, 'you').catch(() => {}); }
     else if (act === 'grab') { await L.startGrab(b.dataset.login); }
     else if (act === 'grabAll') { await L.startGrabAll(); }
+    else if (act === 'toCloud') {
+      const names = [...L.chans.keys()];
+      if (!confirm(`Watch ${names.join(', ')} on your cloud server 24/7?\n\nOnly do this for streamers who allow clipping (your own channel, an open clipping policy, or a deal). Every clip still waits for your approval in Cloud studio → Review.`)) return;
+      try {
+        const r = await window.ACCloud.api('/api/watchlist', { method: 'POST', body: { streamers: names, attest: true } });
+        toast(`${r.added.length} streamer(s) now watched 24/7 in the cloud. Their hype moments go straight to production.`);
+      } catch (err) { toast('Cloud: ' + err.message); }
+    }
     else if (act === 'stopGrab') L.stopGrab(b.dataset.login);
     else if (act === 'testAi') {
       const st = (t) => { const el = document.getElementById('lvAiStatus'); if (el) el.textContent = t; };

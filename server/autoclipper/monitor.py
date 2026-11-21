@@ -92,7 +92,7 @@ def _probe_ok(url):
 
 
 def check_live():
-    cs = db.q("SELECT * FROM creators WHERE monitor=1 AND permission IN ('own','granted')")
+    cs = db.q("SELECT * FROM creators WHERE monitor=1 AND permission IN ('own','granted','attested')")
     st = live_status(cs)
     now = time.time()
     started = []

@@ -64,7 +64,7 @@ def status():
     now = time.time()
     hb = db.q("SELECT * FROM heartbeats ORDER BY at DESC")
     clips = {r["status"]: r["n"] for r in db.q("SELECT status, COUNT(*) n FROM clips GROUP BY status")}
-    cr = db.one("SELECT COUNT(*) n, SUM(permission IN ('own','granted')) ok, SUM(monitor=1) mon, SUM(live=1) live FROM creators")
+    cr = db.one("SELECT COUNT(*) n, SUM(permission IN ('own','granted','attested')) ok, SUM(monitor=1) mon, SUM(live=1) live FROM creators")
     nxt = {r["kind"]: r["run_at"] for r in db.q("SELECT kind, MIN(run_at) run_at FROM jobs WHERE status='queued' GROUP BY kind")}
     return jsonify(version=__version__, now=now, integrations=config.CFG.public(), budget=budget.status(), jobs=jobs.counts(), clips=clips, creators=cr,
                    workers=[{"worker": h["worker"], "alive": now - h["at"] < 60, "last_seen": h["at"], "info": h["info"]} for h in hb],
@@ -115,12 +115,12 @@ def creators():
     order = {"score": "score DESC", "viewers": "viewers DESC", "recent": "updated_at DESC"}.get(request.args.get("sort", "score"), "score DESC")
     where, args = "1=1", []
     if request.args.get("permitted"):
-        where += " AND permission IN ('own','granted')"
+        where += " AND permission IN ('own','granted','attested')"
     if request.args.get("q"):
         where += " AND (login LIKE ? OR name LIKE ?)"
         args += [f"%{request.args['q']}%"] * 2
     # creators you can clip always come first, so they never fall off the list
-    return jsonify(db.q(f"SELECT * FROM creators WHERE {where} ORDER BY (permission IN ('own','granted')) DESC, {order} LIMIT 300", args))
+    return jsonify(db.q(f"SELECT * FROM creators WHERE {where} ORDER BY (permission IN ('own','granted','attested')) DESC, {order} LIMIT 300", args))
 
 
 @app.post("/api/creators")
@@ -135,6 +135,58 @@ def add_creator():
     return jsonify(db.one("SELECT * FROM creators WHERE platform=? AND login=?", (b["platform"], login)))
 
 
+def _parse_streamer(raw, default_platform="twitch"):
+    """'name', 'kick:name' or a twitch/kick/youtube channel link -> (platform, login), or None."""
+    raw, plat = str(raw).strip(), default_platform
+    if not raw:
+        return None
+    m = re.match(r"^(?:https?://)?(?:www\.)?(twitch\.tv|kick\.com|youtube\.com/(?:@|c/|channel/)?)/?([^/?#\s]+)", raw)
+    if m:
+        plat = "kick" if "kick" in m.group(1) else "youtube" if "youtube" in m.group(1) else "twitch"
+        raw = m.group(2)
+    elif ":" in raw and raw.split(":", 1)[0] in ("twitch", "kick", "youtube"):
+        plat, raw = raw.split(":", 1)
+    login = re.sub(r"[^a-zA-Z0-9_\-]", "", raw.lstrip("@")).lower()
+    return (plat, login, raw.lstrip("@")) if login else None
+
+
+def _grant_streamers(b, permission, proof):
+    """Create (if new) and grant every listed streamer; watched 24/7 unless monitor is false."""
+    added = []
+    for raw in b.get("streamers") or []:
+        p = _parse_streamer(raw, b.get("platform") or "twitch")
+        if not p:
+            continue
+        plat, login, name = p
+        chan = {"twitch": f"https://www.twitch.tv/{login}", "kick": f"https://kick.com/{login}", "youtube": f"https://www.youtube.com/@{login}"}[plat]
+        db.run("INSERT OR IGNORE INTO creators (platform, login, name, url, category, discovered_at, updated_at, permission, monitor) VALUES (?,?,?,?,?,?,?,?,?)",
+               (plat, login, name, chan, b.get("category", "gaming"), time.time(), time.time(), "none", 0))
+        c = db.one("SELECT * FROM creators WHERE platform=? AND login=?", (plat, login))
+        f = {"monitor": 0 if b.get("monitor") is False else 1, "updated_at": time.time()}
+        # never downgrade a stronger record (own / granted with proof) to 'attested'
+        if not (permission == "attested" and c["permission"] in ("own", "granted")):
+            f.update(permission=permission, permission_proof=proof or c.get("permission_proof"), permission_at=time.time())
+        db.update("creators", "id", c["id"], **f)
+        added.append({"id": c["id"], "platform": plat, "login": login})
+    return added
+
+
+@app.post("/api/watchlist")
+def add_watchlist():
+    """Watch these streamers 24/7 and send their hype moments into production. Body: {streamers: [...], attest: true}.
+    attest = you confirm each streamer allows clipping (own channel, open clipping policy or a deal). Their permission
+    becomes 'attested'; every clip from them still waits in Review with a rights warning (never auto-approved)."""
+    b = request.get_json(force=True) or {}
+    if b.get("attest") is not True:
+        abort(400, "Confirm these streamers allow clipping (attest: true)")
+    added = _grant_streamers(b, "attested", (b.get("proof") or "").strip() or None)
+    if not added:
+        abort(400, "List at least one streamer")
+    db.event("rights", f"Watchlist: you confirmed clipping is allowed for {len(added)} streamer(s), now watched 24/7: " + ", ".join(a["login"] for a in added), kind="decision")
+    jobs.enqueue("check_live", {}, priority=1)
+    return jsonify(added=added)
+
+
 @app.post("/api/campaigns")
 def add_campaign():
     """A clipping campaign you joined: every listed streamer gets permission 'granted' with the campaign page as proof,
@@ -143,27 +195,7 @@ def add_campaign():
     url = (b.get("url") or "").strip()
     if not re.match(r"^https?://", url):
         abort(400, "Campaign link (https://...) required as proof of permission")
-    added = []
-    for raw in b.get("streamers") or []:
-        raw = str(raw).strip()
-        if not raw:
-            continue
-        plat = b.get("platform") or "twitch"
-        m = re.match(r"^(?:https?://)?(?:www\.)?(twitch\.tv|kick\.com|youtube\.com/(?:@|c/|channel/)?)/?([^/?#\s]+)", raw)
-        if m:
-            plat = "kick" if "kick" in m.group(1) else "youtube" if "youtube" in m.group(1) else "twitch"
-            raw = m.group(2)
-        elif ":" in raw and raw.split(":", 1)[0] in ("twitch", "kick", "youtube"):
-            plat, raw = raw.split(":", 1)
-        login = re.sub(r"[^a-zA-Z0-9_\-]", "", raw.lstrip("@")).lower()
-        if not login:
-            continue
-        chan = {"twitch": f"https://www.twitch.tv/{login}", "kick": f"https://kick.com/{login}", "youtube": f"https://www.youtube.com/@{login}"}[plat]
-        db.run("INSERT OR IGNORE INTO creators (platform, login, name, url, category, discovered_at, updated_at, permission, monitor) VALUES (?,?,?,?,?,?,?,?,?)",
-               (plat, login, raw.lstrip("@"), chan, b.get("category", "gaming"), time.time(), time.time(), "none", 0))
-        c = db.one("SELECT * FROM creators WHERE platform=? AND login=?", (plat, login))
-        db.update("creators", "id", c["id"], permission="granted", permission_proof=url, permission_at=time.time(), monitor=0 if b.get("monitor") is False else 1, updated_at=time.time())
-        added.append({"id": c["id"], "platform": plat, "login": login})
+    added = _grant_streamers(b, "granted", url)
     if not added:
         abort(400, "List at least one streamer")
     db.event("rights", f"Campaign {b.get('name') or url}: {len(added)} streamer(s) granted with the campaign page as proof: " + ", ".join(a["login"] for a in added), kind="decision")
@@ -177,7 +209,7 @@ def edit_creator(cid):
     c = db.one("SELECT * FROM creators WHERE id=?", (cid,)) or abort(404)
     f = {}
     if "permission" in b:
-        if b["permission"] not in ("none", "requested", "granted", "own", "denied"):
+        if b["permission"] not in ("none", "requested", "granted", "own", "attested", "denied"):
             abort(400, "bad permission")
         if b["permission"] in ("granted", "own") and not (b.get("permission_proof") or c.get("permission_proof") or b["permission"] == "own"):
             abort(400, "Add the proof of permission (link to the message, contract or campaign page)")
@@ -187,7 +219,7 @@ def edit_creator(cid):
         if k in b:
             f[k] = b[k]
     if "monitor" in b:
-        if b["monitor"] and (f.get("permission") or c["permission"]) not in ("granted", "own"):
+        if b["monitor"] and (f.get("permission") or c["permission"]) not in ("granted", "own", "attested"):
             abort(400, "Only creators with clipping permission can be monitored")
         f["monitor"] = 1 if b["monitor"] else 0
         if not b["monitor"]:
@@ -219,7 +251,7 @@ def upload_source():
 def url_source():
     b = request.get_json(force=True)
     c = db.one("SELECT * FROM creators WHERE id=?", (b.get("creator_id"),))
-    if not c or c["permission"] not in ("own", "granted"):
+    if not c or c["permission"] not in ("own", "granted", "attested"):
         return jsonify(error="That creator has no clipping permission on record"), 403
     return jsonify(job_id=jobs.enqueue("import_url", {"url": b["url"], "creator_id": c["id"]}, priority=3))
 
