@@ -75,3 +75,32 @@ def moderate(text, ref=None):
     j = _post("/moderations", json={"model": "omni-moderation-latest", "input": text[:20000]})
     r = (j.get("results") or [{}])[0]
     return {"flagged": bool(r.get("flagged")), "categories": [k for k, v in (r.get("categories") or {}).items() if v]}
+
+
+def speech(text, out_path, voice="onyx", ref=None):
+    """Text to speech (WAV). None without a key."""
+    if not enabled() or not text.strip():
+        return None
+    est = len(text) / 1e6 * budget.prices()["tts_per_1m_chars"]
+    budget.guard(est, "voiceover")
+    url = config.CFG.openai_base.rstrip("/") + "/audio/speech"
+    for attempt in range(3):
+        try:
+            r = requests.post(url, headers={"Authorization": "Bearer " + config.CFG.openai_key}, timeout=300,
+                              json={"model": "tts-1", "voice": voice, "input": text[:4000], "response_format": "wav"})
+        except requests.RequestException as e:
+            if attempt == 2:
+                raise jobs.Temporary(f"OpenAI connection error: {e}")
+            time.sleep(2 ** attempt)
+            continue
+        if r.status_code in (429, 500, 502, 503, 504) and attempt < 2:
+            time.sleep(2 ** attempt * 2)
+            continue
+        if r.status_code == 401:
+            raise jobs.Paused("OpenAI key rejected (401)", retry_in=1800)
+        if not r.ok:
+            raise RuntimeError(f"OpenAI speech {r.status_code}: {r.text[:200]}")
+        with open(out_path, "wb") as f:
+            f.write(r.content)
+        budget.record("openai:tts", len(text), est, ref)
+        return out_path

@@ -10,7 +10,7 @@ import time
 from . import budget, config, db, jobs, learn, monitor, notify, pipeline, publish, research, skills, sources
 
 SCHEDULE = [  # (job kind, every seconds)
-    ("check_live", 60), ("discover", 1800), ("skills_discover", 86400), ("learn", 6 * 3600), ("cleanup", 6 * 3600), ("watchdog", 300),
+    ("check_live", 60), ("discover", 1800), ("skills_discover", 86400), ("learn", 6 * 3600), ("cleanup", 6 * 3600), ("watchdog", 300), ("faceless", 900),
 ]
 HANDLERS = {}
 _stop = threading.Event()
@@ -73,6 +73,12 @@ def _imp(p):
 @handler("reference")
 def _ref(p):
     return research.analyse_reference(p["path"], p["label"], p.get("category", "gaming"))
+
+
+@handler("faceless")
+def _faceless(p):
+    from . import faceless
+    return faceless.make(p.get("cfg")) if p.get("now") else faceless.tick()
 
 
 @handler("cleanup")

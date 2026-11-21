@@ -89,12 +89,15 @@ def notes_read():
     return jsonify(ok=True)
 
 
-SETTING_KEYS = ("production", "live", "discovery", "publishing", "budget", "prices", "paused_jobs")
+SETTING_KEYS = ("faceless", "production", "live", "discovery", "publishing", "budget", "prices", "paused_jobs")
 
 
 @app.get("/api/settings")
 def get_settings():
-    return jsonify({k: db.setting(k, {} if k != "paused_jobs" else []) for k in SETTING_KEYS} | {"caption_presets": captions.presets(), "category_presets": {**captions.CATEGORY_PRESET, **(db.setting("category_presets", {}) or {})}})
+    from . import faceless
+    out = {k: db.setting(k, {} if k != "paused_jobs" else []) for k in SETTING_KEYS}
+    out["faceless"] = faceless.settings()
+    return jsonify(out | {"caption_presets": captions.presets(), "category_presets": {**captions.CATEGORY_PRESET, **(db.setting("category_presets", {}) or {})}})
 
 
 @app.put("/api/settings")
@@ -116,7 +119,8 @@ def creators():
     if request.args.get("q"):
         where += " AND (login LIKE ? OR name LIKE ?)"
         args += [f"%{request.args['q']}%"] * 2
-    return jsonify(db.q(f"SELECT * FROM creators WHERE {where} ORDER BY {order} LIMIT 300", args))
+    # creators you can clip always come first, so they never fall off the list
+    return jsonify(db.q(f"SELECT * FROM creators WHERE {where} ORDER BY (permission IN ('own','granted')) DESC, {order} LIMIT 300", args))
 
 
 @app.post("/api/creators")
@@ -129,6 +133,42 @@ def add_creator():
     db.run("INSERT OR IGNORE INTO creators (platform, login, name, url, category, discovered_at, updated_at, permission, monitor, source_url) VALUES (?,?,?,?,?,?,?,?,?,?)",
            (b["platform"], login, b.get("name") or b["login"], url, b.get("category", "gaming"), time.time(), time.time(), "none", 0, b.get("source_url")))
     return jsonify(db.one("SELECT * FROM creators WHERE platform=? AND login=?", (b["platform"], login)))
+
+
+@app.post("/api/campaigns")
+def add_campaign():
+    """A clipping campaign you joined: every listed streamer gets permission 'granted' with the campaign page as proof,
+    and is monitored. Body: {url, name?, platform?, streamers: ["name" or "kick:name" or a channel link, ...], monitor?: true}"""
+    b = request.get_json(force=True) or {}
+    url = (b.get("url") or "").strip()
+    if not re.match(r"^https?://", url):
+        abort(400, "Campaign link (https://...) required as proof of permission")
+    added = []
+    for raw in b.get("streamers") or []:
+        raw = str(raw).strip()
+        if not raw:
+            continue
+        plat = b.get("platform") or "twitch"
+        m = re.match(r"^(?:https?://)?(?:www\.)?(twitch\.tv|kick\.com|youtube\.com/(?:@|c/|channel/)?)/?([^/?#\s]+)", raw)
+        if m:
+            plat = "kick" if "kick" in m.group(1) else "youtube" if "youtube" in m.group(1) else "twitch"
+            raw = m.group(2)
+        elif ":" in raw and raw.split(":", 1)[0] in ("twitch", "kick", "youtube"):
+            plat, raw = raw.split(":", 1)
+        login = re.sub(r"[^a-zA-Z0-9_\-]", "", raw.lstrip("@")).lower()
+        if not login:
+            continue
+        chan = {"twitch": f"https://www.twitch.tv/{login}", "kick": f"https://kick.com/{login}", "youtube": f"https://www.youtube.com/@{login}"}[plat]
+        db.run("INSERT OR IGNORE INTO creators (platform, login, name, url, category, discovered_at, updated_at, permission, monitor) VALUES (?,?,?,?,?,?,?,?,?)",
+               (plat, login, raw.lstrip("@"), chan, b.get("category", "gaming"), time.time(), time.time(), "none", 0))
+        c = db.one("SELECT * FROM creators WHERE platform=? AND login=?", (plat, login))
+        db.update("creators", "id", c["id"], permission="granted", permission_proof=url, permission_at=time.time(), monitor=0 if b.get("monitor") is False else 1, updated_at=time.time())
+        added.append({"id": c["id"], "platform": plat, "login": login})
+    if not added:
+        abort(400, "List at least one streamer")
+    db.event("rights", f"Campaign {b.get('name') or url}: {len(added)} streamer(s) granted with the campaign page as proof: " + ", ".join(a["login"] for a in added), kind="decision")
+    jobs.enqueue("check_live", {}, priority=1)
+    return jsonify(added=added)
 
 
 @app.patch("/api/creators/<int:cid>")
@@ -380,6 +420,8 @@ def get_jobs():
 @app.post("/api/jobs")
 def run_job():
     kind = (request.get_json(force=True) or {}).get("kind")
+    if kind == "faceless":  # make one faceless reel now (on top of the daily schedule)
+        return jsonify(job_id=jobs.enqueue("faceless", {"now": True}, priority=3))
     if kind not in ("discover", "check_live", "skills_discover", "learn", "cleanup"):
         abort(400, "unknown job")
     return jsonify(job_id=jobs.enqueue(kind, {}, priority=2))

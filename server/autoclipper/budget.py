@@ -6,7 +6,7 @@ import time
 from . import config, db, jobs
 
 # USD estimates; editable through the settings API ("prices")
-PRICES = {"whisper_per_min": 0.006, "chat_in_per_1m": 0.15, "chat_out_per_1m": 0.60, "moderation": 0.0, "render_cpu_min": 0.0}
+PRICES = {"whisper_per_min": 0.006, "chat_in_per_1m": 0.15, "chat_out_per_1m": 0.60, "moderation": 0.0, "tts_per_1m_chars": 15.0, "render_cpu_min": 0.0}
 
 
 def prices():
