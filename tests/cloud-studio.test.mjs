@@ -66,6 +66,16 @@ try {
   await page.fill('#cs_fl_per', '5'); await page.fill('#cs_fl_niche', 'GTA RP funny moments explained'); await page.click('[data-cl="saveSettings"]'); await page.waitForTimeout(600);
   const st = await (await fetch(URL_ + '/api/settings', { headers: { Authorization: 'Bearer ' + TOKEN } })).json();
   check('faceless settings save on the server', st.faceless.per_day === 5 && st.faceless.niche === 'GTA RP funny moments explained', JSON.stringify(st.faceless));
+  // gameplay background upload (needs the confirmation box)
+  const bgVid = fs.readdirSync(path.join(DATA, '..', 'src')).map((f) => path.join(DATA, '..', 'src', f)).find((f) => f.endsWith('.mp4'));
+  if (bgVid) {
+    await page.evaluate(() => [...document.querySelectorAll('[data-cl="tab"]')].find((x) => /Add source/.test(x.textContent)).click()); await page.waitForTimeout(800);
+    await page.setInputFiles('#clBgFile', bgVid); await page.click('[data-cl="bgUpload"]'); await page.waitForTimeout(500);
+    const refused = (await (await fetch(URL_ + '/api/backgrounds', { headers: { Authorization: 'Bearer ' + TOKEN } })).json()).length === 0;
+    await page.check('#clBgAttest'); await page.click('[data-cl="bgUpload"]'); await page.waitForTimeout(2500);
+    const bgs = await (await fetch(URL_ + '/api/backgrounds', { headers: { Authorization: 'Bearer ' + TOKEN } })).json();
+    check('gameplay backgrounds: refused without the confirmation, uploaded with it, listed', refused && bgs.length === 1 && /#\d+ ·/.test(await page.locator('#clBgList').innerText()), JSON.stringify(bgs.map((x) => x.status)));
+  }
   const unauth = await fetch(URL_ + '/api/clips');
   check('server refuses requests without the admin token', unauth.status === 401);
   check('no page errors', errors.length === 0, errors[0]);
