@@ -1,44 +1,6 @@
 {
- "at": "2026-11-20T23:58:13.713Z",
+ "at": "2026-11-21T06:59:35.159Z",
  "days": [
-  {
-   "date": "2026-11-20",
-   "slots": [
-    {
-     "key": "creator-kick-adinross",
-     "topic": "AdinRoss (kick, Grand Theft Auto VI (GTA))",
-     "kind": "clip",
-     "format": "clip",
-     "hook": "",
-     "confidence": 0.5,
-     "score": 45,
-     "why": "1 clip(s) with 31,419 views in the last day",
-     "status": "kept"
-    },
-    {
-     "key": "creator-kick-chillingcrew",
-     "topic": "ChillingCrew (kick, Special Events)",
-     "kind": "clip",
-     "format": "clip",
-     "hook": "",
-     "confidence": 0.5,
-     "score": 45,
-     "why": "3 clip(s) with 22,272 views in the last day",
-     "status": "kept"
-    },
-    {
-     "key": "creator-kick-misshenley",
-     "topic": "misshenley (kick, Slots & Casino)",
-     "kind": "clip",
-     "format": "clip",
-     "hook": "",
-     "confidence": 0.5,
-     "score": 45,
-     "why": "2 clip(s) with 17,644 views in the last day",
-     "status": "kept"
-    }
-   ]
-  },
   {
    "date": "2026-11-21",
    "slots": [
@@ -51,13 +13,47 @@
      "confidence": 0.5,
      "score": 45,
      "why": "2 clip(s) with 12,797 views in the last day",
+     "status": "kept"
+    },
+    {
+     "key": "creator-kick-chillingcrew",
+     "topic": "ChillingCrew (kick, Special Events)",
+     "kind": "clip",
+     "format": "clip",
+     "hook": "",
+     "confidence": 0.5,
+     "score": 45,
+     "why": "2 clip(s) with 17,589 views in the last day",
+     "status": "kept"
+    },
+    {
+     "key": "creator-kick-knut",
+     "topic": "Knut (kick, Just Sleeping)",
+     "kind": "clip",
+     "format": "clip",
+     "hook": "",
+     "confidence": 0.5,
+     "score": 45,
+     "why": "1 clip(s) with 5,337 views in the last day",
      "status": "new"
     }
    ]
   },
   {
    "date": "2026-11-22",
-   "slots": []
+   "slots": [
+    {
+     "key": "creator-kick-sian_phan_mhanslot",
+     "topic": "Sian_Phan_MhanSlot (kick, Slots & Casino)",
+     "kind": "clip",
+     "format": "clip",
+     "hook": "",
+     "confidence": 0.5,
+     "score": 45,
+     "why": "1 clip(s) with 3,966 views in the last day",
+     "status": "new"
+    }
+   ]
   },
   {
    "date": "2026-11-23",
@@ -75,40 +71,36 @@
      "confidence": 0.5,
      "score": 45,
      "why": "1 clip(s) with 7,985 views in the last day",
-     "status": "new"
-    }
-   ]
-  },
-  {
-   "date": "2026-11-25",
-   "slots": [
-    {
-     "key": "creator-kick-destiny",
-     "topic": "Destiny (kick, Just Chatting)",
-     "kind": "clip",
-     "format": "clip",
-     "hook": "",
-     "confidence": 0.5,
-     "score": 45,
-     "why": "1 clip(s) with 7,417 views in the last day",
      "status": "kept"
     }
    ]
   },
   {
+   "date": "2026-11-25",
+   "slots": []
+  },
+  {
    "date": "2026-11-26",
+   "slots": []
+  },
+  {
+   "date": "2026-11-27",
    "slots": []
   }
  ],
  "replaced": [
   {
-   "topic": "xmerghani (kick, Just Chatting)",
+   "topic": "AdinRoss (kick, Grand Theft Auto VI (GTA))",
    "reason": "evidence went stale or a stronger opportunity replaced it"
   },
   {
-   "topic": "DjMaRiiO (kick, Grand Theft Auto VI (GTA))",
+   "topic": "misshenley (kick, Slots & Casino)",
+   "reason": "evidence went stale or a stronger opportunity replaced it"
+  },
+  {
+   "topic": "Destiny (kick, Just Chatting)",
    "reason": "evidence went stale or a stronger opportunity replaced it"
   }
  ],
- "kept": 4
+ "kept": 2
 }
