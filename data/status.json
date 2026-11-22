@@ -1,31 +1,31 @@
 {
- "at": "2026-11-21T19:10:29.198Z",
+ "at": "2026-11-22T06:40:55.651Z",
  "ok": true,
- "next": "2026-11-22T01:10:29.198Z",
+ "next": "2026-11-22T12:40:55.651Z",
  "sources": [
   {
    "name": "googleTrends",
    "ok": true,
    "count": 10,
-   "ms": 312
+   "ms": 262
   },
   {
    "name": "googleNews",
    "ok": true,
    "count": 0,
-   "ms": 0
+   "ms": 1
   },
   {
    "name": "wikipedia",
    "ok": true,
    "count": 40,
-   "ms": 87
+   "ms": 131
   },
   {
    "name": "hackerNews",
    "ok": true,
    "count": 20,
-   "ms": 257
+   "ms": 302
   },
   {
    "name": "reddit",
@@ -43,16 +43,16 @@
    "name": "twitch",
    "ok": true,
    "count": 0,
-   "ms": 317
+   "ms": 241
   },
   {
    "name": "kick",
    "ok": true,
    "count": 20,
-   "ms": 1468
+   "ms": 815
   }
  ],
  "errors": [],
- "usd": 0.0010755,
- "summary": "73 topics investigated, 23 opportunities, 5 planned"
+ "usd": 0.0010968,
+ "summary": "73 topics investigated, 24 opportunities, 8 planned"
 }

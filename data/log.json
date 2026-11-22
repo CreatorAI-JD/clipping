@@ -1,5 +1,14 @@
 [
  {
+  "at": "2026-11-22T06:40:55.651Z",
+  "ok": true,
+  "investigated": 73,
+  "opportunities": 24,
+  "planned": 8,
+  "usd": 0.0010968,
+  "errors": 0
+ },
+ {
   "at": "2026-11-21T19:10:29.198Z",
   "ok": true,
   "investigated": 73,

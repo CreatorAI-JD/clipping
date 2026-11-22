@@ -1,44 +1,6 @@
 {
- "at": "2026-11-21T19:10:29.198Z",
+ "at": "2026-11-22T06:40:55.651Z",
  "days": [
-  {
-   "date": "2026-11-21",
-   "slots": [
-    {
-     "key": "creator-kick-xqc",
-     "topic": "xQc (kick, Just Chatting)",
-     "kind": "clip",
-     "format": "clip",
-     "hook": "",
-     "confidence": 0.5,
-     "score": 45,
-     "why": "2 clip(s) with 12,797 views in the last day",
-     "status": "kept"
-    },
-    {
-     "key": "creator-kick-chillingcrew",
-     "topic": "ChillingCrew (kick, Special Events)",
-     "kind": "clip",
-     "format": "clip",
-     "hook": "",
-     "confidence": 0.5,
-     "score": 45,
-     "why": "2 clip(s) with 17,589 views in the last day",
-     "status": "kept"
-    },
-    {
-     "key": "creator-kick-knut",
-     "topic": "Knut (kick, Just Sleeping)",
-     "kind": "clip",
-     "format": "clip",
-     "hook": "",
-     "confidence": 0.5,
-     "score": 45,
-     "why": "1 clip(s) with 5,337 views in the last day",
-     "status": "kept"
-    }
-   ]
-  },
   {
    "date": "2026-11-22",
    "slots": [
@@ -52,28 +14,72 @@
      "score": 45,
      "why": "1 clip(s) with 3,966 views in the last day",
      "status": "kept"
-    }
-   ]
-  },
-  {
-   "date": "2026-11-23",
-   "slots": []
-  },
-  {
-   "date": "2026-11-24",
-   "slots": [
+    },
     {
-     "key": "creator-kick-gustavocsgo",
-     "topic": "GustavoCSGO (kick, Grand Theft Auto VI (GTA))",
+     "key": "creator-kick-chillingcrew",
+     "topic": "ChillingCrew (kick, Special Events)",
      "kind": "clip",
      "format": "clip",
      "hook": "",
      "confidence": 0.5,
      "score": 45,
-     "why": "1 clip(s) with 7,985 views in the last day",
+     "why": "2 clip(s) with 11,090 views in the last day",
      "status": "kept"
+    },
+    {
+     "key": "creator-kick-buddha",
+     "topic": "Buddha (kick, Grand Theft Auto V (GTA))",
+     "kind": "clip",
+     "format": "clip",
+     "hook": "",
+     "confidence": 0.5,
+     "score": 45,
+     "why": "1 clip(s) with 8,373 views in the last day",
+     "status": "new"
     }
    ]
+  },
+  {
+   "date": "2026-11-23",
+   "slots": [
+    {
+     "key": "creator-kick-sergioeleven",
+     "topic": "SergioEleven (kick, Just Chatting)",
+     "kind": "clip",
+     "format": "clip",
+     "hook": "",
+     "confidence": 0.5,
+     "score": 45,
+     "why": "3 clip(s) with 6,760 views in the last day",
+     "status": "new"
+    },
+    {
+     "key": "creator-kick-xmerghani",
+     "topic": "xmerghani (kick, Just Sleeping)",
+     "kind": "clip",
+     "format": "clip",
+     "hook": "",
+     "confidence": 0.5,
+     "score": 45,
+     "why": "2 clip(s) with 5,203 views in the last day",
+     "status": "new"
+    },
+    {
+     "key": "creator-kick-un_nefer",
+     "topic": "UN_NEFER (kick, IRL)",
+     "kind": "clip",
+     "format": "clip",
+     "hook": "",
+     "confidence": 0.5,
+     "score": 45,
+     "why": "1 clip(s) with 3,063 views in the last day",
+     "status": "new"
+    }
+   ]
+  },
+  {
+   "date": "2026-11-24",
+   "slots": []
   },
   {
    "date": "2026-11-25",
@@ -81,13 +87,54 @@
   },
   {
    "date": "2026-11-26",
-   "slots": []
+   "slots": [
+    {
+     "key": "creator-kick-harry",
+     "topic": "Harry (kick, Grand Theft Auto V (GTA))",
+     "kind": "clip",
+     "format": "clip",
+     "hook": "",
+     "confidence": 0.5,
+     "score": 45,
+     "why": "1 clip(s) with 5,835 views in the last day",
+     "status": "new"
+    }
+   ]
   },
   {
    "date": "2026-11-27",
+   "slots": [
+    {
+     "key": "creator-kick-3li_boltx",
+     "topic": "3li_Boltx (kick, Just Chatting)",
+     "kind": "clip",
+     "format": "clip",
+     "hook": "",
+     "confidence": 0.5,
+     "score": 45,
+     "why": "1 clip(s) with 1,851 views in the last day",
+     "status": "new"
+    }
+   ]
+  },
+  {
+   "date": "2026-11-28",
    "slots": []
   }
  ],
- "replaced": [],
- "kept": 5
+ "replaced": [
+  {
+   "topic": "xQc (kick, Just Chatting)",
+   "reason": "evidence went stale or a stronger opportunity replaced it"
+  },
+  {
+   "topic": "Knut (kick, Just Sleeping)",
+   "reason": "evidence went stale or a stronger opportunity replaced it"
+  },
+  {
+   "topic": "GustavoCSGO (kick, Grand Theft Auto VI (GTA))",
+   "reason": "evidence went stale or a stronger opportunity replaced it"
+  }
+ ],
+ "kept": 1
 }
