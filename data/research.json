@@ -1,15 +1,15 @@
 {
- "at": "2026-11-22T06:40:55.651Z",
+ "at": "2026-11-22T19:32:29.821Z",
  "niche": "GTA 6, Grand Theft Auto, GTA Online, streamers",
  "channelType": "clips",
- "analyst": "AI analyst (gpt-4o-mini) wrote 12 opportunities with citations",
- "investigated": 73,
+ "analyst": "AI analyst (gpt-4o-mini) wrote 5 opportunities with citations",
+ "investigated": 75,
  "opportunities": [
   {
    "key": "gta",
    "kind": "faceless",
    "topic": "GTA VI",
-   "why": "GTA VI is currently trending with high viewership on Wikipedia, indicating strong public interest.",
+   "why": "GTA VI is currently trending with significant interest, as evidenced by its high view count on Wikipedia.",
    "sources": [
     {
      "source": "wikipedia",
@@ -36,7 +36,7 @@
      "metric": "67990 views"
     }
    ],
-   "researched": "2026-11-22T06:40:55.651Z",
+   "researched": "2026-11-22T19:32:29.821Z",
    "evidence": {
     "independentSources": 1,
     "sources": [
@@ -44,7 +44,7 @@
     ],
     "items": 3
    },
-   "audience": "GTA fans, gamers, and general audiences interested in gaming news.",
+   "audience": "GTA fans, gamers, and streamers",
    "format": "facts",
    "hook": "Discover why GTA VI is capturing the attention of millions!",
    "difficulty": 2,
@@ -55,10 +55,10 @@
    "score": 68
   },
   {
-   "key": "gta-popularity-series",
+   "key": "auto-grand-series-theft",
    "kind": "faceless",
-   "topic": "GTA Series Popularity",
-   "why": "The view counts for the entire GTA series indicate a sustained interest in the franchise.",
+   "topic": "Grand Theft Auto Series",
+   "why": "The Grand Theft Auto series continues to be a popular topic, with substantial viewership on Wikipedia.",
    "sources": [
     {
      "source": "wikipedia",
@@ -85,7 +85,7 @@
      "metric": "67990 views"
     }
    ],
-   "researched": "2026-11-22T06:40:55.651Z",
+   "researched": "2026-11-22T19:32:29.821Z",
    "evidence": {
     "independentSources": 1,
     "sources": [
@@ -93,390 +93,21 @@
     ],
     "items": 3
    },
-   "audience": "Long-time fans of the GTA series.",
-   "format": "list",
-   "hook": "Check out the most popular entries in the GTA series!",
+   "audience": "GTA fans, gamers, and streamers",
+   "format": "educational",
+   "hook": "Explore the evolution of the Grand Theft Auto series!",
    "difficulty": 2,
    "risks": [],
    "confidence": 0.5,
    "niche": true,
    "method": "cross-source evidence + AI analyst (cited)",
    "score": 68
-  },
-  {
-   "key": "gta-online",
-   "kind": "faceless",
-   "topic": "GTA Online",
-   "why": "The ongoing popularity of GTA Online continues to attract players and viewers.",
-   "sources": [
-    {
-     "source": "wikipedia",
-     "title": "Grand Theft Auto VI",
-     "url": "https://en.wikipedia.org/wiki/Grand_Theft_Auto_VI",
-     "publisher": "Wikipedia most-read",
-     "date": "2026-11-21",
-     "metric": "393338 views"
-    },
-    {
-     "source": "wikipedia",
-     "title": "Grand Theft Auto",
-     "url": "https://en.wikipedia.org/wiki/Grand_Theft_Auto",
-     "publisher": "Wikipedia most-read",
-     "date": "2026-11-21",
-     "metric": "103318 views"
-    },
-    {
-     "source": "wikipedia",
-     "title": "Grand Theft Auto V",
-     "url": "https://en.wikipedia.org/wiki/Grand_Theft_Auto_V",
-     "publisher": "Wikipedia most-read",
-     "date": "2026-11-21",
-     "metric": "67990 views"
-    }
-   ],
-   "researched": "2026-11-22T06:40:55.651Z",
-   "evidence": {
-    "independentSources": 1,
-    "sources": [
-     "wikipedia"
-    ],
-    "items": 3
-   },
-   "audience": "GTA Online players and streamers.",
-   "format": "facts",
-   "hook": "Find out what keeps GTA Online thriving!",
-   "difficulty": 2,
-   "risks": [],
-   "confidence": 0.5,
-   "niche": true,
-   "method": "cross-source evidence + AI analyst (cited)",
-   "score": 68
-  },
-  {
-   "key": "anticipation-gta-release",
-   "kind": "faceless",
-   "topic": "GTA VI Release Anticipation",
-   "why": "The significant viewership indicates that many are eagerly awaiting the release of GTA VI.",
-   "sources": [
-    {
-     "source": "wikipedia",
-     "title": "Grand Theft Auto VI",
-     "url": "https://en.wikipedia.org/wiki/Grand_Theft_Auto_VI",
-     "publisher": "Wikipedia most-read",
-     "date": "2026-11-21",
-     "metric": "393338 views"
-    },
-    {
-     "source": "wikipedia",
-     "title": "Grand Theft Auto",
-     "url": "https://en.wikipedia.org/wiki/Grand_Theft_Auto",
-     "publisher": "Wikipedia most-read",
-     "date": "2026-11-21",
-     "metric": "103318 views"
-    },
-    {
-     "source": "wikipedia",
-     "title": "Grand Theft Auto V",
-     "url": "https://en.wikipedia.org/wiki/Grand_Theft_Auto_V",
-     "publisher": "Wikipedia most-read",
-     "date": "2026-11-21",
-     "metric": "67990 views"
-    }
-   ],
-   "researched": "2026-11-22T06:40:55.651Z",
-   "evidence": {
-    "independentSources": 1,
-    "sources": [
-     "wikipedia"
-    ],
-    "items": 3
-   },
-   "audience": "GTA fans and gamers anticipating the release.",
-   "format": "reaction",
-   "hook": "Feel the excitement as we countdown to the release of GTA VI!",
-   "difficulty": 2,
-   "risks": [],
-   "confidence": 0.5,
-   "niche": true,
-   "method": "cross-source evidence + AI analyst (cited)",
-   "score": 68
-  },
-  {
-   "key": "evolution-franchise-gta",
-   "kind": "faceless",
-   "topic": "GTA Franchise Evolution",
-   "why": "The viewership data shows a clear interest in the evolution of the GTA franchise.",
-   "sources": [
-    {
-     "source": "wikipedia",
-     "title": "Grand Theft Auto VI",
-     "url": "https://en.wikipedia.org/wiki/Grand_Theft_Auto_VI",
-     "publisher": "Wikipedia most-read",
-     "date": "2026-11-21",
-     "metric": "393338 views"
-    },
-    {
-     "source": "wikipedia",
-     "title": "Grand Theft Auto",
-     "url": "https://en.wikipedia.org/wiki/Grand_Theft_Auto",
-     "publisher": "Wikipedia most-read",
-     "date": "2026-11-21",
-     "metric": "103318 views"
-    },
-    {
-     "source": "wikipedia",
-     "title": "Grand Theft Auto V",
-     "url": "https://en.wikipedia.org/wiki/Grand_Theft_Auto_V",
-     "publisher": "Wikipedia most-read",
-     "date": "2026-11-21",
-     "metric": "67990 views"
-    }
-   ],
-   "researched": "2026-11-22T06:40:55.651Z",
-   "evidence": {
-    "independentSources": 1,
-    "sources": [
-     "wikipedia"
-    ],
-    "items": 3
-   },
-   "audience": "Gamers interested in gaming history.",
-   "format": "history",
-   "hook": "Trace the evolution of the GTA franchise through the years!",
-   "difficulty": 3,
-   "risks": [],
-   "confidence": 0.5,
-   "niche": true,
-   "method": "cross-source evidence + AI analyst (cited)",
-   "score": 66
-  },
-  {
-   "key": "gta-trends",
-   "kind": "faceless",
-   "topic": "GTA VI Trends",
-   "why": "The term 'donnie gta 6' has seen a notable spike in Google Trends, indicating a growing interest in specific aspects of GTA VI.",
-   "sources": [
-    {
-     "source": "googleTrends",
-     "title": "donnie gta 6",
-     "url": "https://www.svg.com/2321148/gta-6-donnie-death-explained/",
-     "publisher": "SVG",
-     "date": "Sat, 21 Nov 2026 22:20:00 -0800",
-     "metric": "200+"
-    }
-   ],
-   "researched": "2026-11-22T06:40:55.651Z",
-   "evidence": {
-    "independentSources": 1,
-    "sources": [
-     "googleTrends"
-    ],
-    "items": 1
-   },
-   "audience": "GTA enthusiasts and trend watchers.",
-   "format": "explainer",
-   "hook": "What does the latest trend in GTA VI reveal about player interests?",
-   "difficulty": 2,
-   "risks": [],
-   "confidence": 0.36,
-   "niche": true,
-   "method": "cross-source evidence + AI analyst (cited)",
-   "score": 59.6
-  },
-  {
-   "key": "character-gta-trends",
-   "kind": "faceless",
-   "topic": "GTA VI Character Trends",
-   "why": "The specific trend 'donnie gta 6' suggests interest in character development or storylines.",
-   "sources": [
-    {
-     "source": "googleTrends",
-     "title": "donnie gta 6",
-     "url": "https://www.svg.com/2321148/gta-6-donnie-death-explained/",
-     "publisher": "SVG",
-     "date": "Sat, 21 Nov 2026 22:20:00 -0800",
-     "metric": "200+"
-    }
-   ],
-   "researched": "2026-11-22T06:40:55.651Z",
-   "evidence": {
-    "independentSources": 1,
-    "sources": [
-     "googleTrends"
-    ],
-    "items": 1
-   },
-   "audience": "Story-driven gamers and narrative enthusiasts.",
-   "format": "explainer",
-   "hook": "What character trends are emerging in GTA VI?",
-   "difficulty": 2,
-   "risks": [],
-   "confidence": 0.36,
-   "niche": true,
-   "method": "cross-source evidence + AI analyst (cited)",
-   "score": 59.6
-  },
-  {
-   "key": "fan-gta-theories",
-   "kind": "faceless",
-   "topic": "GTA VI Fan Theories",
-   "why": "The high interest in GTA VI opens the door for fan theories and speculation.",
-   "sources": [
-    {
-     "source": "wikipedia",
-     "title": "Grand Theft Auto VI",
-     "url": "https://en.wikipedia.org/wiki/Grand_Theft_Auto_VI",
-     "publisher": "Wikipedia most-read",
-     "date": "2026-11-21",
-     "metric": "393338 views"
-    },
-    {
-     "source": "wikipedia",
-     "title": "Grand Theft Auto",
-     "url": "https://en.wikipedia.org/wiki/Grand_Theft_Auto",
-     "publisher": "Wikipedia most-read",
-     "date": "2026-11-21",
-     "metric": "103318 views"
-    },
-    {
-     "source": "wikipedia",
-     "title": "Grand Theft Auto V",
-     "url": "https://en.wikipedia.org/wiki/Grand_Theft_Auto_V",
-     "publisher": "Wikipedia most-read",
-     "date": "2026-11-21",
-     "metric": "67990 views"
-    }
-   ],
-   "researched": "2026-11-22T06:40:55.651Z",
-   "evidence": {
-    "independentSources": 1,
-    "sources": [
-     "wikipedia"
-    ],
-    "items": 3
-   },
-   "audience": "GTA fans and theorists.",
-   "format": "story",
-   "hook": "What are the most intriguing fan theories about GTA VI?",
-   "difficulty": 3,
-   "risks": [
-    "speculation"
-   ],
-   "confidence": 0.5,
-   "niche": true,
-   "method": "cross-source evidence + AI analyst (cited)",
-   "score": 56
-  },
-  {
-   "key": "gta-recompilation",
-   "kind": "faceless",
-   "topic": "GTA VI PC Recompilation",
-   "why": "A recent Hacker News post about a PC recompilation of the Xbox version of GTA VI has gained significant traction.",
-   "sources": [
-    {
-     "source": "hackerNews",
-     "title": "Leonida – PC Recompilation of the Xbox Version of GTA 6",
-     "url": "https://github.com/ItsNotRexed/Leonida",
-     "publisher": "Hacker News",
-     "date": "2026-11-22T00:57:26Z",
-     "metric": "118 points"
-    }
-   ],
-   "researched": "2026-11-22T06:40:55.651Z",
-   "evidence": {
-    "independentSources": 1,
-    "sources": [
-     "hackerNews"
-    ],
-    "items": 1
-   },
-   "audience": "PC gamers and modding communities.",
-   "format": "technology",
-   "hook": "Explore the latest developments in GTA VI modding!",
-   "difficulty": 3,
-   "risks": [
-    "rights"
-   ],
-   "confidence": 0.38,
-   "niche": true,
-   "method": "cross-source evidence + AI analyst (cited)",
-   "score": 48.8
-  },
-  {
-   "key": "gta-modding-scene",
-   "kind": "faceless",
-   "topic": "GTA VI Modding Scene",
-   "why": "The modding community is buzzing with excitement over new developments in GTA VI.",
-   "sources": [
-    {
-     "source": "hackerNews",
-     "title": "Leonida – PC Recompilation of the Xbox Version of GTA 6",
-     "url": "https://github.com/ItsNotRexed/Leonida",
-     "publisher": "Hacker News",
-     "date": "2026-11-22T00:57:26Z",
-     "metric": "118 points"
-    }
-   ],
-   "researched": "2026-11-22T06:40:55.651Z",
-   "evidence": {
-    "independentSources": 1,
-    "sources": [
-     "hackerNews"
-    ],
-    "items": 1
-   },
-   "audience": "Modders and creative gamers.",
-   "format": "story",
-   "hook": "Dive into the creative world of GTA VI modding!",
-   "difficulty": 3,
-   "risks": [
-    "rights"
-   ],
-   "confidence": 0.38,
-   "niche": true,
-   "method": "cross-source evidence + AI analyst (cited)",
-   "score": 48.8
-  },
-  {
-   "key": "development-gta-insights",
-   "kind": "faceless",
-   "topic": "GTA VI Development Insights",
-   "why": "The discussions around the PC recompilation indicate a deeper interest in the development process of GTA VI.",
-   "sources": [
-    {
-     "source": "hackerNews",
-     "title": "Leonida – PC Recompilation of the Xbox Version of GTA 6",
-     "url": "https://github.com/ItsNotRexed/Leonida",
-     "publisher": "Hacker News",
-     "date": "2026-11-22T00:57:26Z",
-     "metric": "118 points"
-    }
-   ],
-   "researched": "2026-11-22T06:40:55.651Z",
-   "evidence": {
-    "independentSources": 1,
-    "sources": [
-     "hackerNews"
-    ],
-    "items": 1
-   },
-   "audience": "Aspiring game developers and industry insiders.",
-   "format": "technology",
-   "hook": "Get insights into the development of GTA VI!",
-   "difficulty": 4,
-   "risks": [
-    "speculation"
-   ],
-   "confidence": 0.38,
-   "niche": true,
-   "method": "cross-source evidence + AI analyst (cited)",
-   "score": 46.8
   },
   {
    "key": "creator-kick-chillingcrew",
    "kind": "clip",
    "topic": "ChillingCrew (kick, Special Events)",
-   "why": "2 clip(s) with 11,090 views in the last day",
+   "why": "2 clip(s) with 11,660 views in the last day",
    "sources": [
     {
      "source": "kick",
@@ -484,7 +115,7 @@
      "url": "https://kick.com/chillingcrew/clips/clip_01M80M18WT5BFB4F9QFG05V0A0",
      "publisher": "Kick · ChillingCrew",
      "date": "2026-11-22T03:16:35.131581Z",
-     "metric": "8742 clip views"
+     "metric": "9078 clip views"
     },
     {
      "source": "kick",
@@ -492,10 +123,10 @@
      "url": "https://kick.com/chillingcrew/clips/clip_01M80H7H2W9AW393S8C3YD5B7J",
      "publisher": "Kick · ChillingCrew",
      "date": "2026-11-22T02:27:02.651695Z",
-     "metric": "2348 clip views"
+     "metric": "2582 clip views"
     }
    ],
-   "researched": "2026-11-22T06:40:55.651Z",
+   "researched": "2026-11-22T19:32:29.821Z",
    "evidence": {
     "independentSources": 1,
     "sources": [
@@ -521,7 +152,7 @@
    "key": "creator-kick-buddha",
    "kind": "clip",
    "topic": "Buddha (kick, Grand Theft Auto V (GTA))",
-   "why": "1 clip(s) with 8,373 views in the last day",
+   "why": "1 clip(s) with 9,439 views in the last day",
    "sources": [
     {
      "source": "kick",
@@ -529,10 +160,10 @@
      "url": "https://kick.com/buddha/clips/clip_01M7XX4WHC7BEK2T765QASYK70",
      "publisher": "Kick · Buddha",
      "date": "2026-11-21T02:01:04.392666Z",
-     "metric": "8373 clip views"
+     "metric": "9439 clip views"
     }
    ],
-   "researched": "2026-11-22T06:40:55.651Z",
+   "researched": "2026-11-22T19:32:29.821Z",
    "evidence": {
     "independentSources": 1,
     "sources": [
@@ -558,23 +189,15 @@
    "key": "creator-kick-sergioeleven",
    "kind": "clip",
    "topic": "SergioEleven (kick, Just Chatting)",
-   "why": "3 clip(s) with 6,760 views in the last day",
+   "why": "3 clip(s) with 7,925 views in the last day",
    "sources": [
-    {
-     "source": "kick",
-     "title": "LA SOMETE EN VIVO ",
-     "url": "https://kick.com/sergioeleven/clips/clip_01M7XR5RJHQE1EESVA7N7ETHRA",
-     "publisher": "Kick · SergioEleven",
-     "date": "2026-11-21T00:31:06.226906Z",
-     "metric": "3114 clip views"
-    },
     {
      "source": "kick",
      "title": "sexy",
      "url": "https://kick.com/sergioeleven/clips/clip_01M7XQR5GENEDJTVD3TJTST3K5",
      "publisher": "Kick · SergioEleven",
      "date": "2026-11-21T00:23:08.862974Z",
-     "metric": "2188 clip views"
+     "metric": "3643 clip views"
     },
     {
      "source": "kick",
@@ -582,10 +205,18 @@
      "url": "https://kick.com/sergioeleven/clips/clip_01M7XQGX191YNVBZC6SRZ2TMTA",
      "publisher": "Kick · SergioEleven",
      "date": "2026-11-21T00:19:02.438767Z",
-     "metric": "1458 clip views"
+     "metric": "2359 clip views"
+    },
+    {
+     "source": "kick",
+     "title": "Wow",
+     "url": "https://kick.com/sergioeleven/clips/clip_01M809QCZ8BZ6ASJNH3J29GPM1",
+     "publisher": "Kick · SergioEleven",
+     "date": "2026-11-22T00:15:49.259891Z",
+     "metric": "1923 clip views"
     }
    ],
-   "researched": "2026-11-22T06:40:55.651Z",
+   "researched": "2026-11-22T19:32:29.821Z",
    "evidence": {
     "independentSources": 1,
     "sources": [
@@ -611,7 +242,7 @@
    "key": "creator-kick-harry",
    "kind": "clip",
    "topic": "Harry (kick, Grand Theft Auto V (GTA))",
-   "why": "1 clip(s) with 5,835 views in the last day",
+   "why": "1 clip(s) with 6,636 views in the last day",
    "sources": [
     {
      "source": "kick",
@@ -619,10 +250,10 @@
      "url": "https://kick.com/harry/clips/clip_01M7Y1J7WDYY67TW8S7WN3GDXH",
      "publisher": "Kick · Harry",
      "date": "2026-11-21T03:16:11.154015Z",
-     "metric": "5835 clip views"
+     "metric": "6636 clip views"
     }
    ],
-   "researched": "2026-11-22T06:40:55.651Z",
+   "researched": "2026-11-22T19:32:29.821Z",
    "evidence": {
     "independentSources": 1,
     "sources": [
@@ -645,66 +276,21 @@
    "score": 45
   },
   {
-   "key": "creator-kick-xmerghani",
+   "key": "creator-kick-guseinlive",
    "kind": "clip",
-   "topic": "xmerghani (kick, Just Sleeping)",
-   "why": "2 clip(s) with 5,203 views in the last day",
+   "topic": "guseinlive (kick, Just Chatting)",
+   "why": "1 clip(s) with 4,799 views in the last day",
    "sources": [
     {
      "source": "kick",
-     "title": "Idealny scenariusz na wieczór",
-     "url": "https://kick.com/xmerghani/clips/clip_01M7ZFHN4JSQ5G3DDDE9B2PH06",
-     "publisher": "Kick · xmerghani",
-     "date": "2026-11-21T16:38:20.944748Z",
-     "metric": "2812 clip views"
-    },
-    {
-     "source": "kick",
-     "title": "k",
-     "url": "https://kick.com/xmerghani/clips/clip_01M7ZEKA4JEZSNSJ9NMDW7NZ1C",
-     "publisher": "Kick · xmerghani",
-     "date": "2026-11-21T16:22:36.816898Z",
-     "metric": "2391 clip views"
+     "title": "Ок",
+     "url": "https://kick.com/guseinlive/clips/clip_01M81Z188H8NP09FNSGYK6GQPP",
+     "publisher": "Kick · guseinlive",
+     "date": "2026-11-22T15:47:29.376975Z",
+     "metric": "4799 clip views"
     }
    ],
-   "researched": "2026-11-22T06:40:55.651Z",
-   "evidence": {
-    "independentSources": 1,
-    "sources": [
-     "kick"
-    ],
-    "items": 2
-   },
-   "audience": "Just Sleeping viewers",
-   "format": "clip",
-   "hook": "",
-   "difficulty": 2,
-   "risks": [
-    "clipping rights: only clip this creator with permission (your own channel, a clipping campaign, or written permission)"
-   ],
-   "confidence": 0.5,
-   "niche": true,
-   "creator": "xmerghani",
-   "platform": "kick",
-   "method": "platform clip data",
-   "score": 45
-  },
-  {
-   "key": "creator-kick-sian_phan_mhanslot",
-   "kind": "clip",
-   "topic": "Sian_Phan_MhanSlot (kick, Slots & Casino)",
-   "why": "1 clip(s) with 4,054 views in the last day",
-   "sources": [
-    {
-     "source": "kick",
-     "title": "PGSLOT FUN88 : สาวคอกเทลแตกเป็นแสนเหลือจะเชื่อ ",
-     "url": "https://kick.com/sian-phan-mhanslot/clips/clip_01M7Y8GPNSH61KGW2YY7V5WWFN",
-     "publisher": "Kick · Sian_Phan_MhanSlot",
-     "date": "2026-11-21T05:17:29.169176Z",
-     "metric": "4054 clip views"
-    }
-   ],
-   "researched": "2026-11-22T06:40:55.651Z",
+   "researched": "2026-11-22T19:32:29.821Z",
    "evidence": {
     "independentSources": 1,
     "sources": [
@@ -712,7 +298,7 @@
     ],
     "items": 1
    },
-   "audience": "Slots & Casino viewers",
+   "audience": "Just Chatting viewers",
    "format": "clip",
    "hook": "",
    "difficulty": 2,
@@ -721,7 +307,7 @@
    ],
    "confidence": 0.5,
    "niche": true,
-   "creator": "Sian_Phan_MhanSlot",
+   "creator": "guseinlive",
    "platform": "kick",
    "method": "platform clip data",
    "score": 45
@@ -730,7 +316,7 @@
    "key": "creator-kick-viruslivehai",
    "kind": "clip",
    "topic": "VIRUSLIVEHAI (kick, Grand Theft Auto VI (GTA))",
-   "why": "1 clip(s) with 3,843 views in the last day",
+   "why": "1 clip(s) with 4,329 views in the last day",
    "sources": [
     {
      "source": "kick",
@@ -738,10 +324,10 @@
      "url": "https://kick.com/viruslivehai/clips/clip_01M7YYEE0WX1G8CCFBMAV1C796",
      "publisher": "Kick · VIRUSLIVEHAI",
      "date": "2026-11-21T11:40:24.016405Z",
-     "metric": "3843 clip views"
+     "metric": "4329 clip views"
     }
    ],
-   "researched": "2026-11-22T06:40:55.651Z",
+   "researched": "2026-11-22T19:32:29.821Z",
    "evidence": {
     "independentSources": 1,
     "sources": [
@@ -764,84 +350,10 @@
    "score": 45
   },
   {
-   "key": "creator-kick-tjnv",
-   "kind": "clip",
-   "topic": "tjnv (kick, Grand Theft Auto V (GTA))",
-   "why": "1 clip(s) with 3,183 views in the last day",
-   "sources": [
-    {
-     "source": "kick",
-     "title": "Premium Cut",
-     "url": "https://kick.com/tjnv/clips/clip_01M7XPVVFQVQ8THMBA7C30PS4G",
-     "publisher": "Kick · tjnv",
-     "date": "2026-11-21T00:08:11.770908Z",
-     "metric": "3183 clip views"
-    }
-   ],
-   "researched": "2026-11-22T06:40:55.651Z",
-   "evidence": {
-    "independentSources": 1,
-    "sources": [
-     "kick"
-    ],
-    "items": 1
-   },
-   "audience": "Grand Theft Auto V (GTA) viewers",
-   "format": "clip",
-   "hook": "",
-   "difficulty": 2,
-   "risks": [
-    "clipping rights: only clip this creator with permission (your own channel, a clipping campaign, or written permission)"
-   ],
-   "confidence": 0.5,
-   "niche": true,
-   "creator": "tjnv",
-   "platform": "kick",
-   "method": "platform clip data",
-   "score": 45
-  },
-  {
-   "key": "creator-kick-un_nefer",
-   "kind": "clip",
-   "topic": "UN_NEFER (kick, IRL)",
-   "why": "1 clip(s) with 3,063 views in the last day",
-   "sources": [
-    {
-     "source": "kick",
-     "title": "разговор с девушкой демогогом или софистом",
-     "url": "https://kick.com/un-nefer/clips/clip_01M7ZGJR6N5TY1K5NTCV0SMH7Q",
-     "publisher": "Kick · UN_NEFER",
-     "date": "2026-11-21T16:56:35.959725Z",
-     "metric": "3063 clip views"
-    }
-   ],
-   "researched": "2026-11-22T06:40:55.651Z",
-   "evidence": {
-    "independentSources": 1,
-    "sources": [
-     "kick"
-    ],
-    "items": 1
-   },
-   "audience": "IRL viewers",
-   "format": "clip",
-   "hook": "",
-   "difficulty": 2,
-   "risks": [
-    "clipping rights: only clip this creator with permission (your own channel, a clipping campaign, or written permission)"
-   ],
-   "confidence": 0.5,
-   "niche": true,
-   "creator": "UN_NEFER",
-   "platform": "kick",
-   "method": "platform clip data",
-   "score": 45
-  },
-  {
    "key": "creator-kick-rraenee",
    "kind": "clip",
    "topic": "RRaenee (kick, Grand Theft Auto VI (GTA))",
-   "why": "1 clip(s) with 2,041 views in the last day",
+   "why": "1 clip(s) with 3,799 views in the last day",
    "sources": [
     {
      "source": "kick",
@@ -849,10 +361,10 @@
      "url": "https://kick.com/rraenee/clips/clip_01M7XQRMCVG2CDH9ZSD3RY687A",
      "publisher": "Kick · RRaenee",
      "date": "2026-11-21T00:23:30.31486Z",
-     "metric": "2041 clip views"
+     "metric": "3799 clip views"
     }
    ],
-   "researched": "2026-11-22T06:40:55.651Z",
+   "researched": "2026-11-22T19:32:29.821Z",
    "evidence": {
     "independentSources": 1,
     "sources": [
@@ -875,29 +387,37 @@
    "score": 45
   },
   {
-   "key": "creator-kick-3li_boltx",
+   "key": "creator-kick-jetytv",
    "kind": "clip",
-   "topic": "3li_Boltx (kick, Just Chatting)",
-   "why": "1 clip(s) with 1,851 views in the last day",
+   "topic": "jetyTV (kick, Slots & Casino)",
+   "why": "2 clip(s) with 3,746 views in the last day",
    "sources": [
     {
      "source": "kick",
-     "title": "فرم",
-     "url": "https://kick.com/3li_boltx/clips/clip_01M7ZJF6A2999R25DR9BB4WS85",
-     "publisher": "Kick · 3li_Boltx",
-     "date": "2026-11-21T17:30:02.471502Z",
-     "metric": "1851 clip views"
+     "title": "MAXWIN POMPEII",
+     "url": "https://kick.com/jetytv/clips/clip_01M829T06F2YQ8FJ86F2DDQWRB",
+     "publisher": "Kick · jetyTV",
+     "date": "2026-11-22T18:56:20.973765Z",
+     "metric": "1979 clip views"
+    },
+    {
+     "source": "kick",
+     "title": "FIST",
+     "url": "https://kick.com/jetytv/clips/clip_01M82A0Y3BYQG4W3Q423VEY1CE",
+     "publisher": "Kick · jetyTV",
+     "date": "2026-11-22T19:00:08.220697Z",
+     "metric": "1767 clip views"
     }
    ],
-   "researched": "2026-11-22T06:40:55.651Z",
+   "researched": "2026-11-22T19:32:29.821Z",
    "evidence": {
     "independentSources": 1,
     "sources": [
      "kick"
     ],
-    "items": 1
+    "items": 2
    },
-   "audience": "Just Chatting viewers",
+   "audience": "Slots & Casino viewers",
    "format": "clip",
    "hook": "",
    "difficulty": 2,
@@ -906,27 +426,64 @@
    ],
    "confidence": 0.5,
    "niche": true,
-   "creator": "3li_Boltx",
+   "creator": "jetyTV",
    "platform": "kick",
    "method": "platform clip data",
    "score": 45
   },
   {
-   "key": "creator-kick-pajalock",
+   "key": "creator-kick-tjnv",
    "kind": "clip",
-   "topic": "pajalock (kick, Grand Theft Auto VI (GTA))",
-   "why": "1 clip(s) with 1,646 views in the last day",
+   "topic": "tjnv (kick, Grand Theft Auto V (GTA))",
+   "why": "1 clip(s) with 3,441 views in the last day",
    "sources": [
     {
      "source": "kick",
-     "title": "pornograficzny grubas 2",
-     "url": "https://kick.com/pajalock/clips/clip_01M7Y42PXTSNH1YXW0T7ZJPR4R",
-     "publisher": "Kick · pajalock",
-     "date": "2026-11-21T03:58:53.319734Z",
-     "metric": "1646 clip views"
+     "title": "Premium Cut",
+     "url": "https://kick.com/tjnv/clips/clip_01M7XPVVFQVQ8THMBA7C30PS4G",
+     "publisher": "Kick · tjnv",
+     "date": "2026-11-21T00:08:11.770908Z",
+     "metric": "3441 clip views"
     }
    ],
-   "researched": "2026-11-22T06:40:55.651Z",
+   "researched": "2026-11-22T19:32:29.821Z",
+   "evidence": {
+    "independentSources": 1,
+    "sources": [
+     "kick"
+    ],
+    "items": 1
+   },
+   "audience": "Grand Theft Auto V (GTA) viewers",
+   "format": "clip",
+   "hook": "",
+   "difficulty": 2,
+   "risks": [
+    "clipping rights: only clip this creator with permission (your own channel, a clipping campaign, or written permission)"
+   ],
+   "confidence": 0.5,
+   "niche": true,
+   "creator": "tjnv",
+   "platform": "kick",
+   "method": "platform clip data",
+   "score": 45
+  },
+  {
+   "key": "creator-kick-allanstag",
+   "kind": "clip",
+   "topic": "allanstag (kick, Grand Theft Auto VI (GTA))",
+   "why": "1 clip(s) with 3,334 views in the last day",
+   "sources": [
+    {
+     "source": "kick",
+     "title": "Fred Caldeira",
+     "url": "https://kick.com/allanstag/clips/clip_01M7Y1CMCD9DS5B4ENY5NK0GM6",
+     "publisher": "Kick · allanstag",
+     "date": "2026-11-21T03:12:00.806894Z",
+     "metric": "3334 clip views"
+    }
+   ],
+   "researched": "2026-11-22T19:32:29.821Z",
    "evidence": {
     "independentSources": 1,
     "sources": [
@@ -943,16 +500,123 @@
    ],
    "confidence": 0.5,
    "niche": true,
-   "creator": "pajalock",
+   "creator": "allanstag",
    "platform": "kick",
    "method": "platform clip data",
    "score": 45
   },
   {
+   "key": "creator-kick-un_nefer",
+   "kind": "clip",
+   "topic": "UN_NEFER (kick, IRL)",
+   "why": "1 clip(s) with 3,152 views in the last day",
+   "sources": [
+    {
+     "source": "kick",
+     "title": "разговор с девушкой демогогом или софистом",
+     "url": "https://kick.com/un-nefer/clips/clip_01M7ZGJR6N5TY1K5NTCV0SMH7Q",
+     "publisher": "Kick · UN_NEFER",
+     "date": "2026-11-21T16:56:35.959725Z",
+     "metric": "3152 clip views"
+    }
+   ],
+   "researched": "2026-11-22T19:32:29.821Z",
+   "evidence": {
+    "independentSources": 1,
+    "sources": [
+     "kick"
+    ],
+    "items": 1
+   },
+   "audience": "IRL viewers",
+   "format": "clip",
+   "hook": "",
+   "difficulty": 2,
+   "risks": [
+    "clipping rights: only clip this creator with permission (your own channel, a clipping campaign, or written permission)"
+   ],
+   "confidence": 0.5,
+   "niche": true,
+   "creator": "UN_NEFER",
+   "platform": "kick",
+   "method": "platform clip data",
+   "score": 45
+  },
+  {
+   "key": "creator-kick-xmerghani",
+   "kind": "clip",
+   "topic": "xmerghani (kick, Just Sleeping)",
+   "why": "1 clip(s) with 2,569 views in the last day",
+   "sources": [
+    {
+     "source": "kick",
+     "title": "idealna misja",
+     "url": "https://kick.com/xmerghani/clips/clip_01M7ZPA3RHS398JYWG145KVZN2",
+     "publisher": "Kick · xmerghani",
+     "date": "2026-11-21T18:36:28.090764Z",
+     "metric": "2569 clip views"
+    }
+   ],
+   "researched": "2026-11-22T19:32:29.821Z",
+   "evidence": {
+    "independentSources": 1,
+    "sources": [
+     "kick"
+    ],
+    "items": 1
+   },
+   "audience": "Just Sleeping viewers",
+   "format": "clip",
+   "hook": "",
+   "difficulty": 2,
+   "risks": [
+    "clipping rights: only clip this creator with permission (your own channel, a clipping campaign, or written permission)"
+   ],
+   "confidence": 0.5,
+   "niche": true,
+   "creator": "xmerghani",
+   "platform": "kick",
+   "method": "platform clip data",
+   "score": 45
+  },
+  {
+   "key": "games-selling",
+   "kind": "faceless",
+   "topic": "Best-Selling Video Games",
+   "why": "The list of best-selling video games is always of interest, especially with the upcoming GTA VI.",
+   "sources": [
+    {
+     "source": "wikipedia",
+     "title": "List of best-selling video games",
+     "url": "https://en.wikipedia.org/wiki/List_of_best-selling_video_games",
+     "publisher": "Wikipedia most-read",
+     "date": "2026-11-21",
+     "metric": "61237 views"
+    }
+   ],
+   "researched": "2026-11-22T19:32:29.821Z",
+   "evidence": {
+    "independentSources": 1,
+    "sources": [
+     "wikipedia"
+    ],
+    "items": 1
+   },
+   "audience": "gamers and industry analysts",
+   "format": "list",
+   "hook": "Find out which games are topping the charts and why!",
+   "difficulty": 2,
+   "risks": [],
+   "confidence": 0.43,
+   "niche": false,
+   "method": "cross-source evidence + AI analyst (cited)",
+   "score": 33.8
+  },
+  {
    "key": "games-rockstar",
    "kind": "faceless",
    "topic": "Rockstar Games",
-   "why": "Rockstar Games is a key player in the gaming industry, and its popularity is reflected in Wikipedia views.",
+   "why": "Rockstar Games is a key player in the gaming industry, with notable interest reflected in its view count.",
    "sources": [
     {
      "source": "wikipedia",
@@ -963,7 +627,7 @@
      "metric": "77791 views"
     }
    ],
-   "researched": "2026-11-22T06:40:55.651Z",
+   "researched": "2026-11-22T19:32:29.821Z",
    "evidence": {
     "independentSources": 1,
     "sources": [
@@ -971,15 +635,15 @@
     ],
     "items": 1
    },
-   "audience": "Gamers and those interested in game development.",
-   "format": "history",
-   "hook": "Uncover the legacy of Rockstar Games and its impact on gaming!",
-   "difficulty": 2,
+   "audience": "GTA fans, gamers, and industry followers",
+   "format": "educational",
+   "hook": "Uncover the impact of Rockstar Games on the gaming industry!",
+   "difficulty": 3,
    "risks": [],
    "confidence": 0.43,
    "niche": false,
    "method": "cross-source evidence + AI analyst (cited)",
-   "score": 33.8
+   "score": 31.8
   }
  ]
 }
