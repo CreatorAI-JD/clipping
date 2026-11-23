@@ -1,44 +1,6 @@
 {
- "at": "2026-11-22T19:32:29.821Z",
+ "at": "2026-11-23T07:29:59.505Z",
  "days": [
-  {
-   "date": "2026-11-22",
-   "slots": [
-    {
-     "key": "creator-kick-chillingcrew",
-     "topic": "ChillingCrew (kick, Special Events)",
-     "kind": "clip",
-     "format": "clip",
-     "hook": "",
-     "confidence": 0.5,
-     "score": 45,
-     "why": "2 clip(s) with 11,090 views in the last day",
-     "status": "kept"
-    },
-    {
-     "key": "creator-kick-buddha",
-     "topic": "Buddha (kick, Grand Theft Auto V (GTA))",
-     "kind": "clip",
-     "format": "clip",
-     "hook": "",
-     "confidence": 0.5,
-     "score": 45,
-     "why": "1 clip(s) with 8,373 views in the last day",
-     "status": "kept"
-    },
-    {
-     "key": "creator-kick-jetytv",
-     "topic": "jetyTV (kick, Slots & Casino)",
-     "kind": "clip",
-     "format": "clip",
-     "hook": "",
-     "confidence": 0.5,
-     "score": 45,
-     "why": "2 clip(s) with 3,746 views in the last day",
-     "status": "new"
-    }
-   ]
-  },
   {
    "date": "2026-11-23",
    "slots": [
@@ -65,41 +27,75 @@
      "status": "kept"
     },
     {
-     "key": "creator-kick-un_nefer",
-     "topic": "UN_NEFER (kick, IRL)",
+     "key": "creator-kick-chillingcrew",
+     "topic": "ChillingCrew (kick, Special Events)",
      "kind": "clip",
      "format": "clip",
      "hook": "",
      "confidence": 0.5,
      "score": 45,
-     "why": "1 clip(s) with 3,063 views in the last day",
+     "why": "2 clip(s) with 12,103 views in the last day",
      "status": "kept"
     }
    ]
   },
   {
    "date": "2026-11-24",
-   "slots": []
-  },
-  {
-   "date": "2026-11-25",
-   "slots": []
-  },
-  {
-   "date": "2026-11-26",
    "slots": [
     {
-     "key": "creator-kick-harry",
-     "topic": "Harry (kick, Grand Theft Auto V (GTA))",
+     "key": "creator-kick-misshenley",
+     "topic": "misshenley (kick, Slots & Casino)",
      "kind": "clip",
      "format": "clip",
      "hook": "",
      "confidence": 0.5,
      "score": 45,
-     "why": "1 clip(s) with 5,835 views in the last day",
-     "status": "kept"
+     "why": "1 clip(s) with 7,530 views in the last day",
+     "status": "new"
+    },
+    {
+     "key": "creator-kick-nsumpe234j",
+     "topic": "Nsumpe234j (kick, IRL)",
+     "kind": "clip",
+     "format": "clip",
+     "hook": "",
+     "confidence": 0.5,
+     "score": 45,
+     "why": "1 clip(s) with 2,485 views in the last day",
+     "status": "new"
+    },
+    {
+     "key": "creator-kick-maddyson",
+     "topic": "Maddyson (kick, Grand Theft Auto VI (GTA))",
+     "kind": "clip",
+     "format": "clip",
+     "hook": "",
+     "confidence": 0.5,
+     "score": 45,
+     "why": "1 clip(s) with 2,033 views in the last day",
+     "status": "new"
     }
    ]
+  },
+  {
+   "date": "2026-11-25",
+   "slots": [
+    {
+     "key": "creator-kick-moncefgr",
+     "topic": "MONCEFGR (kick, Garena Free Fire Max)",
+     "kind": "clip",
+     "format": "clip",
+     "hook": "",
+     "confidence": 0.5,
+     "score": 45,
+     "why": "1 clip(s) with 1,800 views in the last day",
+     "status": "new"
+    }
+   ]
+  },
+  {
+   "date": "2026-11-26",
+   "slots": []
   },
   {
    "date": "2026-11-27",
@@ -113,24 +109,66 @@
      "confidence": 0.5,
      "score": 45,
      "why": "1 clip(s) with 4,799 views in the last day",
-     "status": "new"
+     "status": "kept"
     }
    ]
   },
   {
    "date": "2026-11-28",
+   "slots": [
+    {
+     "key": "creator-kick-jetytv",
+     "topic": "jetyTV (kick, Slots & Casino)",
+     "kind": "clip",
+     "format": "clip",
+     "hook": "",
+     "confidence": 0.5,
+     "score": 45,
+     "why": "2 clip(s) with 7,143 views in the last day",
+     "status": "kept"
+    },
+    {
+     "key": "creator-kick-cobbruvsjim",
+     "topic": "CobbruvsJim (kick, IRL)",
+     "kind": "clip",
+     "format": "clip",
+     "hook": "",
+     "confidence": 0.5,
+     "score": 45,
+     "why": "1 clip(s) with 2,274 views in the last day",
+     "status": "new"
+    },
+    {
+     "key": "creator-kick-silviogamer",
+     "topic": "SilvioGamer (kick, Grand Theft Auto VI (GTA))",
+     "kind": "clip",
+     "format": "clip",
+     "hook": "",
+     "confidence": 0.5,
+     "score": 45,
+     "why": "1 clip(s) with 1,815 views in the last day",
+     "status": "new"
+    }
+   ]
+  },
+  {
+   "date": "2026-11-29",
    "slots": []
   }
  ],
  "replaced": [
   {
-   "topic": "Sian_Phan_MhanSlot (kick, Slots & Casino)",
+   "topic": "Buddha (kick, Grand Theft Auto V (GTA))",
    "reason": "evidence went stale or a stronger opportunity replaced it"
   },
   {
-   "topic": "3li_Boltx (kick, Just Chatting)",
+   "topic": "UN_NEFER (kick, IRL)",
+   "reason": "evidence went stale or a stronger opportunity replaced it"
+  },
+  {
+   "topic": "Harry (kick, Grand Theft Auto V (GTA))",
    "reason": "evidence went stale or a stronger opportunity replaced it"
   }
  ],
- "kept": 6
+ "kept": 3
 }
