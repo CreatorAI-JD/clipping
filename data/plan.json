@@ -1,20 +1,9 @@
 {
- "at": "2026-11-23T07:29:59.505Z",
+ "at": "2026-11-23T23:49:24.312Z",
  "days": [
   {
    "date": "2026-11-23",
    "slots": [
-    {
-     "key": "creator-kick-sergioeleven",
-     "topic": "SergioEleven (kick, Just Chatting)",
-     "kind": "clip",
-     "format": "clip",
-     "hook": "",
-     "confidence": 0.5,
-     "score": 45,
-     "why": "3 clip(s) with 6,760 views in the last day",
-     "status": "kept"
-    },
     {
      "key": "creator-kick-xmerghani",
      "topic": "xmerghani (kick, Just Sleeping)",
@@ -36,6 +25,17 @@
      "score": 45,
      "why": "2 clip(s) with 12,103 views in the last day",
      "status": "kept"
+    },
+    {
+     "key": "creator-kick-neexcsgo",
+     "topic": "NEEXcsgo (kick, Grand Theft Auto VI (GTA))",
+     "kind": "clip",
+     "format": "clip",
+     "hook": "",
+     "confidence": 0.5,
+     "score": 45,
+     "why": "3 clip(s) with 10,695 views in the last day",
+     "status": "new"
     }
    ]
   },
@@ -51,7 +51,7 @@
      "confidence": 0.5,
      "score": 45,
      "why": "1 clip(s) with 7,530 views in the last day",
-     "status": "new"
+     "status": "kept"
     },
     {
      "key": "creator-kick-nsumpe234j",
@@ -62,36 +62,24 @@
      "confidence": 0.5,
      "score": 45,
      "why": "1 clip(s) with 2,485 views in the last day",
-     "status": "new"
+     "status": "kept"
     },
     {
-     "key": "creator-kick-maddyson",
-     "topic": "Maddyson (kick, Grand Theft Auto VI (GTA))",
+     "key": "creator-kick-destiny",
+     "topic": "Destiny (kick, Minecraft)",
      "kind": "clip",
      "format": "clip",
      "hook": "",
      "confidence": 0.5,
      "score": 45,
-     "why": "1 clip(s) with 2,033 views in the last day",
+     "why": "1 clip(s) with 3,604 views in the last day",
      "status": "new"
     }
    ]
   },
   {
    "date": "2026-11-25",
-   "slots": [
-    {
-     "key": "creator-kick-moncefgr",
-     "topic": "MONCEFGR (kick, Garena Free Fire Max)",
-     "kind": "clip",
-     "format": "clip",
-     "hook": "",
-     "confidence": 0.5,
-     "score": 45,
-     "why": "1 clip(s) with 1,800 views in the last day",
-     "status": "new"
-    }
-   ]
+   "slots": []
   },
   {
    "date": "2026-11-26",
@@ -110,6 +98,17 @@
      "score": 45,
      "why": "1 clip(s) with 4,799 views in the last day",
      "status": "kept"
+    },
+    {
+     "key": "creator-kick-rraenee",
+     "topic": "RRaenee (kick, Grand Theft Auto VI (GTA))",
+     "kind": "clip",
+     "format": "clip",
+     "hook": "",
+     "confidence": 0.5,
+     "score": 45,
+     "why": "1 clip(s) with 6,215 views in the last day",
+     "status": "new"
     }
    ]
   },
@@ -136,18 +135,7 @@
      "confidence": 0.5,
      "score": 45,
      "why": "1 clip(s) with 2,274 views in the last day",
-     "status": "new"
-    },
-    {
-     "key": "creator-kick-silviogamer",
-     "topic": "SilvioGamer (kick, Grand Theft Auto VI (GTA))",
-     "kind": "clip",
-     "format": "clip",
-     "hook": "",
-     "confidence": 0.5,
-     "score": 45,
-     "why": "1 clip(s) with 1,815 views in the last day",
-     "status": "new"
+     "status": "kept"
     }
    ]
   },
@@ -158,17 +146,21 @@
  ],
  "replaced": [
   {
-   "topic": "Buddha (kick, Grand Theft Auto V (GTA))",
+   "topic": "SergioEleven (kick, Just Chatting)",
    "reason": "evidence went stale or a stronger opportunity replaced it"
   },
   {
-   "topic": "UN_NEFER (kick, IRL)",
+   "topic": "Maddyson (kick, Grand Theft Auto VI (GTA))",
    "reason": "evidence went stale or a stronger opportunity replaced it"
   },
   {
-   "topic": "Harry (kick, Grand Theft Auto V (GTA))",
+   "topic": "MONCEFGR (kick, Garena Free Fire Max)",
+   "reason": "evidence went stale or a stronger opportunity replaced it"
+  },
+  {
+   "topic": "SilvioGamer (kick, Grand Theft Auto VI (GTA))",
    "reason": "evidence went stale or a stronger opportunity replaced it"
   }
  ],
- "kept": 3
+ "kept": 7
 }
