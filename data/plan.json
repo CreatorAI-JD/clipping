@@ -1,69 +1,9 @@
 {
- "at": "2026-11-23T23:49:24.312Z",
+ "at": "2026-11-24T09:48:58.816Z",
  "days": [
-  {
-   "date": "2026-11-23",
-   "slots": [
-    {
-     "key": "creator-kick-xmerghani",
-     "topic": "xmerghani (kick, Just Sleeping)",
-     "kind": "clip",
-     "format": "clip",
-     "hook": "",
-     "confidence": 0.5,
-     "score": 45,
-     "why": "2 clip(s) with 5,203 views in the last day",
-     "status": "kept"
-    },
-    {
-     "key": "creator-kick-chillingcrew",
-     "topic": "ChillingCrew (kick, Special Events)",
-     "kind": "clip",
-     "format": "clip",
-     "hook": "",
-     "confidence": 0.5,
-     "score": 45,
-     "why": "2 clip(s) with 12,103 views in the last day",
-     "status": "kept"
-    },
-    {
-     "key": "creator-kick-neexcsgo",
-     "topic": "NEEXcsgo (kick, Grand Theft Auto VI (GTA))",
-     "kind": "clip",
-     "format": "clip",
-     "hook": "",
-     "confidence": 0.5,
-     "score": 45,
-     "why": "3 clip(s) with 10,695 views in the last day",
-     "status": "new"
-    }
-   ]
-  },
   {
    "date": "2026-11-24",
    "slots": [
-    {
-     "key": "creator-kick-misshenley",
-     "topic": "misshenley (kick, Slots & Casino)",
-     "kind": "clip",
-     "format": "clip",
-     "hook": "",
-     "confidence": 0.5,
-     "score": 45,
-     "why": "1 clip(s) with 7,530 views in the last day",
-     "status": "kept"
-    },
-    {
-     "key": "creator-kick-nsumpe234j",
-     "topic": "Nsumpe234j (kick, IRL)",
-     "kind": "clip",
-     "format": "clip",
-     "hook": "",
-     "confidence": 0.5,
-     "score": 45,
-     "why": "1 clip(s) with 2,485 views in the last day",
-     "status": "kept"
-    },
     {
      "key": "creator-kick-destiny",
      "topic": "Destiny (kick, Minecraft)",
@@ -73,13 +13,69 @@
      "confidence": 0.5,
      "score": 45,
      "why": "1 clip(s) with 3,604 views in the last day",
+     "status": "kept"
+    },
+    {
+     "key": "creator-kick-bocade09",
+     "topic": "bocade09 (kick, Chat Roulette)",
+     "kind": "clip",
+     "format": "clip",
+     "hook": "",
+     "confidence": 0.5,
+     "score": 45,
+     "why": "5 clip(s) with 9,140 views in the last day",
+     "status": "new"
+    },
+    {
+     "key": "creator-kick-asmongold",
+     "topic": "asmongold (kick, Grand Theft Auto VI (GTA))",
+     "kind": "clip",
+     "format": "clip",
+     "hook": "",
+     "confidence": 0.5,
+     "score": 45,
+     "why": "2 clip(s) with 8,845 views in the last day",
      "status": "new"
     }
    ]
   },
   {
    "date": "2026-11-25",
-   "slots": []
+   "slots": [
+    {
+     "key": "creator-kick-notoriousburo",
+     "topic": "notoriousburo (kick, Rob Run)",
+     "kind": "clip",
+     "format": "clip",
+     "hook": "",
+     "confidence": 0.5,
+     "score": 45,
+     "why": "1 clip(s) with 1,324 views in the last day",
+     "status": "new"
+    },
+    {
+     "key": "creator-kick-lucasislucky",
+     "topic": "LucasIsLucky (kick, Slots & Casino)",
+     "kind": "clip",
+     "format": "clip",
+     "hook": "",
+     "confidence": 0.5,
+     "score": 45,
+     "why": "1 clip(s) with 1,131 views in the last day",
+     "status": "new"
+    },
+    {
+     "key": "creator-kick-ottan25",
+     "topic": "ottan25 (kick, IRL)",
+     "kind": "clip",
+     "format": "clip",
+     "hook": "",
+     "confidence": 0.5,
+     "score": 45,
+     "why": "1 clip(s) with 1,060 views in the last day",
+     "status": "new"
+    }
+   ]
   },
   {
    "date": "2026-11-26",
@@ -87,80 +83,81 @@
   },
   {
    "date": "2026-11-27",
-   "slots": [
-    {
-     "key": "creator-kick-guseinlive",
-     "topic": "guseinlive (kick, Just Chatting)",
-     "kind": "clip",
-     "format": "clip",
-     "hook": "",
-     "confidence": 0.5,
-     "score": 45,
-     "why": "1 clip(s) with 4,799 views in the last day",
-     "status": "kept"
-    },
-    {
-     "key": "creator-kick-rraenee",
-     "topic": "RRaenee (kick, Grand Theft Auto VI (GTA))",
-     "kind": "clip",
-     "format": "clip",
-     "hook": "",
-     "confidence": 0.5,
-     "score": 45,
-     "why": "1 clip(s) with 6,215 views in the last day",
-     "status": "new"
-    }
-   ]
+   "slots": []
   },
   {
    "date": "2026-11-28",
    "slots": [
     {
-     "key": "creator-kick-jetytv",
-     "topic": "jetyTV (kick, Slots & Casino)",
+     "key": "creator-kick-buddha",
+     "topic": "Buddha (kick, Grand Theft Auto V (GTA))",
      "kind": "clip",
      "format": "clip",
      "hook": "",
      "confidence": 0.5,
      "score": 45,
-     "why": "2 clip(s) with 7,143 views in the last day",
-     "status": "kept"
+     "why": "2 clip(s) with 3,327 views in the last day",
+     "status": "new"
     },
     {
-     "key": "creator-kick-cobbruvsjim",
-     "topic": "CobbruvsJim (kick, IRL)",
+     "key": "creator-kick-krad2k",
+     "topic": "KRad2k (kick, Chat Roulette)",
      "kind": "clip",
      "format": "clip",
      "hook": "",
      "confidence": 0.5,
      "score": 45,
-     "why": "1 clip(s) with 2,274 views in the last day",
-     "status": "kept"
+     "why": "1 clip(s) with 1,239 views in the last day",
+     "status": "new"
     }
    ]
   },
   {
    "date": "2026-11-29",
    "slots": []
+  },
+  {
+   "date": "2026-11-30",
+   "slots": []
   }
  ],
  "replaced": [
   {
-   "topic": "SergioEleven (kick, Just Chatting)",
+   "topic": "xmerghani (kick, Just Sleeping)",
    "reason": "evidence went stale or a stronger opportunity replaced it"
   },
   {
-   "topic": "Maddyson (kick, Grand Theft Auto VI (GTA))",
+   "topic": "ChillingCrew (kick, Special Events)",
    "reason": "evidence went stale or a stronger opportunity replaced it"
   },
   {
-   "topic": "MONCEFGR (kick, Garena Free Fire Max)",
+   "topic": "NEEXcsgo (kick, Grand Theft Auto VI (GTA))",
    "reason": "evidence went stale or a stronger opportunity replaced it"
   },
   {
-   "topic": "SilvioGamer (kick, Grand Theft Auto VI (GTA))",
+   "topic": "misshenley (kick, Slots & Casino)",
+   "reason": "evidence went stale or a stronger opportunity replaced it"
+  },
+  {
+   "topic": "Nsumpe234j (kick, IRL)",
+   "reason": "evidence went stale or a stronger opportunity replaced it"
+  },
+  {
+   "topic": "guseinlive (kick, Just Chatting)",
+   "reason": "evidence went stale or a stronger opportunity replaced it"
+  },
+  {
+   "topic": "RRaenee (kick, Grand Theft Auto VI (GTA))",
+   "reason": "evidence went stale or a stronger opportunity replaced it"
+  },
+  {
+   "topic": "jetyTV (kick, Slots & Casino)",
+   "reason": "evidence went stale or a stronger opportunity replaced it"
+  },
+  {
+   "topic": "CobbruvsJim (kick, IRL)",
    "reason": "evidence went stale or a stronger opportunity replaced it"
   }
  ],
- "kept": 7
+ "kept": 1
 }
