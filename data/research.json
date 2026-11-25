@@ -1,15 +1,15 @@
 {
- "at": "2026-11-25T08:25:18.020Z",
+ "at": "2026-11-25T21:38:38.333Z",
  "niche": "GTA 6, Grand Theft Auto, GTA Online, streamers",
  "channelType": "clips",
- "analyst": "AI analyst (gpt-4o-mini) wrote 5 opportunities with citations",
- "investigated": 77,
+ "analyst": "AI analyst (gpt-4o-mini) wrote 2 opportunities with citations",
+ "investigated": 78,
  "opportunities": [
   {
-   "key": "gta-popularity",
+   "key": "gta",
    "kind": "faceless",
-   "topic": "GTA 6 Popularity",
-   "why": "GTA 6 is currently trending as one of the most-read topics on Wikipedia, indicating high public interest.",
+   "topic": "GTA VI",
+   "why": "GTA VI is currently trending with significant interest, as evidenced by its high view count on Wikipedia.",
    "sources": [
     {
      "source": "wikipedia",
@@ -28,7 +28,7 @@
      "metric": "55412 views"
     }
    ],
-   "researched": "2026-11-25T08:25:18.020Z",
+   "researched": "2026-11-25T21:38:38.333Z",
    "evidence": {
     "independentSources": 1,
     "sources": [
@@ -36,9 +36,9 @@
     ],
     "items": 2
    },
-   "audience": "GTA fans, gamers, general public",
+   "audience": "GTA fans, gamers, and pop culture enthusiasts",
    "format": "facts",
-   "hook": "Discover why GTA 6 is capturing the attention of millions!",
+   "hook": "Discover what makes GTA VI one of the most talked-about games of the year!",
    "difficulty": 2,
    "risks": [],
    "confidence": 0.5,
@@ -47,151 +47,51 @@
    "score": 68
   },
   {
-   "key": "gameplay-gta-mechanics",
+   "key": "auto-grand-series-theft",
    "kind": "faceless",
-   "topic": "GTA 6 Gameplay Mechanics",
-   "why": "There is significant interest in gameplay mechanics, such as how to open vaults in GTA 6.",
-   "sources": [
-    {
-     "source": "googleTrends",
-     "title": "how to open vaults in gta 6",
-     "url": "https://www.ign.com/wikis/gta-6/The_Cartel_Heist_Walkthrough",
-     "publisher": "IGN",
-     "date": "Tue, 24 Nov 2026 23:50:00 -0800",
-     "metric": "100+"
-    }
-   ],
-   "researched": "2026-11-25T08:25:18.020Z",
-   "evidence": {
-    "independentSources": 1,
-    "sources": [
-     "googleTrends"
-    ],
-    "items": 1
-   },
-   "audience": "gamers, GTA fans",
-   "format": "explainer",
-   "hook": "Learn the secrets to unlocking vaults in GTA 6!",
-   "difficulty": 2,
-   "risks": [],
-   "confidence": 0.36,
-   "niche": true,
-   "method": "cross-source evidence + AI analyst (cited)",
-   "score": 59.6
-  },
-  {
-   "key": "details-gta-mission",
-   "kind": "faceless",
-   "topic": "GTA 6 Mission Details",
-   "why": "Fans are eager to know more about the mission list for GTA 6 Chapter 2.",
-   "sources": [
-    {
-     "source": "googleTrends",
-     "title": "gta 6 chapter 2 mission list",
-     "url": "https://www.vice.com/en/article/gta-6-chapter-2-length-missions-missables/",
-     "publisher": "VICE",
-     "date": "Tue, 24 Nov 2026 23:50:00 -0800",
-     "metric": "100+"
-    }
-   ],
-   "researched": "2026-11-25T08:25:18.020Z",
-   "evidence": {
-    "independentSources": 1,
-    "sources": [
-     "googleTrends"
-    ],
-    "items": 1
-   },
-   "audience": "gamers, GTA fans",
-   "format": "facts",
-   "hook": "Get the inside scoop on GTA 6 Chapter 2 missions!",
-   "difficulty": 2,
-   "risks": [],
-   "confidence": 0.36,
-   "niche": true,
-   "method": "cross-source evidence + AI analyst (cited)",
-   "score": 59.6
-  },
-  {
-   "key": "gta-insights-technical",
-   "kind": "faceless",
-   "topic": "GTA 6 Technical Insights",
-   "why": "Discussion around GTA 6 running on Windows is gaining traction on platforms like Hacker News.",
-   "sources": [
-    {
-     "source": "hackerNews",
-     "title": "GTA 6 Running on Windows",
-     "url": "https://twitter.com/raul_bs3/status/2125213756238291075",
-     "publisher": "Hacker News",
-     "date": "2026-11-24T13:19:31Z",
-     "metric": "374 points"
-    }
-   ],
-   "researched": "2026-11-25T08:25:18.020Z",
-   "evidence": {
-    "independentSources": 1,
-    "sources": [
-     "hackerNews"
-    ],
-    "items": 1
-   },
-   "audience": "tech enthusiasts, gamers",
-   "format": "technology",
-   "hook": "What does it mean for GTA 6 to run on Windows?",
-   "difficulty": 3,
-   "risks": [],
-   "confidence": 0.39,
-   "niche": true,
-   "method": "cross-source evidence + AI analyst (cited)",
-   "score": 59.4
-  },
-  {
-   "key": "gta-nvidia-technology",
-   "kind": "faceless",
-   "topic": "GTA 6 and Nvidia Technology",
-   "why": "The intersection of GTA 6 and Nvidia technology is a hot topic, especially with the gaming community.",
+   "topic": "Grand Theft Auto Series",
+   "why": "The Grand Theft Auto series continues to attract attention, indicating a strong fanbase and ongoing interest.",
    "sources": [
     {
      "source": "wikipedia",
-     "title": "Nvidia",
-     "url": "https://en.wikipedia.org/wiki/Nvidia",
+     "title": "Grand Theft Auto VI",
+     "url": "https://en.wikipedia.org/wiki/Grand_Theft_Auto_VI",
      "publisher": "Wikipedia most-read",
      "date": "2026-11-24",
-     "metric": "89488 views"
+     "metric": "198339 views"
     },
     {
-     "source": "hackerNews",
-     "title": "Show HN: Old Nvidia and ATI tech demos, running again in the browser",
-     "url": "https://gpu-demo-gallery.pages.dev/",
-     "publisher": "Hacker News",
-     "date": "2026-11-25T04:31:48Z",
-     "metric": "77 points"
+     "source": "wikipedia",
+     "title": "Grand Theft Auto",
+     "url": "https://en.wikipedia.org/wiki/Grand_Theft_Auto",
+     "publisher": "Wikipedia most-read",
+     "date": "2026-11-24",
+     "metric": "55412 views"
     }
    ],
-   "researched": "2026-11-25T08:25:18.020Z",
+   "researched": "2026-11-25T21:38:38.333Z",
    "evidence": {
-    "independentSources": 2,
+    "independentSources": 1,
     "sources": [
-     "wikipedia",
-     "hackerNews"
+     "wikipedia"
     ],
     "items": 2
    },
-   "audience": "gamers, tech enthusiasts",
-   "format": "technology",
-   "hook": "How is Nvidia shaping the future of GTA 6?",
-   "difficulty": 3,
+   "audience": "GTA fans, gamers, and pop culture enthusiasts",
+   "format": "educational",
+   "hook": "Explore the legacy of the Grand Theft Auto series and its impact on gaming culture!",
+   "difficulty": 2,
    "risks": [],
-   "confidence": 0.71,
-   "niche": false,
+   "confidence": 0.5,
+   "niche": true,
    "method": "cross-source evidence + AI analyst (cited)",
-   "score": 48.6
+   "score": 68
   },
   {
    "key": "creator-kick-destiny",
    "kind": "clip",
    "topic": "Destiny (kick, Just Chatting)",
-   "why": "1 clip(s) with 9,773 views in the last day",
+   "why": "1 clip(s) with 12,472 views in the last day",
    "sources": [
     {
      "source": "kick",
@@ -199,10 +99,10 @@
      "url": "https://kick.com/destiny/clips/clip_01M87Y3XVP3XNMJT0AW1SRA4KT",
      "publisher": "Kick · Destiny",
      "date": "2026-11-24T23:27:54.886138Z",
-     "metric": "9773 clip views"
+     "metric": "12472 clip views"
     }
    ],
-   "researched": "2026-11-25T08:25:18.020Z",
+   "researched": "2026-11-25T21:38:38.333Z",
    "evidence": {
     "independentSources": 1,
     "sources": [
@@ -228,7 +128,7 @@
    "key": "creator-kick-asmongold",
    "kind": "clip",
    "topic": "asmongold (kick, Grand Theft Auto VI (GTA))",
-   "why": "2 clip(s) with 7,258 views in the last day",
+   "why": "2 clip(s) with 9,763 views in the last day",
    "sources": [
     {
      "source": "kick",
@@ -236,7 +136,7 @@
      "url": "https://kick.com/asmongold/clips/clip_01M85EVPK3ACDWCJDZ41HETV4J",
      "publisher": "Kick · asmongold",
      "date": "2026-11-24T00:21:45.993214Z",
-     "metric": "4568 clip views"
+     "metric": "5174 clip views"
     },
     {
      "source": "kick",
@@ -244,10 +144,10 @@
      "url": "https://kick.com/asmongold/clips/clip_01M87YQQT7TY5D6G3WP1RHHZFM",
      "publisher": "Kick · asmongold",
      "date": "2026-11-24T23:38:38.750007Z",
-     "metric": "2690 clip views"
+     "metric": "4589 clip views"
     }
    ],
-   "researched": "2026-11-25T08:25:18.020Z",
+   "researched": "2026-11-25T21:38:38.333Z",
    "evidence": {
     "independentSources": 1,
     "sources": [
@@ -270,10 +170,55 @@
    "score": 45
   },
   {
+   "key": "creator-kick-captain_jack_live",
+   "kind": "clip",
+   "topic": "Captain_jack_live (kick, Slots & Casino)",
+   "why": "2 clip(s) with 7,247 views in the last day",
+   "sources": [
+    {
+     "source": "kick",
+     "title": "🎰🔥 BIG SPINS, BIG VIBES! 💸",
+     "url": "https://kick.com/captain-jack-live/clips/clip_01M89FZMEP0JB17V1WMXN18GZK",
+     "publisher": "Kick · Captain_jack_live",
+     "date": "2026-11-25T13:58:28.544632Z",
+     "metric": "3642 clip views"
+    },
+    {
+     "source": "kick",
+     "title": "🤑 Охота за заносами! 🎰💸",
+     "url": "https://kick.com/captain-jack-live/clips/clip_01M89FS543DFPQCX70YS4WKF1W",
+     "publisher": "Kick · Captain_jack_live",
+     "date": "2026-11-25T13:55:13.777894Z",
+     "metric": "3605 clip views"
+    }
+   ],
+   "researched": "2026-11-25T21:38:38.333Z",
+   "evidence": {
+    "independentSources": 1,
+    "sources": [
+     "kick"
+    ],
+    "items": 2
+   },
+   "audience": "Slots & Casino viewers",
+   "format": "clip",
+   "hook": "",
+   "difficulty": 2,
+   "risks": [
+    "clipping rights: only clip this creator with permission (your own channel, a clipping campaign, or written permission)"
+   ],
+   "confidence": 0.5,
+   "niche": true,
+   "creator": "Captain_jack_live",
+   "platform": "kick",
+   "method": "platform clip data",
+   "score": 45
+  },
+  {
    "key": "creator-kick-buddha",
    "kind": "clip",
    "topic": "Buddha (kick, Grand Theft Auto V (GTA))",
-   "why": "2 clip(s) with 6,185 views in the last day",
+   "why": "2 clip(s) with 6,591 views in the last day",
    "sources": [
     {
      "source": "kick",
@@ -281,7 +226,7 @@
      "url": "https://kick.com/buddha/clips/clip_01M85P57HXKFWV6VKSZD71GNR8",
      "publisher": "Kick · Buddha",
      "date": "2026-11-24T02:53:16.650529Z",
-     "metric": "4208 clip views"
+     "metric": "4543 clip views"
     },
     {
      "source": "kick",
@@ -289,10 +234,10 @@
      "url": "https://kick.com/buddha/clips/clip_01M85QKVM28TTV1H9WT8TR39TE",
      "publisher": "Kick · Buddha",
      "date": "2026-11-24T02:59:08.553523Z",
-     "metric": "1977 clip views"
+     "metric": "2048 clip views"
     }
    ],
-   "researched": "2026-11-25T08:25:18.020Z",
+   "researched": "2026-11-25T21:38:38.333Z",
    "evidence": {
     "independentSources": 1,
     "sources": [
@@ -315,63 +260,10 @@
    "score": 45
   },
   {
-   "key": "creator-kick-bocade09",
-   "kind": "clip",
-   "topic": "bocade09 (kick, Just Chatting)",
-   "why": "3 clip(s) with 3,631 views in the last day",
-   "sources": [
-    {
-     "source": "kick",
-     "title": "rlk corolla",
-     "url": "https://kick.com/bocade09/clips/clip_01M85QBS1DZJ8VASYFNM6DVQE5",
-     "publisher": "Kick · bocade09",
-     "date": "2026-11-24T02:51:46.804281Z",
-     "metric": "1854 clip views"
-    },
-    {
-     "source": "kick",
-     "title": "kbb",
-     "url": "https://kick.com/bocade09/clips/clip_01M85PDZKE083S13EMR23CTH4Q",
-     "publisher": "Kick · bocade09",
-     "date": "2026-11-24T02:33:59.377773Z",
-     "metric": "921 clip views"
-    },
-    {
-     "source": "kick",
-     "title": "sdw",
-     "url": "https://kick.com/bocade09/clips/clip_01M85RCD2DC78EVE0WKZ3935DQ",
-     "publisher": "Kick · bocade09",
-     "date": "2026-11-24T03:08:12.534913Z",
-     "metric": "856 clip views"
-    }
-   ],
-   "researched": "2026-11-25T08:25:18.020Z",
-   "evidence": {
-    "independentSources": 1,
-    "sources": [
-     "kick"
-    ],
-    "items": 3
-   },
-   "audience": "Just Chatting viewers",
-   "format": "clip",
-   "hook": "",
-   "difficulty": 2,
-   "risks": [
-    "clipping rights: only clip this creator with permission (your own channel, a clipping campaign, or written permission)"
-   ],
-   "confidence": 0.5,
-   "niche": true,
-   "creator": "bocade09",
-   "platform": "kick",
-   "method": "platform clip data",
-   "score": 45
-  },
-  {
    "key": "creator-kick-paymoneywubby",
    "kind": "clip",
    "topic": "PaymoneyWubby (kick, Grand Theft Auto VI (GTA))",
-   "why": "1 clip(s) with 2,385 views in the last day",
+   "why": "1 clip(s) with 5,401 views in the last day",
    "sources": [
     {
      "source": "kick",
@@ -379,10 +271,10 @@
      "url": "https://kick.com/paymoneywubby/clips/clip_01M85Z3CAACFS13G2P2ETBY19Q",
      "publisher": "Kick · PaymoneyWubby",
      "date": "2026-11-24T05:05:43.350674Z",
-     "metric": "2385 clip views"
+     "metric": "5401 clip views"
     }
    ],
-   "researched": "2026-11-25T08:25:18.020Z",
+   "researched": "2026-11-25T21:38:38.333Z",
    "evidence": {
     "independentSources": 1,
     "sources": [
@@ -405,103 +297,29 @@
    "score": 45
   },
   {
-   "key": "creator-kick-triplex",
+   "key": "creator-kick-xmerghani",
    "kind": "clip",
-   "topic": "TRIPLEX (kick, IRL)",
-   "why": "1 clip(s) with 2,327 views in the last day",
+   "topic": "xmerghani (kick, Slots & Casino)",
+   "why": "2 clip(s) with 4,529 views in the last day",
    "sources": [
     {
      "source": "kick",
-     "title": "TRIPLEX DA TRAGO EXTRAÑO A WARENCITA ?????",
-     "url": "https://kick.com/triplex/clips/clip_01M88FHDCV829TX3VRKG2H0MND",
-     "publisher": "Kick · TRIPLEX",
-     "date": "2026-11-25T04:37:27.922354Z",
-     "metric": "2327 clip views"
-    }
-   ],
-   "researched": "2026-11-25T08:25:18.020Z",
-   "evidence": {
-    "independentSources": 1,
-    "sources": [
-     "kick"
-    ],
-    "items": 1
-   },
-   "audience": "IRL viewers",
-   "format": "clip",
-   "hook": "",
-   "difficulty": 2,
-   "risks": [
-    "clipping rights: only clip this creator with permission (your own channel, a clipping campaign, or written permission)"
-   ],
-   "confidence": 0.5,
-   "niche": true,
-   "creator": "TRIPLEX",
-   "platform": "kick",
-   "method": "platform clip data",
-   "score": 45
-  },
-  {
-   "key": "creator-kick-konke_sirlee",
-   "kind": "clip",
-   "topic": "konke_sirlee (kick, Just Chatting)",
-   "why": "1 clip(s) with 2,223 views in the last day",
-   "sources": [
-    {
-     "source": "kick",
-     "title": "konke's first stream ",
-     "url": "https://kick.com/konke_sirlee/clips/clip_01M86V6QRSRDD4E4CE8G1HSF1S",
-     "publisher": "Kick · konke_sirlee",
-     "date": "2026-11-24T13:16:56.730604Z",
-     "metric": "2223 clip views"
-    }
-   ],
-   "researched": "2026-11-25T08:25:18.020Z",
-   "evidence": {
-    "independentSources": 1,
-    "sources": [
-     "kick"
-    ],
-    "items": 1
-   },
-   "audience": "Just Chatting viewers",
-   "format": "clip",
-   "hook": "",
-   "difficulty": 2,
-   "risks": [
-    "clipping rights: only clip this creator with permission (your own channel, a clipping campaign, or written permission)"
-   ],
-   "confidence": 0.5,
-   "niche": true,
-   "creator": "konke_sirlee",
-   "platform": "kick",
-   "method": "platform clip data",
-   "score": 45
-  },
-  {
-   "key": "creator-kick-jerqo",
-   "kind": "clip",
-   "topic": "Jerqo (kick, Just Chatting)",
-   "why": "2 clip(s) with 2,151 views in the last day",
-   "sources": [
-    {
-     "source": "kick",
-     "title": "KJKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK",
-     "url": "https://kick.com/jerqo/clips/clip_01M85VF3163H0TQBQWNBCTY11B",
-     "publisher": "Kick · Jerqo",
-     "date": "2026-11-24T04:02:21.68038Z",
-     "metric": "1192 clip views"
+     "title": "SEGZ",
+     "url": "https://kick.com/xmerghani/clips/clip_01M85FGD0NSW9RNP1GJRJYGBJ5",
+     "publisher": "Kick · xmerghani",
+     "date": "2026-11-24T00:33:12.156769Z",
+     "metric": "2944 clip views"
     },
     {
      "source": "kick",
-     "title": "god dayyyuhh",
-     "url": "https://kick.com/jerqo/clips/clip_01M85QVY2W921GJH967W9ENMW5",
-     "publisher": "Kick · Jerqo",
-     "date": "2026-11-24T02:59:35.995529Z",
-     "metric": "959 clip views"
+     "title": "Szeli w Klubie",
+     "url": "https://kick.com/xmerghani/clips/clip_01M87ERQG3YW852CPYR97TD3R9",
+     "publisher": "Kick · xmerghani",
+     "date": "2026-11-24T18:58:45.600871Z",
+     "metric": "1585 clip views"
     }
    ],
-   "researched": "2026-11-25T08:25:18.020Z",
+   "researched": "2026-11-25T21:38:38.333Z",
    "evidence": {
     "independentSources": 1,
     "sources": [
@@ -509,7 +327,7 @@
     ],
     "items": 2
    },
-   "audience": "Just Chatting viewers",
+   "audience": "Slots & Casino viewers",
    "format": "clip",
    "hook": "",
    "difficulty": 2,
@@ -518,7 +336,7 @@
    ],
    "confidence": 0.5,
    "niche": true,
-   "creator": "Jerqo",
+   "creator": "xmerghani",
    "platform": "kick",
    "method": "platform clip data",
    "score": 45
@@ -527,7 +345,7 @@
    "key": "creator-kick-saab",
    "kind": "clip",
    "topic": "Saab (kick, Grand Theft Auto VI (GTA))",
-   "why": "1 clip(s) with 1,905 views in the last day",
+   "why": "1 clip(s) with 3,720 views in the last day",
    "sources": [
     {
      "source": "kick",
@@ -535,10 +353,10 @@
      "url": "https://kick.com/saab/clips/clip_01M87R67BH87V7YM9411S1FH8E",
      "publisher": "Kick · Saab",
      "date": "2026-11-24T21:43:45.474645Z",
-     "metric": "1905 clip views"
+     "metric": "3720 clip views"
     }
    ],
-   "researched": "2026-11-25T08:25:18.020Z",
+   "researched": "2026-11-25T21:38:38.333Z",
    "evidence": {
     "independentSources": 1,
     "sources": [
@@ -561,29 +379,37 @@
    "score": 45
   },
   {
-   "key": "creator-kick-manax",
+   "key": "creator-kick-jerqo",
    "kind": "clip",
-   "topic": "Manax (kick, Grand Theft Auto V (GTA))",
-   "why": "1 clip(s) with 1,810 views in the last day",
+   "topic": "Jerqo (kick, Just Chatting)",
+   "why": "2 clip(s) with 3,371 views in the last day",
    "sources": [
     {
      "source": "kick",
-     "title": "ATM gone wrong",
-     "url": "https://kick.com/manax/clips/clip_01M85QKF3XHYSNZ8SFD5HES2SS",
-     "publisher": "Kick · Manax",
-     "date": "2026-11-24T02:55:33.431928Z",
-     "metric": "1810 clip views"
+     "title": "KJKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK",
+     "url": "https://kick.com/jerqo/clips/clip_01M85VF3163H0TQBQWNBCTY11B",
+     "publisher": "Kick · Jerqo",
+     "date": "2026-11-24T04:02:21.68038Z",
+     "metric": "1992 clip views"
+    },
+    {
+     "source": "kick",
+     "title": "god dayyyuhh",
+     "url": "https://kick.com/jerqo/clips/clip_01M85QVY2W921GJH967W9ENMW5",
+     "publisher": "Kick · Jerqo",
+     "date": "2026-11-24T02:59:35.995529Z",
+     "metric": "1379 clip views"
     }
    ],
-   "researched": "2026-11-25T08:25:18.020Z",
+   "researched": "2026-11-25T21:38:38.333Z",
    "evidence": {
     "independentSources": 1,
     "sources": [
      "kick"
     ],
-    "items": 1
+    "items": 2
    },
-   "audience": "Grand Theft Auto V (GTA) viewers",
+   "audience": "Just Chatting viewers",
    "format": "clip",
    "hook": "",
    "difficulty": 2,
@@ -592,35 +418,43 @@
    ],
    "confidence": 0.5,
    "niche": true,
-   "creator": "Manax",
+   "creator": "Jerqo",
    "platform": "kick",
    "method": "platform clip data",
    "score": 45
   },
   {
-   "key": "creator-kick-xmerghani",
+   "key": "creator-kick-bocade09",
    "kind": "clip",
-   "topic": "xmerghani (kick, Slots & Casino)",
-   "why": "1 clip(s) with 1,577 views in the last day",
+   "topic": "bocade09 (kick, Just Chatting)",
+   "why": "2 clip(s) with 2,727 views in the last day",
    "sources": [
     {
      "source": "kick",
-     "title": "SEGZ",
-     "url": "https://kick.com/xmerghani/clips/clip_01M85FGD0NSW9RNP1GJRJYGBJ5",
-     "publisher": "Kick · xmerghani",
-     "date": "2026-11-24T00:33:12.156769Z",
-     "metric": "1577 clip views"
+     "title": "kbb",
+     "url": "https://kick.com/bocade09/clips/clip_01M85PDZKE083S13EMR23CTH4Q",
+     "publisher": "Kick · bocade09",
+     "date": "2026-11-24T02:33:59.377773Z",
+     "metric": "1410 clip views"
+    },
+    {
+     "source": "kick",
+     "title": "sdw",
+     "url": "https://kick.com/bocade09/clips/clip_01M85RCD2DC78EVE0WKZ3935DQ",
+     "publisher": "Kick · bocade09",
+     "date": "2026-11-24T03:08:12.534913Z",
+     "metric": "1317 clip views"
     }
    ],
-   "researched": "2026-11-25T08:25:18.020Z",
+   "researched": "2026-11-25T21:38:38.333Z",
    "evidence": {
     "independentSources": 1,
     "sources": [
      "kick"
     ],
-    "items": 1
+    "items": 2
    },
-   "audience": "Slots & Casino viewers",
+   "audience": "Just Chatting viewers",
    "format": "clip",
    "hook": "",
    "difficulty": 2,
@@ -629,27 +463,27 @@
    ],
    "confidence": 0.5,
    "niche": true,
-   "creator": "xmerghani",
+   "creator": "bocade09",
    "platform": "kick",
    "method": "platform clip data",
    "score": 45
   },
   {
-   "key": "creator-kick-duske1",
+   "key": "creator-kick-konke_sirlee",
    "kind": "clip",
-   "topic": "Duske1 (kick, Red Dead Redemption II)",
-   "why": "1 clip(s) with 978 views in the last day",
+   "topic": "konke_sirlee (kick, Just Chatting)",
+   "why": "1 clip(s) with 2,556 views in the last day",
    "sources": [
     {
      "source": "kick",
-     "title": "HOROR HOUSE",
-     "url": "https://kick.com/duske1/clips/clip_01M86ETACGNHADJ7EK96MCCAZ5",
-     "publisher": "Kick · Duske1",
-     "date": "2026-11-24T09:40:44.393395Z",
-     "metric": "978 clip views"
+     "title": "konke's first stream ",
+     "url": "https://kick.com/konke_sirlee/clips/clip_01M86V6QRSRDD4E4CE8G1HSF1S",
+     "publisher": "Kick · konke_sirlee",
+     "date": "2026-11-24T13:16:56.730604Z",
+     "metric": "2556 clip views"
     }
    ],
-   "researched": "2026-11-25T08:25:18.020Z",
+   "researched": "2026-11-25T21:38:38.333Z",
    "evidence": {
     "independentSources": 1,
     "sources": [
@@ -657,7 +491,7 @@
     ],
     "items": 1
    },
-   "audience": "Red Dead Redemption II viewers",
+   "audience": "Just Chatting viewers",
    "format": "clip",
    "hook": "",
    "difficulty": 2,
@@ -666,7 +500,81 @@
    ],
    "confidence": 0.5,
    "niche": true,
-   "creator": "Duske1",
+   "creator": "konke_sirlee",
+   "platform": "kick",
+   "method": "platform clip data",
+   "score": 45
+  },
+  {
+   "key": "creator-kick-triplex",
+   "kind": "clip",
+   "topic": "TRIPLEX (kick, IRL)",
+   "why": "1 clip(s) with 2,480 views in the last day",
+   "sources": [
+    {
+     "source": "kick",
+     "title": "TRIPLEX DA TRAGO EXTRAÑO A WARENCITA ?????",
+     "url": "https://kick.com/triplex/clips/clip_01M88FHDCV829TX3VRKG2H0MND",
+     "publisher": "Kick · TRIPLEX",
+     "date": "2026-11-25T04:37:27.922354Z",
+     "metric": "2480 clip views"
+    }
+   ],
+   "researched": "2026-11-25T21:38:38.333Z",
+   "evidence": {
+    "independentSources": 1,
+    "sources": [
+     "kick"
+    ],
+    "items": 1
+   },
+   "audience": "IRL viewers",
+   "format": "clip",
+   "hook": "",
+   "difficulty": 2,
+   "risks": [
+    "clipping rights: only clip this creator with permission (your own channel, a clipping campaign, or written permission)"
+   ],
+   "confidence": 0.5,
+   "niche": true,
+   "creator": "TRIPLEX",
+   "platform": "kick",
+   "method": "platform clip data",
+   "score": 45
+  },
+  {
+   "key": "creator-kick-neexcsgo",
+   "kind": "clip",
+   "topic": "NEEXcsgo (kick, Just Sleeping)",
+   "why": "1 clip(s) with 2,082 views in the last day",
+   "sources": [
+    {
+     "source": "kick",
+     "title": "o jejku",
+     "url": "https://kick.com/neexcsgo/clips/clip_01M85FM8H7JPX41CX530HFSAZT",
+     "publisher": "Kick · NEEXcsgo",
+     "date": "2026-11-24T00:35:18.1165Z",
+     "metric": "2082 clip views"
+    }
+   ],
+   "researched": "2026-11-25T21:38:38.333Z",
+   "evidence": {
+    "independentSources": 1,
+    "sources": [
+     "kick"
+    ],
+    "items": 1
+   },
+   "audience": "Just Sleeping viewers",
+   "format": "clip",
+   "hook": "",
+   "difficulty": 2,
+   "risks": [
+    "clipping rights: only clip this creator with permission (your own channel, a clipping campaign, or written permission)"
+   ],
+   "confidence": 0.5,
+   "niche": true,
+   "creator": "NEEXcsgo",
    "platform": "kick",
    "method": "platform clip data",
    "score": 45

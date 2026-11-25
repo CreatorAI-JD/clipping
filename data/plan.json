@@ -1,5 +1,5 @@
 {
- "at": "2026-11-25T08:25:18.020Z",
+ "at": "2026-11-25T21:38:38.333Z",
  "days": [
   {
    "date": "2026-11-25",
@@ -24,17 +24,17 @@
      "confidence": 0.5,
      "score": 45,
      "why": "1 clip(s) with 2,327 views in the last day",
-     "status": "new"
+     "status": "kept"
     },
     {
-     "key": "creator-kick-duske1",
-     "topic": "Duske1 (kick, Red Dead Redemption II)",
+     "key": "creator-kick-neexcsgo",
+     "topic": "NEEXcsgo (kick, Just Sleeping)",
      "kind": "clip",
      "format": "clip",
      "hook": "",
      "confidence": 0.5,
      "score": 45,
-     "why": "1 clip(s) with 978 views in the last day",
+     "why": "1 clip(s) with 2,082 views in the last day",
      "status": "new"
     }
    ]
@@ -101,17 +101,9 @@
  ],
  "replaced": [
   {
-   "topic": "Sian_Phan_MhanSlot (kick, Slots & Casino)",
-   "reason": "evidence went stale or a stronger opportunity replaced it"
-  },
-  {
-   "topic": "Blueface (kick, IRL)",
-   "reason": "evidence went stale or a stronger opportunity replaced it"
-  },
-  {
-   "topic": "RRaenee (kick, Just Chatting)",
+   "topic": "Duske1 (kick, Red Dead Redemption II)",
    "reason": "evidence went stale or a stronger opportunity replaced it"
   }
  ],
- "kept": 3
+ "kept": 5
 }
