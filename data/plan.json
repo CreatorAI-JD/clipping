@@ -1,19 +1,19 @@
 {
- "at": "2026-11-25T21:38:38.333Z",
+ "at": "2026-11-26T08:10:08.575Z",
  "days": [
   {
-   "date": "2026-11-25",
+   "date": "2026-11-26",
    "slots": [
     {
-     "key": "creator-kick-destiny",
-     "topic": "Destiny (kick, Just Chatting)",
+     "key": "creator-kick-robertovstheworld",
+     "topic": "robertovstheworld (kick, Grand Theft Auto VI (GTA))",
      "kind": "clip",
      "format": "clip",
      "hook": "",
      "confidence": 0.5,
      "score": 45,
-     "why": "1 clip(s) with 9,773 views in the last day",
-     "status": "kept"
+     "why": "2 clip(s) with 3,523 views in the last day",
+     "status": "new"
     },
     {
      "key": "creator-kick-triplex",
@@ -23,25 +23,21 @@
      "hook": "",
      "confidence": 0.5,
      "score": 45,
-     "why": "1 clip(s) with 2,327 views in the last day",
+     "why": "1 clip(s) with 2,635 views in the last day",
      "status": "kept"
     },
     {
-     "key": "creator-kick-neexcsgo",
-     "topic": "NEEXcsgo (kick, Just Sleeping)",
+     "key": "creator-kick-bykhay",
+     "topic": "Bykhay (kick, Just Chatting)",
      "kind": "clip",
      "format": "clip",
      "hook": "",
      "confidence": 0.5,
      "score": 45,
-     "why": "1 clip(s) with 2,082 views in the last day",
+     "why": "1 clip(s) with 2,100 views in the last day",
      "status": "new"
     }
    ]
-  },
-  {
-   "date": "2026-11-26",
-   "slots": []
   },
   {
    "date": "2026-11-27",
@@ -50,17 +46,6 @@
   {
    "date": "2026-11-28",
    "slots": [
-    {
-     "key": "creator-kick-buddha",
-     "topic": "Buddha (kick, Grand Theft Auto V (GTA))",
-     "kind": "clip",
-     "format": "clip",
-     "hook": "",
-     "confidence": 0.5,
-     "score": 45,
-     "why": "2 clip(s) with 3,327 views in the last day",
-     "status": "kept"
-    },
     {
      "key": "creator-kick-xmerghani",
      "topic": "xmerghani (kick, Slots & Casino)",
@@ -76,34 +61,73 @@
   },
   {
    "date": "2026-11-29",
+   "slots": []
+  },
+  {
+   "date": "2026-11-30",
    "slots": [
     {
-     "key": "creator-kick-konke_sirlee",
-     "topic": "konke_sirlee (kick, Just Chatting)",
+     "key": "creator-kick-peace_456",
+     "topic": "peace_456 (kick, Grand Theft Auto V (GTA))",
      "kind": "clip",
      "format": "clip",
      "hook": "",
      "confidence": 0.5,
      "score": 45,
-     "why": "1 clip(s) with 1,934 views in the last day",
-     "status": "kept"
+     "why": "2 clip(s) with 2,149 views in the last day",
+     "status": "new"
+    },
+    {
+     "key": "creator-kick-bocade09",
+     "topic": "bocade09 (kick, Just Chatting)",
+     "kind": "clip",
+     "format": "clip",
+     "hook": "",
+     "confidence": 0.5,
+     "score": 45,
+     "why": "2 clip(s) with 2,097 views in the last day",
+     "status": "new"
     }
    ]
   },
   {
-   "date": "2026-11-30",
+   "date": "2026-12-01",
    "slots": []
   },
   {
-   "date": "2026-12-01",
-   "slots": []
+   "date": "2026-12-02",
+   "slots": [
+    {
+     "key": "creator-kick-captain_jack_live",
+     "topic": "Captain_jack_live (kick, Slots & Casino)",
+     "kind": "clip",
+     "format": "clip",
+     "hook": "",
+     "confidence": 0.5,
+     "score": 45,
+     "why": "2 clip(s) with 7,439 views in the last day",
+     "status": "new"
+    }
+   ]
   }
  ],
  "replaced": [
   {
-   "topic": "Duske1 (kick, Red Dead Redemption II)",
+   "topic": "Destiny (kick, Just Chatting)",
+   "reason": "evidence went stale or a stronger opportunity replaced it"
+  },
+  {
+   "topic": "NEEXcsgo (kick, Just Sleeping)",
+   "reason": "evidence went stale or a stronger opportunity replaced it"
+  },
+  {
+   "topic": "Buddha (kick, Grand Theft Auto V (GTA))",
+   "reason": "evidence went stale or a stronger opportunity replaced it"
+  },
+  {
+   "topic": "konke_sirlee (kick, Just Chatting)",
    "reason": "evidence went stale or a stronger opportunity replaced it"
   }
  ],
- "kept": 5
+ "kept": 1
 }
