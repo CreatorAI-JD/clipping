@@ -1,5 +1,5 @@
 {
- "at": "2026-11-26T08:10:08.575Z",
+ "at": "2026-11-26T21:27:01.430Z",
  "days": [
   {
    "date": "2026-11-26",
@@ -13,7 +13,7 @@
      "confidence": 0.5,
      "score": 45,
      "why": "2 clip(s) with 3,523 views in the last day",
-     "status": "new"
+     "status": "kept"
     },
     {
      "key": "creator-kick-triplex",
@@ -35,13 +35,25 @@
      "confidence": 0.5,
      "score": 45,
      "why": "1 clip(s) with 2,100 views in the last day",
-     "status": "new"
+     "status": "kept"
     }
    ]
   },
   {
    "date": "2026-11-27",
-   "slots": []
+   "slots": [
+    {
+     "key": "creator-kick-gmhikaru",
+     "topic": "GMHikaru (kick, Chess)",
+     "kind": "clip",
+     "format": "clip",
+     "hook": "",
+     "confidence": 0.5,
+     "score": 45,
+     "why": "1 clip(s) with 6,457 views in the last day",
+     "status": "new"
+    }
+   ]
   },
   {
    "date": "2026-11-28",
@@ -67,25 +79,14 @@
    "date": "2026-11-30",
    "slots": [
     {
-     "key": "creator-kick-peace_456",
-     "topic": "peace_456 (kick, Grand Theft Auto V (GTA))",
+     "key": "creator-kick-tjnv",
+     "topic": "tjnv (kick, Grand Theft Auto V (GTA))",
      "kind": "clip",
      "format": "clip",
      "hook": "",
      "confidence": 0.5,
      "score": 45,
-     "why": "2 clip(s) with 2,149 views in the last day",
-     "status": "new"
-    },
-    {
-     "key": "creator-kick-bocade09",
-     "topic": "bocade09 (kick, Just Chatting)",
-     "kind": "clip",
-     "format": "clip",
-     "hook": "",
-     "confidence": 0.5,
-     "score": 45,
-     "why": "2 clip(s) with 2,097 views in the last day",
+     "why": "1 clip(s) with 2,759 views in the last day",
      "status": "new"
     }
    ]
@@ -106,28 +107,20 @@
      "confidence": 0.5,
      "score": 45,
      "why": "2 clip(s) with 7,439 views in the last day",
-     "status": "new"
+     "status": "kept"
     }
    ]
   }
  ],
  "replaced": [
   {
-   "topic": "Destiny (kick, Just Chatting)",
+   "topic": "peace_456 (kick, Grand Theft Auto V (GTA))",
    "reason": "evidence went stale or a stronger opportunity replaced it"
   },
   {
-   "topic": "NEEXcsgo (kick, Just Sleeping)",
-   "reason": "evidence went stale or a stronger opportunity replaced it"
-  },
-  {
-   "topic": "Buddha (kick, Grand Theft Auto V (GTA))",
-   "reason": "evidence went stale or a stronger opportunity replaced it"
-  },
-  {
-   "topic": "konke_sirlee (kick, Just Chatting)",
+   "topic": "bocade09 (kick, Just Chatting)",
    "reason": "evidence went stale or a stronger opportunity replaced it"
   }
  ],
- "kept": 1
+ "kept": 5
 }
