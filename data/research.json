@@ -1,26 +1,26 @@
 {
- "at": "2026-11-26T21:27:01.430Z",
+ "at": "2026-11-27T08:20:51.908Z",
  "niche": "GTA 6, Grand Theft Auto, GTA Online, streamers",
  "channelType": "clips",
  "analyst": "AI analyst (gpt-4o-mini) wrote 2 opportunities with citations",
  "investigated": 79,
  "opportunities": [
   {
-   "key": "gta",
+   "key": "gta-popularity",
    "kind": "faceless",
-   "topic": "GTA 6",
-   "why": "GTA 6 is currently trending as one of the most-read topics on Wikipedia, indicating high public interest.",
+   "topic": "GTA 6 Popularity",
+   "why": "GTA 6 is currently trending as one of the most-read topics on Wikipedia.",
    "sources": [
     {
      "source": "wikipedia",
      "title": "Grand Theft Auto VI",
      "url": "https://en.wikipedia.org/wiki/Grand_Theft_Auto_VI",
      "publisher": "Wikipedia most-read",
-     "date": "2026-11-25",
-     "metric": "151092 views"
+     "date": "2026-11-26",
+     "metric": "123574 views"
     }
    ],
-   "researched": "2026-11-26T21:27:01.430Z",
+   "researched": "2026-11-27T08:20:51.908Z",
    "evidence": {
     "independentSources": 1,
     "sources": [
@@ -28,163 +28,89 @@
     ],
     "items": 1
    },
-   "audience": "GTA fans, gamers, and general audience interested in video games",
+   "audience": "GTA fans, gamers",
    "format": "facts",
-   "hook": "Discover why GTA 6 is capturing the attention of millions!",
+   "hook": "Discover why GTA 6 is capturing the attention of so many people right now!",
    "difficulty": 2,
    "risks": [],
-   "confidence": 0.44,
+   "confidence": 0.43,
    "niche": true,
    "method": "cross-source evidence + AI analyst (cited)",
-   "score": 64.4
+   "score": 63.8
   },
   {
-   "key": "punisher-youtube",
+   "key": "gta-jugular-ocelot",
    "kind": "faceless",
-   "topic": "YouTube Ad Punisher",
-   "why": "The tool is gaining traction on platforms like Hacker News, showing a growing interest in enhancing the viewing experience on YouTube.",
+   "topic": "GTA 6 and Ocelot Jugular",
+   "why": "The term 'ocelot jugular' related to GTA 6 is gaining traction on Google Trends.",
    "sources": [
     {
-     "source": "hackerNews",
-     "title": "YouTube Ad Punisher – Auto-reloads YouTube pages when an ad plays",
-     "url": "https://github.com/antonpictures/youtube-punisher",
-     "publisher": "Hacker News",
-     "date": "2026-11-26T17:36:47Z",
-     "metric": "134 points"
+     "source": "googleTrends",
+     "title": "ocelot jugular gta 6",
+     "url": "https://www.pcgamer.com/games/grand-theft-auto/gta-6-ocelot-bloodless-jugular-location/",
+     "publisher": "PC Gamer",
+     "date": "Thu, 26 Nov 2026 22:10:00 -0800",
+     "metric": "500+"
     }
    ],
-   "researched": "2026-11-26T21:27:01.430Z",
+   "researched": "2026-11-27T08:20:51.908Z",
    "evidence": {
     "independentSources": 1,
     "sources": [
-     "hackerNews"
+     "googleTrends"
     ],
     "items": 1
    },
-   "audience": "YouTube users, gamers, and streamers",
-   "format": "technology",
-   "hook": "Learn about a new tool that could change how you watch YouTube!",
+   "audience": "GTA enthusiasts, gamers",
+   "format": "explainer",
+   "hook": "What is the Ocelot Jugular and why is it significant in GTA 6?",
    "difficulty": 3,
    "risks": [],
-   "confidence": 0.39,
+   "confidence": 0.36,
    "niche": true,
    "method": "cross-source evidence + AI analyst (cited)",
-   "score": 59.4
+   "score": 57.6
   },
   {
-   "key": "creator-kick-captain_jack_live",
+   "key": "creator-kick-traedakidd",
    "kind": "clip",
-   "topic": "Captain_jack_live (kick, Slots & Casino)",
-   "why": "2 clip(s) with 7,617 views in the last day",
+   "topic": "traedakidd (kick, Just Chatting)",
+   "why": "4 clip(s) with 15,663 views in the last day",
    "sources": [
     {
      "source": "kick",
-     "title": "🎰🔥 BIG SPINS, BIG VIBES! 💸",
-     "url": "https://kick.com/captain-jack-live/clips/clip_01M89FZMEP0JB17V1WMXN18GZK",
-     "publisher": "Kick · Captain_jack_live",
-     "date": "2026-11-25T13:58:28.544632Z",
-     "metric": "3910 clip views"
+     "title": "Live",
+     "url": "https://kick.com/traedakidd/clips/clip_01M8BDF182KQ1MBPCD5SMEDBGQ",
+     "publisher": "Kick · traedakidd",
+     "date": "2026-11-26T07:52:49.9234Z",
+     "metric": "6827 clip views"
     },
     {
      "source": "kick",
-     "title": "🤑 Охота за заносами! 🎰💸",
-     "url": "https://kick.com/captain-jack-live/clips/clip_01M89FS543DFPQCX70YS4WKF1W",
-     "publisher": "Kick · Captain_jack_live",
-     "date": "2026-11-25T13:55:13.777894Z",
-     "metric": "3707 clip views"
-    }
-   ],
-   "researched": "2026-11-26T21:27:01.430Z",
-   "evidence": {
-    "independentSources": 1,
-    "sources": [
-     "kick"
-    ],
-    "items": 2
-   },
-   "audience": "Slots & Casino viewers",
-   "format": "clip",
-   "hook": "",
-   "difficulty": 2,
-   "risks": [
-    "clipping rights: only clip this creator with permission (your own channel, a clipping campaign, or written permission)"
-   ],
-   "confidence": 0.5,
-   "niche": true,
-   "creator": "Captain_jack_live",
-   "platform": "kick",
-   "method": "platform clip data",
-   "score": 45
-  },
-  {
-   "key": "creator-kick-gmhikaru",
-   "kind": "clip",
-   "topic": "GMHikaru (kick, Chess)",
-   "why": "1 clip(s) with 6,457 views in the last day",
-   "sources": [
-    {
-     "source": "kick",
-     "title": "Gave himself 10 secs, messed up",
-     "url": "https://kick.com/gmhikaru/clips/clip_01M8AAKHXTAF6H8AATDPTHK233",
-     "publisher": "Kick · GMHikaru",
-     "date": "2026-11-25T21:43:35.799373Z",
-     "metric": "6457 clip views"
-    }
-   ],
-   "researched": "2026-11-26T21:27:01.430Z",
-   "evidence": {
-    "independentSources": 1,
-    "sources": [
-     "kick"
-    ],
-    "items": 1
-   },
-   "audience": "Chess viewers",
-   "format": "clip",
-   "hook": "",
-   "difficulty": 2,
-   "risks": [
-    "clipping rights: only clip this creator with permission (your own channel, a clipping campaign, or written permission)"
-   ],
-   "confidence": 0.5,
-   "niche": true,
-   "creator": "GMHikaru",
-   "platform": "kick",
-   "method": "platform clip data",
-   "score": 45
-  },
-  {
-   "key": "creator-kick-ceotenacity",
-   "kind": "clip",
-   "topic": "ceotenacity (kick, Slots & Casino)",
-   "why": "2 clip(s) with 4,644 views in the last day",
-   "sources": [
-    {
-     "source": "kick",
-     "title": "1136х",
-     "url": "https://kick.com/ceotenacity/clips/clip_01M89PAZSMKYGHR7AGY1AYR9F3",
-     "publisher": "Kick · ceotenacity",
-     "date": "2026-11-25T15:49:20.39307Z",
-     "metric": "2524 clip views"
+     "title": "Traedakidd x deyadelarosa Sit Down.",
+     "url": "https://kick.com/traedakidd/clips/clip_01M8BDJ3QPX7H8MEXYC00XSY63",
+     "publisher": "Kick · traedakidd",
+     "date": "2026-11-26T07:55:12.031417Z",
+     "metric": "3577 clip views"
     },
     {
      "source": "kick",
-     "title": "3200$",
-     "url": "https://kick.com/ceotenacity/clips/clip_01M89QE54CXBHX0J0W8KY8F9VS",
-     "publisher": "Kick · ceotenacity",
-     "date": "2026-11-25T16:08:37.222825Z",
-     "metric": "2120 clip views"
+     "title": "Good ",
+     "url": "https://kick.com/traedakidd/clips/clip_01M8BDMHVCA1T21J4KDXMZS2TG",
+     "publisher": "Kick · traedakidd",
+     "date": "2026-11-26T07:55:42.874862Z",
+     "metric": "2989 clip views"
     }
    ],
-   "researched": "2026-11-26T21:27:01.430Z",
+   "researched": "2026-11-27T08:20:51.908Z",
    "evidence": {
     "independentSources": 1,
     "sources": [
      "kick"
     ],
-    "items": 2
+    "items": 4
    },
-   "audience": "Slots & Casino viewers",
+   "audience": "Just Chatting viewers",
    "format": "clip",
    "hook": "",
    "difficulty": 2,
@@ -193,81 +119,7 @@
    ],
    "confidence": 0.5,
    "niche": true,
-   "creator": "ceotenacity",
-   "platform": "kick",
-   "method": "platform clip data",
-   "score": 45
-  },
-  {
-   "key": "creator-kick-robertovstheworld",
-   "kind": "clip",
-   "topic": "robertovstheworld (kick, Grand Theft Auto VI (GTA))",
-   "why": "1 clip(s) with 4,642 views in the last day",
-   "sources": [
-    {
-     "source": "kick",
-     "title": "EBOLA, MIAMI IS LIKE THAILAND",
-     "url": "https://kick.com/robertovstheworld/clips/clip_01M88NCD91TN0YCN9XWGXAP920",
-     "publisher": "Kick · robertovstheworld",
-     "date": "2026-11-25T06:14:56.700341Z",
-     "metric": "4642 clip views"
-    }
-   ],
-   "researched": "2026-11-26T21:27:01.430Z",
-   "evidence": {
-    "independentSources": 1,
-    "sources": [
-     "kick"
-    ],
-    "items": 1
-   },
-   "audience": "Grand Theft Auto VI (GTA) viewers",
-   "format": "clip",
-   "hook": "",
-   "difficulty": 2,
-   "risks": [
-    "clipping rights: only clip this creator with permission (your own channel, a clipping campaign, or written permission)"
-   ],
-   "confidence": 0.5,
-   "niche": true,
-   "creator": "robertovstheworld",
-   "platform": "kick",
-   "method": "platform clip data",
-   "score": 45
-  },
-  {
-   "key": "creator-kick-triplex",
-   "kind": "clip",
-   "topic": "TRIPLEX (kick, IRL)",
-   "why": "1 clip(s) with 2,828 views in the last day",
-   "sources": [
-    {
-     "source": "kick",
-     "title": "TRIPLEX DA TRAGO EXTRAÑO A WARENCITA ?????",
-     "url": "https://kick.com/triplex/clips/clip_01M88FHDCV829TX3VRKG2H0MND",
-     "publisher": "Kick · TRIPLEX",
-     "date": "2026-11-25T04:37:27.922354Z",
-     "metric": "2828 clip views"
-    }
-   ],
-   "researched": "2026-11-26T21:27:01.430Z",
-   "evidence": {
-    "independentSources": 1,
-    "sources": [
-     "kick"
-    ],
-    "items": 1
-   },
-   "audience": "IRL viewers",
-   "format": "clip",
-   "hook": "",
-   "difficulty": 2,
-   "risks": [
-    "clipping rights: only clip this creator with permission (your own channel, a clipping campaign, or written permission)"
-   ],
-   "confidence": 0.5,
-   "niche": true,
-   "creator": "TRIPLEX",
+   "creator": "traedakidd",
    "platform": "kick",
    "method": "platform clip data",
    "score": 45
@@ -276,7 +128,7 @@
    "key": "creator-kick-tjnv",
    "kind": "clip",
    "topic": "tjnv (kick, Grand Theft Auto V (GTA))",
-   "why": "1 clip(s) with 2,759 views in the last day",
+   "why": "1 clip(s) with 5,027 views in the last day",
    "sources": [
     {
      "source": "kick",
@@ -284,10 +136,10 @@
      "url": "https://kick.com/tjnv/clips/clip_01M8CGJK5XC83NW14KGQK6JNDJ",
      "publisher": "Kick · tjnv",
      "date": "2026-11-26T18:09:26.828327Z",
-     "metric": "2759 clip views"
+     "metric": "5027 clip views"
     }
    ],
-   "researched": "2026-11-26T21:27:01.430Z",
+   "researched": "2026-11-27T08:20:51.908Z",
    "evidence": {
     "independentSources": 1,
     "sources": [
@@ -310,21 +162,21 @@
    "score": 45
   },
   {
-   "key": "creator-kick-harry",
+   "key": "creator-kick-biotox",
    "kind": "clip",
-   "topic": "Harry (kick, Grand Theft Auto V (GTA))",
-   "why": "1 clip(s) with 2,630 views in the last day",
+   "topic": "Biotox (kick, Grand Theft Auto V (GTA))",
+   "why": "1 clip(s) with 3,604 views in the last day",
    "sources": [
     {
      "source": "kick",
-     "title": "Harry makes a deal for batteries",
-     "url": "https://kick.com/harry/clips/clip_01M8B24RDMNJZTBPWJXHPPWVC1",
-     "publisher": "Kick · Harry",
-     "date": "2026-11-26T04:35:33.222581Z",
-     "metric": "2630 clip views"
+     "title": "Big Homie Bazin",
+     "url": "https://kick.com/biotox/clips/clip_01M8CKFB8Q5YKCSQW5YZ96KGXX",
+     "publisher": "Kick · Biotox",
+     "date": "2026-11-26T18:57:30.907526Z",
+     "metric": "3604 clip views"
     }
    ],
-   "researched": "2026-11-26T21:27:01.430Z",
+   "researched": "2026-11-27T08:20:51.908Z",
    "evidence": {
     "independentSources": 1,
     "sources": [
@@ -341,7 +193,7 @@
    ],
    "confidence": 0.5,
    "niche": true,
-   "creator": "Harry",
+   "creator": "Biotox",
    "platform": "kick",
    "method": "platform clip data",
    "score": 45
@@ -350,7 +202,7 @@
    "key": "creator-kick-asmongold",
    "kind": "clip",
    "topic": "asmongold (kick, Grand Theft Auto VI (GTA))",
-   "why": "1 clip(s) with 2,524 views in the last day",
+   "why": "1 clip(s) with 3,157 views in the last day",
    "sources": [
     {
      "source": "kick",
@@ -358,10 +210,10 @@
      "url": "https://kick.com/asmongold/clips/clip_01M8AJRM2XDAMY4Z8WG535CBKY",
      "publisher": "Kick · asmongold",
      "date": "2026-11-26T00:06:29.702639Z",
-     "metric": "2524 clip views"
+     "metric": "3157 clip views"
     }
    ],
-   "researched": "2026-11-26T21:27:01.430Z",
+   "researched": "2026-11-27T08:20:51.908Z",
    "evidence": {
     "independentSources": 1,
     "sources": [
@@ -384,21 +236,58 @@
    "score": 45
   },
   {
-   "key": "creator-kick-bykhay",
+   "key": "creator-kick-harry",
    "kind": "clip",
-   "topic": "Bykhay (kick, Just Chatting)",
-   "why": "1 clip(s) with 2,216 views in the last day",
+   "topic": "Harry (kick, Grand Theft Auto V (GTA))",
+   "why": "1 clip(s) with 2,948 views in the last day",
    "sources": [
     {
      "source": "kick",
-     "title": "kasdjasd",
-     "url": "https://kick.com/bykhay/clips/clip_01M8A423MN2JYDZAP1VZ0XNM5D",
-     "publisher": "Kick · Bykhay",
-     "date": "2026-11-25T19:49:22.935965Z",
-     "metric": "2216 clip views"
+     "title": "Harry makes a deal for batteries",
+     "url": "https://kick.com/harry/clips/clip_01M8B24RDMNJZTBPWJXHPPWVC1",
+     "publisher": "Kick · Harry",
+     "date": "2026-11-26T04:35:33.222581Z",
+     "metric": "2948 clip views"
     }
    ],
-   "researched": "2026-11-26T21:27:01.430Z",
+   "researched": "2026-11-27T08:20:51.908Z",
+   "evidence": {
+    "independentSources": 1,
+    "sources": [
+     "kick"
+    ],
+    "items": 1
+   },
+   "audience": "Grand Theft Auto V (GTA) viewers",
+   "format": "clip",
+   "hook": "",
+   "difficulty": 2,
+   "risks": [
+    "clipping rights: only clip this creator with permission (your own channel, a clipping campaign, or written permission)"
+   ],
+   "confidence": 0.5,
+   "niche": true,
+   "creator": "Harry",
+   "platform": "kick",
+   "method": "platform clip data",
+   "score": 45
+  },
+  {
+   "key": "creator-kick-achtenwlodar",
+   "kind": "clip",
+   "topic": "achtenWlodar (kick, Just Chatting)",
+   "why": "1 clip(s) with 1,799 views in the last day",
+   "sources": [
+    {
+     "source": "kick",
+     "title": "co za swinia jebana",
+     "url": "https://kick.com/achtenwlodar/clips/clip_01M8CAW74V5AEZFYG3P2WFWNXJ",
+     "publisher": "Kick · achtenWlodar",
+     "date": "2026-11-26T16:26:44.911285Z",
+     "metric": "1799 clip views"
+    }
+   ],
+   "researched": "2026-11-27T08:20:51.908Z",
    "evidence": {
     "independentSources": 1,
     "sources": [
@@ -415,27 +304,27 @@
    ],
    "confidence": 0.5,
    "niche": true,
-   "creator": "Bykhay",
+   "creator": "achtenWlodar",
    "platform": "kick",
    "method": "platform clip data",
    "score": 45
   },
   {
-   "key": "creator-kick-v_clarry",
+   "key": "creator-kick-kayzgamble",
    "kind": "clip",
-   "topic": "V_clarry (kick, Grand Theft Auto V (GTA))",
-   "why": "1 clip(s) with 1,954 views in the last day",
+   "topic": "KayzGamble (kick, Slots & Casino)",
+   "why": "1 clip(s) with 1,581 views in the last day",
    "sources": [
     {
      "source": "kick",
-     "title": "..",
-     "url": "https://kick.com/v_clarry/clips/clip_01M89YZMB9V7869M6EAH1XST4K",
-     "publisher": "Kick · V_clarry",
-     "date": "2026-11-25T18:20:44.262292Z",
-     "metric": "1954 clip views"
+     "title": "1000x win 😚",
+     "url": "https://kick.com/kayzgamble/clips/clip_01M8CK590G7KBQRXR7DKYHPR30",
+     "publisher": "Kick · KayzGamble",
+     "date": "2026-11-26T18:52:05.242826Z",
+     "metric": "1581 clip views"
     }
    ],
-   "researched": "2026-11-26T21:27:01.430Z",
+   "researched": "2026-11-27T08:20:51.908Z",
    "evidence": {
     "independentSources": 1,
     "sources": [
@@ -443,7 +332,7 @@
     ],
     "items": 1
    },
-   "audience": "Grand Theft Auto V (GTA) viewers",
+   "audience": "Slots & Casino viewers",
    "format": "clip",
    "hook": "",
    "difficulty": 2,
@@ -452,27 +341,27 @@
    ],
    "confidence": 0.5,
    "niche": true,
-   "creator": "V_clarry",
+   "creator": "KayzGamble",
    "platform": "kick",
    "method": "platform clip data",
    "score": 45
   },
   {
-   "key": "creator-kick-xmerghani",
+   "key": "creator-kick-theozip",
    "kind": "clip",
-   "topic": "xmerghani (kick, Grand Theft Auto VI (GTA))",
-   "why": "1 clip(s) with 1,813 views in the last day",
+   "topic": "theozip (kick, Grand Theft Auto VI (GTA))",
+   "why": "1 clip(s) with 1,551 views in the last day",
    "sources": [
     {
      "source": "kick",
-     "title": "Marian w swoim żywiole",
-     "url": "https://kick.com/xmerghani/clips/clip_01M89JQASBAKKV41JNXZQP5MC4",
-     "publisher": "Kick · xmerghani",
-     "date": "2026-11-25T14:46:13.666157Z",
-     "metric": "1813 clip views"
+     "title": "g",
+     "url": "https://kick.com/theozip/clips/clip_01M8ASQ4TPK9QZCPM0PMA4G8J1",
+     "publisher": "Kick · theozip",
+     "date": "2026-11-26T02:07:41.243672Z",
+     "metric": "1551 clip views"
     }
    ],
-   "researched": "2026-11-26T21:27:01.430Z",
+   "researched": "2026-11-27T08:20:51.908Z",
    "evidence": {
     "independentSources": 1,
     "sources": [
@@ -489,27 +378,64 @@
    ],
    "confidence": 0.5,
    "niche": true,
-   "creator": "xmerghani",
+   "creator": "theozip",
    "platform": "kick",
    "method": "platform clip data",
    "score": 45
   },
   {
-   "key": "creator-kick-matteu",
+   "key": "creator-kick-3li_boltx",
    "kind": "clip",
-   "topic": "MattEU (kick, Grand Theft Auto V (GTA))",
-   "why": "1 clip(s) with 1,720 views in the last day",
+   "topic": "3li_Boltx (kick, IRL)",
+   "why": "1 clip(s) with 1,087 views in the last day",
    "sources": [
     {
      "source": "kick",
-     "title": "Casual Super Cool Wicked Driver Fings",
-     "url": "https://kick.com/matteu/clips/clip_01M8AFNYS7BS4TVPY0CP16V15Z",
-     "publisher": "Kick · MattEU",
-     "date": "2026-11-25T23:12:34.313383Z",
-     "metric": "1720 clip views"
+     "title": "ممممممم",
+     "url": "https://kick.com/3li_boltx/clips/clip_01M8AVZWR4W3RBQEA9HZG6STXQ",
+     "publisher": "Kick · 3li_Boltx",
+     "date": "2026-11-26T02:47:25.539488Z",
+     "metric": "1087 clip views"
     }
    ],
-   "researched": "2026-11-26T21:27:01.430Z",
+   "researched": "2026-11-27T08:20:51.908Z",
+   "evidence": {
+    "independentSources": 1,
+    "sources": [
+     "kick"
+    ],
+    "items": 1
+   },
+   "audience": "IRL viewers",
+   "format": "clip",
+   "hook": "",
+   "difficulty": 2,
+   "risks": [
+    "clipping rights: only clip this creator with permission (your own channel, a clipping campaign, or written permission)"
+   ],
+   "confidence": 0.5,
+   "niche": true,
+   "creator": "3li_Boltx",
+   "platform": "kick",
+   "method": "platform clip data",
+   "score": 45
+  },
+  {
+   "key": "creator-kick-capped",
+   "kind": "clip",
+   "topic": "Capped (kick, Grand Theft Auto V (GTA))",
+   "why": "1 clip(s) with 1,064 views in the last day",
+   "sources": [
+    {
+     "source": "kick",
+     "title": "capped reaction",
+     "url": "https://kick.com/capped/clips/clip_01M8AKCHA7DQXRNXAW1XNR84Z5",
+     "publisher": "Kick · Capped",
+     "date": "2026-11-26T00:17:12.361825Z",
+     "metric": "1064 clip views"
+    }
+   ],
+   "researched": "2026-11-27T08:20:51.908Z",
    "evidence": {
     "independentSources": 1,
     "sources": [
@@ -526,7 +452,81 @@
    ],
    "confidence": 0.5,
    "niche": true,
-   "creator": "MattEU",
+   "creator": "Capped",
+   "platform": "kick",
+   "method": "platform clip data",
+   "score": 45
+  },
+  {
+   "key": "creator-kick-brabox",
+   "kind": "clip",
+   "topic": "Brabox (kick, Chat Roulette)",
+   "why": "1 clip(s) with 1,013 views in the last day",
+   "sources": [
+    {
+     "source": "kick",
+     "title": "OAKAKAKAKK",
+     "url": "https://kick.com/brabox/clips/clip_01M8BH50VGC6PHZJK4R3Y6FYGN",
+     "publisher": "Kick · Brabox",
+     "date": "2026-11-26T08:57:37.560391Z",
+     "metric": "1013 clip views"
+    }
+   ],
+   "researched": "2026-11-27T08:20:51.908Z",
+   "evidence": {
+    "independentSources": 1,
+    "sources": [
+     "kick"
+    ],
+    "items": 1
+   },
+   "audience": "Chat Roulette viewers",
+   "format": "clip",
+   "hook": "",
+   "difficulty": 2,
+   "risks": [
+    "clipping rights: only clip this creator with permission (your own channel, a clipping campaign, or written permission)"
+   ],
+   "confidence": 0.5,
+   "niche": true,
+   "creator": "Brabox",
+   "platform": "kick",
+   "method": "platform clip data",
+   "score": 45
+  },
+  {
+   "key": "creator-kick-thenicolet",
+   "kind": "clip",
+   "topic": "TheNicoleT (kick, ASMR)",
+   "why": "1 clip(s) with 823 views in the last day",
+   "sources": [
+    {
+     "source": "kick",
+     "title": "slrrpies",
+     "url": "https://kick.com/thenicolet/clips/clip_01M8B7N61RZB6DN2BY06X73GS8",
+     "publisher": "Kick · TheNicoleT",
+     "date": "2026-11-26T06:11:17.091748Z",
+     "metric": "823 clip views"
+    }
+   ],
+   "researched": "2026-11-27T08:20:51.908Z",
+   "evidence": {
+    "independentSources": 1,
+    "sources": [
+     "kick"
+    ],
+    "items": 1
+   },
+   "audience": "ASMR viewers",
+   "format": "clip",
+   "hook": "",
+   "difficulty": 2,
+   "risks": [
+    "clipping rights: only clip this creator with permission (your own channel, a clipping campaign, or written permission)"
+   ],
+   "confidence": 0.5,
+   "niche": true,
+   "creator": "TheNicoleT",
    "platform": "kick",
    "method": "platform clip data",
    "score": 45
