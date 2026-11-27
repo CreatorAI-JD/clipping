@@ -1,15 +1,15 @@
 {
- "at": "2026-11-27T08:20:51.908Z",
+ "at": "2026-11-27T21:11:36.167Z",
  "niche": "GTA 6, Grand Theft Auto, GTA Online, streamers",
  "channelType": "clips",
- "analyst": "AI analyst (gpt-4o-mini) wrote 2 opportunities with citations",
+ "analyst": "AI analyst (gpt-4o-mini) wrote 3 opportunities with citations",
  "investigated": 79,
  "opportunities": [
   {
-   "key": "gta-popularity",
+   "key": "gta",
    "kind": "faceless",
-   "topic": "GTA 6 Popularity",
-   "why": "GTA 6 is currently trending as one of the most-read topics on Wikipedia.",
+   "topic": "GTA 6",
+   "why": "GTA 6 is currently trending as one of the most-read topics on Wikipedia, indicating high public interest.",
    "sources": [
     {
      "source": "wikipedia",
@@ -20,7 +20,7 @@
      "metric": "123574 views"
     }
    ],
-   "researched": "2026-11-27T08:20:51.908Z",
+   "researched": "2026-11-27T21:11:36.167Z",
    "evidence": {
     "independentSources": 1,
     "sources": [
@@ -28,9 +28,9 @@
     ],
     "items": 1
    },
-   "audience": "GTA fans, gamers",
+   "audience": "GTA fans, gamers, and general audience interested in gaming news.",
    "format": "facts",
-   "hook": "Discover why GTA 6 is capturing the attention of so many people right now!",
+   "hook": "Discover why GTA 6 is capturing the attention of millions!",
    "difficulty": 2,
    "risks": [],
    "confidence": 0.43,
@@ -39,43 +39,43 @@
    "score": 63.8
   },
   {
-   "key": "gta-jugular-ocelot",
+   "key": "punisher-youtube",
    "kind": "faceless",
-   "topic": "GTA 6 and Ocelot Jugular",
-   "why": "The term 'ocelot jugular' related to GTA 6 is gaining traction on Google Trends.",
+   "topic": "YouTube Ad Punisher",
+   "why": "This tool is gaining traction on Hacker News, suggesting a growing interest in enhancing the YouTube viewing experience.",
    "sources": [
     {
-     "source": "googleTrends",
-     "title": "ocelot jugular gta 6",
-     "url": "https://www.pcgamer.com/games/grand-theft-auto/gta-6-ocelot-bloodless-jugular-location/",
-     "publisher": "PC Gamer",
-     "date": "Thu, 26 Nov 2026 22:10:00 -0800",
-     "metric": "500+"
+     "source": "hackerNews",
+     "title": "YouTube Ad Punisher – Auto-reloads YouTube pages when an ad plays",
+     "url": "https://github.com/antonpictures/youtube-punisher",
+     "publisher": "Hacker News",
+     "date": "2026-11-26T17:36:47Z",
+     "metric": "522 points"
     }
    ],
-   "researched": "2026-11-27T08:20:51.908Z",
+   "researched": "2026-11-27T21:11:36.167Z",
    "evidence": {
     "independentSources": 1,
     "sources": [
-     "googleTrends"
+     "hackerNews"
     ],
     "items": 1
    },
-   "audience": "GTA enthusiasts, gamers",
-   "format": "explainer",
-   "hook": "What is the Ocelot Jugular and why is it significant in GTA 6?",
+   "audience": "YouTube users and content creators.",
+   "format": "technology",
+   "hook": "Learn about a tool that could change how you watch YouTube!",
    "difficulty": 3,
    "risks": [],
-   "confidence": 0.36,
+   "confidence": 0.4,
    "niche": true,
    "method": "cross-source evidence + AI analyst (cited)",
-   "score": 57.6
+   "score": 60
   },
   {
    "key": "creator-kick-traedakidd",
    "kind": "clip",
    "topic": "traedakidd (kick, Just Chatting)",
-   "why": "4 clip(s) with 15,663 views in the last day",
+   "why": "4 clip(s) with 16,584 views in the last day",
    "sources": [
     {
      "source": "kick",
@@ -83,7 +83,7 @@
      "url": "https://kick.com/traedakidd/clips/clip_01M8BDF182KQ1MBPCD5SMEDBGQ",
      "publisher": "Kick · traedakidd",
      "date": "2026-11-26T07:52:49.9234Z",
-     "metric": "6827 clip views"
+     "metric": "7466 clip views"
     },
     {
      "source": "kick",
@@ -91,7 +91,7 @@
      "url": "https://kick.com/traedakidd/clips/clip_01M8BDJ3QPX7H8MEXYC00XSY63",
      "publisher": "Kick · traedakidd",
      "date": "2026-11-26T07:55:12.031417Z",
-     "metric": "3577 clip views"
+     "metric": "3703 clip views"
     },
     {
      "source": "kick",
@@ -99,10 +99,10 @@
      "url": "https://kick.com/traedakidd/clips/clip_01M8BDMHVCA1T21J4KDXMZS2TG",
      "publisher": "Kick · traedakidd",
      "date": "2026-11-26T07:55:42.874862Z",
-     "metric": "2989 clip views"
+     "metric": "3085 clip views"
     }
    ],
-   "researched": "2026-11-27T08:20:51.908Z",
+   "researched": "2026-11-27T21:11:36.167Z",
    "evidence": {
     "independentSources": 1,
     "sources": [
@@ -125,10 +125,55 @@
    "score": 45
   },
   {
+   "key": "creator-kick-unqnanda1",
+   "kind": "clip",
+   "topic": "unqnanda1 (kick, Battlegrounds Mobile India)",
+   "why": "2 clip(s) with 8,992 views in the last day",
+   "sources": [
+    {
+     "source": "kick",
+     "title": "HACKER IN LOBBY 🤬",
+     "url": "https://kick.com/unqnanda1/clips/clip_01M8EHD4EBVWD2J4ZF0RY6P4F3",
+     "publisher": "Kick · unqnanda1",
+     "date": "2026-11-27T12:59:28.017093Z",
+     "metric": "4796 clip views"
+    },
+    {
+     "source": "kick",
+     "title": "Hacker IN LOBBY 😡 2 with Chicken Dinner ",
+     "url": "https://kick.com/unqnanda1/clips/clip_01M8EHHF59Q08KF74H73TSJ1MM",
+     "publisher": "Kick · unqnanda1",
+     "date": "2026-11-27T13:02:09.652464Z",
+     "metric": "4196 clip views"
+    }
+   ],
+   "researched": "2026-11-27T21:11:36.167Z",
+   "evidence": {
+    "independentSources": 1,
+    "sources": [
+     "kick"
+    ],
+    "items": 2
+   },
+   "audience": "Battlegrounds Mobile India viewers",
+   "format": "clip",
+   "hook": "",
+   "difficulty": 2,
+   "risks": [
+    "clipping rights: only clip this creator with permission (your own channel, a clipping campaign, or written permission)"
+   ],
+   "confidence": 0.5,
+   "niche": true,
+   "creator": "unqnanda1",
+   "platform": "kick",
+   "method": "platform clip data",
+   "score": 45
+  },
+  {
    "key": "creator-kick-tjnv",
    "kind": "clip",
    "topic": "tjnv (kick, Grand Theft Auto V (GTA))",
-   "why": "1 clip(s) with 5,027 views in the last day",
+   "why": "1 clip(s) with 6,247 views in the last day",
    "sources": [
     {
      "source": "kick",
@@ -136,10 +181,10 @@
      "url": "https://kick.com/tjnv/clips/clip_01M8CGJK5XC83NW14KGQK6JNDJ",
      "publisher": "Kick · tjnv",
      "date": "2026-11-26T18:09:26.828327Z",
-     "metric": "5027 clip views"
+     "metric": "6247 clip views"
     }
    ],
-   "researched": "2026-11-27T08:20:51.908Z",
+   "researched": "2026-11-27T21:11:36.167Z",
    "evidence": {
     "independentSources": 1,
     "sources": [
@@ -165,7 +210,7 @@
    "key": "creator-kick-biotox",
    "kind": "clip",
    "topic": "Biotox (kick, Grand Theft Auto V (GTA))",
-   "why": "1 clip(s) with 3,604 views in the last day",
+   "why": "1 clip(s) with 4,564 views in the last day",
    "sources": [
     {
      "source": "kick",
@@ -173,10 +218,10 @@
      "url": "https://kick.com/biotox/clips/clip_01M8CKFB8Q5YKCSQW5YZ96KGXX",
      "publisher": "Kick · Biotox",
      "date": "2026-11-26T18:57:30.907526Z",
-     "metric": "3604 clip views"
+     "metric": "4564 clip views"
     }
    ],
-   "researched": "2026-11-27T08:20:51.908Z",
+   "researched": "2026-11-27T21:11:36.167Z",
    "evidence": {
     "independentSources": 1,
     "sources": [
@@ -202,7 +247,7 @@
    "key": "creator-kick-asmongold",
    "kind": "clip",
    "topic": "asmongold (kick, Grand Theft Auto VI (GTA))",
-   "why": "1 clip(s) with 3,157 views in the last day",
+   "why": "1 clip(s) with 3,716 views in the last day",
    "sources": [
     {
      "source": "kick",
@@ -210,10 +255,10 @@
      "url": "https://kick.com/asmongold/clips/clip_01M8AJRM2XDAMY4Z8WG535CBKY",
      "publisher": "Kick · asmongold",
      "date": "2026-11-26T00:06:29.702639Z",
-     "metric": "3157 clip views"
+     "metric": "3716 clip views"
     }
    ],
-   "researched": "2026-11-27T08:20:51.908Z",
+   "researched": "2026-11-27T21:11:36.167Z",
    "evidence": {
     "independentSources": 1,
     "sources": [
@@ -236,10 +281,55 @@
    "score": 45
   },
   {
+   "key": "creator-kick-achtenwlodar",
+   "kind": "clip",
+   "topic": "achtenWlodar (kick, Just Chatting)",
+   "why": "2 clip(s) with 3,395 views in the last day",
+   "sources": [
+    {
+     "source": "kick",
+     "title": "co za swinia jebana",
+     "url": "https://kick.com/achtenwlodar/clips/clip_01M8CAW74V5AEZFYG3P2WFWNXJ",
+     "publisher": "Kick · achtenWlodar",
+     "date": "2026-11-26T16:26:44.911285Z",
+     "metric": "2290 clip views"
+    },
+    {
+     "source": "kick",
+     "title": "cipka",
+     "url": "https://kick.com/achtenwlodar/clips/clip_01M8CJABJY150EYY5GC263M063",
+     "publisher": "Kick · achtenWlodar",
+     "date": "2026-11-26T18:37:08.571065Z",
+     "metric": "1105 clip views"
+    }
+   ],
+   "researched": "2026-11-27T21:11:36.167Z",
+   "evidence": {
+    "independentSources": 1,
+    "sources": [
+     "kick"
+    ],
+    "items": 2
+   },
+   "audience": "Just Chatting viewers",
+   "format": "clip",
+   "hook": "",
+   "difficulty": 2,
+   "risks": [
+    "clipping rights: only clip this creator with permission (your own channel, a clipping campaign, or written permission)"
+   ],
+   "confidence": 0.5,
+   "niche": true,
+   "creator": "achtenWlodar",
+   "platform": "kick",
+   "method": "platform clip data",
+   "score": 45
+  },
+  {
    "key": "creator-kick-harry",
    "kind": "clip",
    "topic": "Harry (kick, Grand Theft Auto V (GTA))",
-   "why": "1 clip(s) with 2,948 views in the last day",
+   "why": "1 clip(s) with 3,131 views in the last day",
    "sources": [
     {
      "source": "kick",
@@ -247,10 +337,10 @@
      "url": "https://kick.com/harry/clips/clip_01M8B24RDMNJZTBPWJXHPPWVC1",
      "publisher": "Kick · Harry",
      "date": "2026-11-26T04:35:33.222581Z",
-     "metric": "2948 clip views"
+     "metric": "3131 clip views"
     }
    ],
-   "researched": "2026-11-27T08:20:51.908Z",
+   "researched": "2026-11-27T21:11:36.167Z",
    "evidence": {
     "independentSources": 1,
     "sources": [
@@ -273,29 +363,37 @@
    "score": 45
   },
   {
-   "key": "creator-kick-achtenwlodar",
+   "key": "creator-kick-sergioeleven",
    "kind": "clip",
-   "topic": "achtenWlodar (kick, Just Chatting)",
-   "why": "1 clip(s) with 1,799 views in the last day",
+   "topic": "SergioEleven (kick, Pools, Hot Tubs & Bikinis)",
+   "why": "2 clip(s) with 2,500 views in the last day",
    "sources": [
     {
      "source": "kick",
-     "title": "co za swinia jebana",
-     "url": "https://kick.com/achtenwlodar/clips/clip_01M8CAW74V5AEZFYG3P2WFWNXJ",
-     "publisher": "Kick · achtenWlodar",
-     "date": "2026-11-26T16:26:44.911285Z",
-     "metric": "1799 clip views"
+     "title": "la cabra",
+     "url": "https://kick.com/sergioeleven/clips/clip_01M8D5K6QHFSG2ZPFQX3D5AWNA",
+     "publisher": "Kick · SergioEleven",
+     "date": "2026-11-27T00:14:32.11536Z",
+     "metric": "1356 clip views"
+    },
+    {
+     "source": "kick",
+     "title": "s",
+     "url": "https://kick.com/sergioeleven/clips/clip_01M8D5M33YWHD2B9QV0ZKR6ETM",
+     "publisher": "Kick · SergioEleven",
+     "date": "2026-11-27T00:14:33.544802Z",
+     "metric": "1144 clip views"
     }
    ],
-   "researched": "2026-11-27T08:20:51.908Z",
+   "researched": "2026-11-27T21:11:36.167Z",
    "evidence": {
     "independentSources": 1,
     "sources": [
      "kick"
     ],
-    "items": 1
+    "items": 2
    },
-   "audience": "Just Chatting viewers",
+   "audience": "Pools, Hot Tubs & Bikinis viewers",
    "format": "clip",
    "hook": "",
    "difficulty": 2,
@@ -304,81 +402,7 @@
    ],
    "confidence": 0.5,
    "niche": true,
-   "creator": "achtenWlodar",
-   "platform": "kick",
-   "method": "platform clip data",
-   "score": 45
-  },
-  {
-   "key": "creator-kick-kayzgamble",
-   "kind": "clip",
-   "topic": "KayzGamble (kick, Slots & Casino)",
-   "why": "1 clip(s) with 1,581 views in the last day",
-   "sources": [
-    {
-     "source": "kick",
-     "title": "1000x win 😚",
-     "url": "https://kick.com/kayzgamble/clips/clip_01M8CK590G7KBQRXR7DKYHPR30",
-     "publisher": "Kick · KayzGamble",
-     "date": "2026-11-26T18:52:05.242826Z",
-     "metric": "1581 clip views"
-    }
-   ],
-   "researched": "2026-11-27T08:20:51.908Z",
-   "evidence": {
-    "independentSources": 1,
-    "sources": [
-     "kick"
-    ],
-    "items": 1
-   },
-   "audience": "Slots & Casino viewers",
-   "format": "clip",
-   "hook": "",
-   "difficulty": 2,
-   "risks": [
-    "clipping rights: only clip this creator with permission (your own channel, a clipping campaign, or written permission)"
-   ],
-   "confidence": 0.5,
-   "niche": true,
-   "creator": "KayzGamble",
-   "platform": "kick",
-   "method": "platform clip data",
-   "score": 45
-  },
-  {
-   "key": "creator-kick-theozip",
-   "kind": "clip",
-   "topic": "theozip (kick, Grand Theft Auto VI (GTA))",
-   "why": "1 clip(s) with 1,551 views in the last day",
-   "sources": [
-    {
-     "source": "kick",
-     "title": "g",
-     "url": "https://kick.com/theozip/clips/clip_01M8ASQ4TPK9QZCPM0PMA4G8J1",
-     "publisher": "Kick · theozip",
-     "date": "2026-11-26T02:07:41.243672Z",
-     "metric": "1551 clip views"
-    }
-   ],
-   "researched": "2026-11-27T08:20:51.908Z",
-   "evidence": {
-    "independentSources": 1,
-    "sources": [
-     "kick"
-    ],
-    "items": 1
-   },
-   "audience": "Grand Theft Auto VI (GTA) viewers",
-   "format": "clip",
-   "hook": "",
-   "difficulty": 2,
-   "risks": [
-    "clipping rights: only clip this creator with permission (your own channel, a clipping campaign, or written permission)"
-   ],
-   "confidence": 0.5,
-   "niche": true,
-   "creator": "theozip",
+   "creator": "SergioEleven",
    "platform": "kick",
    "method": "platform clip data",
    "score": 45
@@ -387,7 +411,7 @@
    "key": "creator-kick-3li_boltx",
    "kind": "clip",
    "topic": "3li_Boltx (kick, IRL)",
-   "why": "1 clip(s) with 1,087 views in the last day",
+   "why": "1 clip(s) with 1,549 views in the last day",
    "sources": [
     {
      "source": "kick",
@@ -395,10 +419,10 @@
      "url": "https://kick.com/3li_boltx/clips/clip_01M8AVZWR4W3RBQEA9HZG6STXQ",
      "publisher": "Kick · 3li_Boltx",
      "date": "2026-11-26T02:47:25.539488Z",
-     "metric": "1087 clip views"
+     "metric": "1549 clip views"
     }
    ],
-   "researched": "2026-11-27T08:20:51.908Z",
+   "researched": "2026-11-27T21:11:36.167Z",
    "evidence": {
     "independentSources": 1,
     "sources": [
@@ -421,84 +445,10 @@
    "score": 45
   },
   {
-   "key": "creator-kick-capped",
-   "kind": "clip",
-   "topic": "Capped (kick, Grand Theft Auto V (GTA))",
-   "why": "1 clip(s) with 1,064 views in the last day",
-   "sources": [
-    {
-     "source": "kick",
-     "title": "capped reaction",
-     "url": "https://kick.com/capped/clips/clip_01M8AKCHA7DQXRNXAW1XNR84Z5",
-     "publisher": "Kick · Capped",
-     "date": "2026-11-26T00:17:12.361825Z",
-     "metric": "1064 clip views"
-    }
-   ],
-   "researched": "2026-11-27T08:20:51.908Z",
-   "evidence": {
-    "independentSources": 1,
-    "sources": [
-     "kick"
-    ],
-    "items": 1
-   },
-   "audience": "Grand Theft Auto V (GTA) viewers",
-   "format": "clip",
-   "hook": "",
-   "difficulty": 2,
-   "risks": [
-    "clipping rights: only clip this creator with permission (your own channel, a clipping campaign, or written permission)"
-   ],
-   "confidence": 0.5,
-   "niche": true,
-   "creator": "Capped",
-   "platform": "kick",
-   "method": "platform clip data",
-   "score": 45
-  },
-  {
-   "key": "creator-kick-brabox",
-   "kind": "clip",
-   "topic": "Brabox (kick, Chat Roulette)",
-   "why": "1 clip(s) with 1,013 views in the last day",
-   "sources": [
-    {
-     "source": "kick",
-     "title": "OAKAKAKAKK",
-     "url": "https://kick.com/brabox/clips/clip_01M8BH50VGC6PHZJK4R3Y6FYGN",
-     "publisher": "Kick · Brabox",
-     "date": "2026-11-26T08:57:37.560391Z",
-     "metric": "1013 clip views"
-    }
-   ],
-   "researched": "2026-11-27T08:20:51.908Z",
-   "evidence": {
-    "independentSources": 1,
-    "sources": [
-     "kick"
-    ],
-    "items": 1
-   },
-   "audience": "Chat Roulette viewers",
-   "format": "clip",
-   "hook": "",
-   "difficulty": 2,
-   "risks": [
-    "clipping rights: only clip this creator with permission (your own channel, a clipping campaign, or written permission)"
-   ],
-   "confidence": 0.5,
-   "niche": true,
-   "creator": "Brabox",
-   "platform": "kick",
-   "method": "platform clip data",
-   "score": 45
-  },
-  {
    "key": "creator-kick-thenicolet",
    "kind": "clip",
    "topic": "TheNicoleT (kick, ASMR)",
-   "why": "1 clip(s) with 823 views in the last day",
+   "why": "1 clip(s) with 1,313 views in the last day",
    "sources": [
     {
      "source": "kick",
@@ -506,10 +456,10 @@
      "url": "https://kick.com/thenicolet/clips/clip_01M8B7N61RZB6DN2BY06X73GS8",
      "publisher": "Kick · TheNicoleT",
      "date": "2026-11-26T06:11:17.091748Z",
-     "metric": "823 clip views"
+     "metric": "1313 clip views"
     }
    ],
-   "researched": "2026-11-27T08:20:51.908Z",
+   "researched": "2026-11-27T21:11:36.167Z",
    "evidence": {
     "independentSources": 1,
     "sources": [
@@ -530,6 +480,125 @@
    "platform": "kick",
    "method": "platform clip data",
    "score": 45
+  },
+  {
+   "key": "creator-kick-amadeuszferrari",
+   "kind": "clip",
+   "topic": "AmadeuszFerrari (kick, IRL)",
+   "why": "1 clip(s) with 1,280 views in the last day",
+   "sources": [
+    {
+     "source": "kick",
+     "title": "xd",
+     "url": "https://kick.com/amadeuszferrari/clips/clip_01M8CVH8S9QVWXZ8T5S17A31AK",
+     "publisher": "Kick · AmadeuszFerrari",
+     "date": "2026-11-26T21:18:13.606275Z",
+     "metric": "1280 clip views"
+    }
+   ],
+   "researched": "2026-11-27T21:11:36.167Z",
+   "evidence": {
+    "independentSources": 1,
+    "sources": [
+     "kick"
+    ],
+    "items": 1
+   },
+   "audience": "IRL viewers",
+   "format": "clip",
+   "hook": "",
+   "difficulty": 2,
+   "risks": [
+    "clipping rights: only clip this creator with permission (your own channel, a clipping campaign, or written permission)"
+   ],
+   "confidence": 0.5,
+   "niche": true,
+   "creator": "AmadeuszFerrari",
+   "platform": "kick",
+   "method": "platform clip data",
+   "score": 45
+  },
+  {
+   "key": "creator-kick-bigboy_legendaa",
+   "kind": "clip",
+   "topic": "BIGBOY_LEGENDAA (kick, Just Chatting)",
+   "why": "1 clip(s) with 1,245 views in the last day",
+   "sources": [
+    {
+     "source": "kick",
+     "title": "ш7",
+     "url": "https://kick.com/bigboy_legendaa/clips/clip_01M8AN1W7ZVAMFRJS3YNHXSW2Y",
+     "publisher": "Kick · BIGBOY_LEGENDAA",
+     "date": "2026-11-26T00:46:29.561333Z",
+     "metric": "1245 clip views"
+    }
+   ],
+   "researched": "2026-11-27T21:11:36.167Z",
+   "evidence": {
+    "independentSources": 1,
+    "sources": [
+     "kick"
+    ],
+    "items": 1
+   },
+   "audience": "Just Chatting viewers",
+   "format": "clip",
+   "hook": "",
+   "difficulty": 2,
+   "risks": [
+    "clipping rights: only clip this creator with permission (your own channel, a clipping campaign, or written permission)"
+   ],
+   "confidence": 0.5,
+   "niche": true,
+   "creator": "BIGBOY_LEGENDAA",
+   "platform": "kick",
+   "method": "platform clip data",
+   "score": 45
+  },
+  {
+   "key": "air-cloud-computing-force-hack",
+   "kind": "faceless",
+   "topic": "US Air Force Cloud Computing Hack",
+   "why": "A significant event that has garnered attention, indicating a public interest in cybersecurity.",
+   "sources": [
+    {
+     "source": "googleTrends",
+     "title": "air force vs new mexico",
+     "url": "https://golobos.com/news/2026/11/26/game-day-info-game-12-lobos-hosting-air-force",
+     "publisher": "New Mexico Lobos",
+     "date": "Fri, 27 Nov 2026 12:40:00 -0800",
+     "metric": "5000+"
+    },
+    {
+     "source": "hackerNews",
+     "title": "US Air Force's cloud computing platform hacked",
+     "url": "https://news.sky.com/story/us-air-forces-cloud-computing-platform-hacked-13617163",
+     "publisher": "Hacker News",
+     "date": "2026-11-27T12:54:11Z",
+     "metric": "282 points"
+    }
+   ],
+   "researched": "2026-11-27T21:11:36.167Z",
+   "evidence": {
+    "independentSources": 2,
+    "sources": [
+     "googleTrends",
+     "hackerNews"
+    ],
+    "items": 2
+   },
+   "audience": "Tech enthusiasts and those interested in cybersecurity.",
+   "format": "story",
+   "hook": "What happens when a major cloud platform gets hacked?",
+   "difficulty": 4,
+   "risks": [
+    "politics",
+    "speculation"
+   ],
+   "confidence": 0.65,
+   "niche": false,
+   "method": "cross-source evidence + AI analyst (cited)",
+   "score": 33
   }
  ]
 }
