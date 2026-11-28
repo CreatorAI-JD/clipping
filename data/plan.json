@@ -1,58 +1,9 @@
 {
- "at": "2026-11-27T21:11:36.167Z",
+ "at": "2026-11-28T07:40:58.761Z",
  "days": [
-  {
-   "date": "2026-11-27",
-   "slots": [
-    {
-     "key": "creator-kick-traedakidd",
-     "topic": "traedakidd (kick, Just Chatting)",
-     "kind": "clip",
-     "format": "clip",
-     "hook": "",
-     "confidence": 0.5,
-     "score": 45,
-     "why": "4 clip(s) with 15,663 views in the last day",
-     "status": "kept"
-    },
-    {
-     "key": "creator-kick-3li_boltx",
-     "topic": "3li_Boltx (kick, IRL)",
-     "kind": "clip",
-     "format": "clip",
-     "hook": "",
-     "confidence": 0.5,
-     "score": 45,
-     "why": "1 clip(s) with 1,087 views in the last day",
-     "status": "kept"
-    },
-    {
-     "key": "creator-kick-unqnanda1",
-     "topic": "unqnanda1 (kick, Battlegrounds Mobile India)",
-     "kind": "clip",
-     "format": "clip",
-     "hook": "",
-     "confidence": 0.5,
-     "score": 45,
-     "why": "2 clip(s) with 8,992 views in the last day",
-     "status": "new"
-    }
-   ]
-  },
   {
    "date": "2026-11-28",
    "slots": [
-    {
-     "key": "creator-kick-thenicolet",
-     "topic": "TheNicoleT (kick, ASMR)",
-     "kind": "clip",
-     "format": "clip",
-     "hook": "",
-     "confidence": 0.5,
-     "score": 45,
-     "why": "1 clip(s) with 823 views in the last day",
-     "status": "kept"
-    },
     {
      "key": "creator-kick-sergioeleven",
      "topic": "SergioEleven (kick, Pools, Hot Tubs & Bikinis)",
@@ -62,44 +13,77 @@
      "confidence": 0.5,
      "score": 45,
      "why": "2 clip(s) with 2,500 views in the last day",
+     "status": "kept"
+    },
+    {
+     "key": "creator-kick-misshenley",
+     "topic": "misshenley (kick, Slots & Casino)",
+     "kind": "clip",
+     "format": "clip",
+     "hook": "",
+     "confidence": 0.5,
+     "score": 45,
+     "why": "2 clip(s) with 8,183 views in the last day",
+     "status": "new"
+    },
+    {
+     "key": "creator-kick-lilkenji10",
+     "topic": "lilkenji10 (kick, Just Chatting)",
+     "kind": "clip",
+     "format": "clip",
+     "hook": "",
+     "confidence": 0.5,
+     "score": 45,
+     "why": "2 clip(s) with 2,890 views in the last day",
      "status": "new"
     }
    ]
   },
   {
    "date": "2026-11-29",
-   "slots": []
-  },
-  {
-   "date": "2026-11-30",
    "slots": [
     {
-     "key": "creator-kick-tjnv",
-     "topic": "tjnv (kick, Grand Theft Auto V (GTA))",
+     "key": "creator-kick-gabepeixe",
+     "topic": "gabepeixe (kick, Grand Theft Auto VI (GTA))",
      "kind": "clip",
      "format": "clip",
      "hook": "",
      "confidence": 0.5,
      "score": 45,
-     "why": "1 clip(s) with 2,759 views in the last day",
-     "status": "kept"
+     "why": "1 clip(s) with 1,823 views in the last day",
+     "status": "new"
+    },
+    {
+     "key": "creator-kick-evgn38",
+     "topic": "EVGN38 (kick, Games + Demos)",
+     "kind": "clip",
+     "format": "clip",
+     "hook": "",
+     "confidence": 0.5,
+     "score": 45,
+     "why": "1 clip(s) with 1,028 views in the last day",
+     "status": "new"
+    },
+    {
+     "key": "creator-kick-moncefgr",
+     "topic": "MONCEFGR (kick, Garena Free Fire Max)",
+     "kind": "clip",
+     "format": "clip",
+     "hook": "",
+     "confidence": 0.5,
+     "score": 45,
+     "why": "1 clip(s) with 924 views in the last day",
+     "status": "new"
     }
    ]
   },
   {
+   "date": "2026-11-30",
+   "slots": []
+  },
+  {
    "date": "2026-12-01",
    "slots": [
-    {
-     "key": "creator-kick-achtenwlodar",
-     "topic": "achtenWlodar (kick, Just Chatting)",
-     "kind": "clip",
-     "format": "clip",
-     "hook": "",
-     "confidence": 0.5,
-     "score": 45,
-     "why": "1 clip(s) with 1,799 views in the last day",
-     "status": "kept"
-    },
     {
      "key": "creator-kick-amadeuszferrari",
      "topic": "AmadeuszFerrari (kick, IRL)",
@@ -109,28 +93,83 @@
      "confidence": 0.5,
      "score": 45,
      "why": "1 clip(s) with 1,280 views in the last day",
-     "status": "new"
+     "status": "kept"
     }
    ]
   },
   {
    "date": "2026-12-02",
-   "slots": []
+   "slots": [
+    {
+     "key": "creator-kick-hazchiz",
+     "topic": "Hazchiz (kick, Slots & Casino)",
+     "kind": "clip",
+     "format": "clip",
+     "hook": "",
+     "confidence": 0.5,
+     "score": 45,
+     "why": "2 clip(s) with 3,513 views in the last day",
+     "status": "new"
+    },
+    {
+     "key": "creator-kick-aylin_go7",
+     "topic": "Aylin_GO7 (kick, Just Chatting)",
+     "kind": "clip",
+     "format": "clip",
+     "hook": "",
+     "confidence": 0.5,
+     "score": 45,
+     "why": "2 clip(s) with 1,918 views in the last day",
+     "status": "new"
+    }
+   ]
   },
   {
    "date": "2026-12-03",
+   "slots": [
+    {
+     "key": "creator-kick-pepy2701",
+     "topic": "pepy2701 (kick, Grand Theft Auto VI (GTA))",
+     "kind": "clip",
+     "format": "clip",
+     "hook": "",
+     "confidence": 0.5,
+     "score": 45,
+     "why": "1 clip(s) with 869 views in the last day",
+     "status": "new"
+    }
+   ]
+  },
+  {
+   "date": "2026-12-04",
    "slots": []
   }
  ],
  "replaced": [
   {
-   "topic": "KayzGamble (kick, Slots & Casino)",
+   "topic": "traedakidd (kick, Just Chatting)",
    "reason": "evidence went stale or a stronger opportunity replaced it"
   },
   {
-   "topic": "Brabox (kick, Chat Roulette)",
+   "topic": "3li_Boltx (kick, IRL)",
+   "reason": "evidence went stale or a stronger opportunity replaced it"
+  },
+  {
+   "topic": "unqnanda1 (kick, Battlegrounds Mobile India)",
+   "reason": "evidence went stale or a stronger opportunity replaced it"
+  },
+  {
+   "topic": "TheNicoleT (kick, ASMR)",
+   "reason": "evidence went stale or a stronger opportunity replaced it"
+  },
+  {
+   "topic": "tjnv (kick, Grand Theft Auto V (GTA))",
+   "reason": "evidence went stale or a stronger opportunity replaced it"
+  },
+  {
+   "topic": "achtenWlodar (kick, Just Chatting)",
    "reason": "evidence went stale or a stronger opportunity replaced it"
   }
  ],
- "kept": 5
+ "kept": 2
 }
